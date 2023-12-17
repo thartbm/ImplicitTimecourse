@@ -10,7 +10,7 @@ groupInfo <- function() {
   condition <- c('15deg_distance', '30deg_distance', '45deg_distance', '60deg_distance',
                  'control','cursorjump','terminal',
                  'aiming',
-                 'delay-FB', 'delay-trial')
+                 'delay-trial', 'delay-FB')
   color <- c('darkred', '#ae0a23', '#e51636', 'salmon',
              'orange', 'darkturquoise', 'deepskyblue',   # deepskyblue
              'purple',
