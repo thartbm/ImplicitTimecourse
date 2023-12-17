@@ -32,14 +32,14 @@
     },
     "Reach": {
       "Package": "Reach",
-      "Version": "2023.11.03",
+      "Version": "2023.12.17",
       "Source": "GitHub",
       "RemoteType": "github",
       "RemoteHost": "api.github.com",
       "RemoteRepo": "Reach",
       "RemoteUsername": "thartbm",
       "RemoteRef": "HEAD",
-      "RemoteSha": "f81e591f409756e453f4e792c811ea1a9a926ebe",
+      "RemoteSha": "5c1b05c2fc9216e215e5edb1f5965cc0ff2b4719",
       "Requirements": [
         "R",
         "grDevices",
@@ -48,7 +48,7 @@
         "osfr",
         "stats"
       ],
-      "Hash": "185665587aae1aeaefd568b6fc3b3f83"
+      "Hash": "f821996bd51ad0b26652f32e5d59adaf"
     },
     "askpass": {
       "Package": "askpass",
