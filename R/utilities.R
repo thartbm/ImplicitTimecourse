@@ -12,9 +12,9 @@ groupInfo <- function() {
                  'aiming',
                  'delay-FB', 'delay-trial')
   color <- c('darkred', '#ae0a23', '#e51636', 'salmon',
-             'orange', 'darkturquoise', 'deepskyblue',
+             'orange', 'darkturquoise', 'deepskyblue',   # deepskyblue
              'purple',
-             'blue','darkblue')
+             'blue','darkblue') # blue
   
   label <- c('15°', '30°', '45°', '60°', 'control', 'cursor-jump', 'terminal', 'aiming', 'delay-feedback', 'feedback-delay')
   
@@ -67,9 +67,21 @@ addLearningCurves <- function(type, conditions=NULL, exp=NULL, phases=c('baselin
   }
   
   for (condition in conditions) {
-    cc <- col2rgb(color[[condition]])
-    print(cc)
-    
+    cc <- Reach::colorAlpha( col=color[[condition]], alpha=22 )
+    CI <- CIs[[condition]]
+    polygon(
+      x = c(CI$trialno, rev(CI$trialno)),
+      y = c(CI$reachdeviation_deg[,1], rev(CI$reachdeviation_deg[,2])),
+      border=NA,
+      col=cc
+    )
+  }
+  
+  for (condition in conditions) {
+    cc <- color[[condition]]
+    central <- avg[[condition]]
+    lines(central$trialno, central$reachdeviation_deg, col=cc)
+    print(length(central$trialno))
   }
   
 }
