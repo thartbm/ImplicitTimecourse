@@ -7,7 +7,9 @@ library('Reach')
 
 downloadData <- function() {
   
-  filelist <- list('\\' = c('demographics.csv', 'meta_info.csv', 'exp1.zip', 'exp2.zip', 'exp3.zip', 'exp4.zip') )
+  filelist <- list('data\\' = c('demographics.csv', 'meta_info.csv', 'exp1.zip', 'exp2.zip', 'exp3.zip', 'exp4.zip') )
+  
+  dir.create('data/')
   
   Reach::downloadOSFdata( repository = 'ajwyr',
                           filelist   = filelist,
@@ -39,6 +41,8 @@ extractReachDeviations <- function(distance=0.2) {
       
       cond_df <- NA
       
+      cat(sprintf('reaches: exp %d, %s\n',exp,condition))
+      
       for (participant in info$participant[which(info$exp == exp & info$condition_label == condition)]) {
         
         infilename <- sprintf('data/exp%d/%s/%s.csv', exp, condition, participant)
@@ -49,9 +53,6 @@ extractReachDeviations <- function(distance=0.2) {
         
         # only keep feedback reaches:
         ppdf <- ppdf[which(ppdf$trialtype != 0),]
-        
-        # print(c(condition, participant, unique(ppdf$phase)))
-        # print(dim(ppdf))
         
         reachdeviation_deg <- c()
         for (trialno in c(1:dim(ppdf)[1])) {
@@ -96,6 +97,8 @@ extractNoCursorDeviations <- function(distance=0.2) {
     
     for (condition in unique(info$condition_label[which(info$exp == exp)])) {
       
+      cat(sprintf('no-cursors: exp %d, %s\n',exp,condition))
+      
       cond_df <- NA
       
       for (participant in info$participant[which(info$exp == exp & info$condition_label == condition)]) {
@@ -108,9 +111,6 @@ extractNoCursorDeviations <- function(distance=0.2) {
         
         # only keep feedback reaches:
         ppdf <- ppdf[which(ppdf$trialtype == 0),]
-        
-        # print(c(condition, participant, unique(ppdf$phase)))
-        # print(dim(ppdf))
         
         reachdeviation_deg <- c()
         for (trialno in c(1:dim(ppdf)[1])) {
@@ -154,6 +154,8 @@ extractAimingDeviations <- function() {
     
     for (condition in unique(info$condition_label[which(info$exp == exp)])) {
       
+      cat(sprintf('aiming: exp %d, %s\n',exp,condition))
+      
       cond_df <- NA
       
       for (participant in info$participant[which(info$exp == exp & info$condition_label == condition)]) {
@@ -173,7 +175,7 @@ extractAimingDeviations <- function() {
         
         ppdf$aimingdeviation_deg <- ppdf$aiming_direction - ppdf$aiming_target
         
-        # correct impossible responses:
+        # correct wrapped-around responses:
         while (any(ppdf$aimingdeviation_deg > 180)) {
           ppdf$aimingdeviation_deg[which(ppdf$aimingdeviation_deg > 180)] <- ppdf$aimingdeviation_deg[which(ppdf$aimingdeviation_deg > 180)] - 360
         }
