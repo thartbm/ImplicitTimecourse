@@ -66,6 +66,7 @@ addLearningCurves <- function(type, conditions=NULL, exp=NULL, phases=c('baselin
     
   }
   
+  # draw 95% confidence intervals
   for (condition in conditions) {
     cc <- Reach::colorAlpha( col=color[[condition]], alpha=22 )
     CI <- CIs[[condition]]
@@ -77,12 +78,22 @@ addLearningCurves <- function(type, conditions=NULL, exp=NULL, phases=c('baselin
     )
   }
   
+  # draw median lines
   for (condition in conditions) {
     cc <- color[[condition]]
     central <- avg[[condition]]
     lines(central$trialno, central$reachdeviation_deg, col=cc)
-    print(length(central$trialno))
   }
+  
+  # make a legend
+  cl <- c()
+  ll <- c()
+  for (condition in conditions) {
+    cl <- c(cl, color[[condition]])
+    ll <- c(ll, label[[condition]])
+  }
+  return(data.frame(color=cl,
+                    label=ll))
   
 }
 
