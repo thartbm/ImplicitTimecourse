@@ -183,6 +183,8 @@ extractAimingDeviations <- function() {
           ppdf$aimingdeviation_deg[which(ppdf$aimingdeviation_deg < -180)] <- ppdf$aimingdeviation_deg[which(ppdf$aimingdeviation_deg < -180)] + 360
         }
         
+        ppdf$aimingdeviation_deg[which(ppdf$aimingdeviation_deg > 10)] <- NA
+        
         pdf <- data.frame(exp                 = rep(exp,dim(ppdf)[1]),
                           condition           = rep(condition,dim(ppdf)[1]),
                           participant         = rep(participant,dim(ppdf)[1]),
