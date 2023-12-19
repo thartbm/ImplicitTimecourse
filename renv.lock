@@ -39,7 +39,7 @@
       "RemoteRepo": "Reach",
       "RemoteUsername": "thartbm",
       "RemoteRef": "HEAD",
-      "RemoteSha": "5c1b05c2fc9216e215e5edb1f5965cc0ff2b4719",
+      "RemoteSha": "fc200c7581728af2731ea23b46c5b2456654fe4e",
       "Requirements": [
         "R",
         "grDevices",
@@ -48,7 +48,7 @@
         "osfr",
         "stats"
       ],
-      "Hash": "f821996bd51ad0b26652f32e5d59adaf"
+      "Hash": "7f71c2f0744f44affef9125cb1262f25"
     },
     "askpass": {
       "Package": "askpass",
@@ -104,6 +104,16 @@
         "utils"
       ],
       "Hash": "1216ac65ac55ec0058a6f75d7ca0fd52"
+    },
+    "cpp11": {
+      "Package": "cpp11",
+      "Version": "0.4.7",
+      "Source": "Repository",
+      "Repository": "RSPM",
+      "Requirements": [
+        "R"
+      ],
+      "Hash": "5a295d7d963cc5035284dcdbaf334f4e"
     },
     "crayon": {
       "Package": "crayon",
@@ -547,12 +557,35 @@
       ],
       "Hash": "058aebddea264f4c99401515182e656a"
     },
+    "svglite": {
+      "Package": "svglite",
+      "Version": "2.1.3",
+      "Source": "Repository",
+      "Repository": "RSPM",
+      "Requirements": [
+        "R",
+        "cpp11",
+        "systemfonts"
+      ],
+      "Hash": "124a41fdfa23e8691cb744c762f10516"
+    },
     "sys": {
       "Package": "sys",
       "Version": "3.4.2",
       "Source": "Repository",
       "Repository": "RSPM",
       "Hash": "3a1be13d68d47a8cd0bfd74739ca1555"
+    },
+    "systemfonts": {
+      "Package": "systemfonts",
+      "Version": "1.0.5",
+      "Source": "Repository",
+      "Repository": "RSPM",
+      "Requirements": [
+        "R",
+        "cpp11"
+      ],
+      "Hash": "15b594369e70b975ba9f064295983499"
     },
     "testthat": {
       "Package": "testthat",
