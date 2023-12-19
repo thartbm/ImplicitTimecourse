@@ -16,7 +16,7 @@ groupInfo <- function() {
              'purple',
              'blue','darkblue') # blue
   
-  label <- c('15°', '30°', '45°', '60°', 'control', 'cursor-jump', 'terminal', 'aiming', 'delay-feedback', 'feedback-delay')
+  label <- c('15°', '30°', '45°', '60°', 'control', 'cursor-jump', 'terminal', 'aiming', 'lag-terminal', 'terminal-lag')
   
   return( data.frame( exp = exp,
                       condition = condition,
@@ -25,7 +25,7 @@ groupInfo <- function() {
   
 }
 
-
+# plotting -----
 
 addLearningCurves <- function(type, conditions=NULL, exp=NULL, phases=c('baseline','rotation','washout')) {
   
@@ -97,24 +97,66 @@ addLearningCurves <- function(type, conditions=NULL, exp=NULL, phases=c('baselin
   
 }
 
-removeOutliers <- function(df) {
+addAimingTrials <- function(mrot) {
   
-  df$reachdeviation_deg[which(abs(df$reachdeviation_deg) > (abs(df$reachdeviation_deg) + 30))] <- NA
+  trials <- c( 77, 81, 85, 89, 93, 97, 101, 105 )
+  
+  for (trial in trials) {
+    lines(x=rep(trial,2),y=c(0,mrot),col='gray')
+  }
+  
+  arrows(x0=trials,y0=rep(-5,length(trials)),
+         x1=trials,y1=rep(-1,length(trials)),
+         length=0.01,
+         col='black')
+  
+}
+
+# processing -----
+
+removeOutliers <- function(df, depvar='reachdeviation_deg') {
+  
+  df[which(abs(df[,depvar]) > (abs(df$rotation) + 60)), depvar] <- NA
   
   return(df)
   
 }
 
-baseline <- function(df, ignore=4) {
+baseline <- function(df, ignore=4, depvar='reachdeviation_deg', FUN=median) {
   
   idx <- unique(df$trialno[which(df$phase == 'baseline')])
   idx <- idx[c( (ignore+1) : length(idx) )]
   
   for (pp in unique(df$participant)) {
-    bias <- median(df$reachdeviation_deg[which(df$participant == pp & df$phase == 'baseline' & df$trialno %in% idx)], na.rm=TRUE)
-    df$reachdeviation_deg[which(df$participant == pp)] <- df$reachdeviation_deg[which(df$participant == pp)] - bias
+    bias <- FUN(df[which(df$participant == pp & df$phase == 'baseline' & df$trialno %in% idx), depvar], na.rm=TRUE)
+    df[which(df$participant == pp), depvar] <- df[which(df$participant == pp), depvar] - bias
   }
   
+  return(df)
+  
+}
+
+getWashout <- function(df, asymptote=8, depvar='reachdeviation_deg') {
+  
+  
+  washoutStart <- min(df$trialno[which(df$phase == 'washout')])
+  asymptote_idx <- c((washoutStart-asymptote):(washoutStart-1))
+  
+  participants <- unique(df$participant)
+  
+  df$tempvar <- df[,depvar]
+  adf <- df[which(df$trialno %in% asymptote_idx),]
+  
+  # print(dim(adf))
+  # print(length(participants)*asymptote)
+  
+  for (participant in participants) {
+    df[which(df$trialno %in% asymptote_idx & df$participant == participant),depvar] <- median(adf$tempvar[which(adf$participant == participant)], na.rm=TRUE)
+    # print(median(adf$tempvar[which(adf$participant == participant)], na.rm=TRUE))
+  }
+  
+  df <- df[which(df$trialno > (washoutStart-2)),]
+  df$phase <- 'washout'
   return(df)
   
 }
