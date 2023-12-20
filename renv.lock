@@ -39,7 +39,7 @@
       "RemoteRepo": "Reach",
       "RemoteUsername": "thartbm",
       "RemoteRef": "HEAD",
-      "RemoteSha": "fc200c7581728af2731ea23b46c5b2456654fe4e",
+      "RemoteSha": "f63dad30ca2926f53b4db3bf70fca7d1dc1dcd4d",
       "Requirements": [
         "R",
         "grDevices",
@@ -48,7 +48,7 @@
         "osfr",
         "stats"
       ],
-      "Hash": "7f71c2f0744f44affef9125cb1262f25"
+      "Hash": "ab9d546898cc6dc13e2748535acc95c8"
     },
     "askpass": {
       "Package": "askpass",
