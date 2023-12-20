@@ -1,5 +1,14 @@
 library('parallel')
+source('R/utilities.R')
 # advanced pre-processing -----
+
+allExponentialBootstraps <- function() {
+  
+  bootstrapAllLearningExpFits()
+  bootstrapAllAimingExpFits()
+  bootstrapAllWashoutExpFits()
+  
+}
 
 bootstrapExponentialLearning <- function(condition, type, iterations=1000, clust=NULL, depvar='reachdeviation_deg') {
   
@@ -69,21 +78,22 @@ fitExp <- function(participants, df, prepend=c(), mode='learning') {
     }
   }
     
-  agdf <- aggregate(depvar ~ trialno, data=dfs, FUN=median, na.rm=TRUE)
+  agdf <- aggregate(depvar ~ trialno, data=dfs, FUN=mean, na.rm=TRUE)
   
   signal <- c(prepend, agdf$depvar)
   
-  if (mode=='washout') {
-    setN0 <- signal[1]
-    gridpoints=2
-  } else {
-    setN0 <- NULL
-    gridpoints=11
-  }
+  # if (mode=='washout') {
+  #   setN0 <- signal[1]
+  #   gridpoints=5
+  # } else {
+  #   setN0 <- NULL
+  #   gridpoints=11
+  # }
   
-  pars <- Reach::exponentialFit(signal, timepoints=length(signal), mode=mode, gridpoints=gridpoints, gridfits=10, setN0=setN0)
+  pars <- Reach::exponentialFit(signal, timepoints=length(signal), mode=mode, gridpoints=11, gridfits=10)
   
   return(pars)
+  
 }
 
 bootstrapAllLearningExpFits <- function(iterations=5000) {
@@ -127,13 +137,14 @@ bootstrapAllAimingExpFits <- function(iterations=5000) {
 
 # washouts ------
 
+
 bootstrapAllWashoutExpFits <- function(iterations=5000) {
   
   # cat('setting up cluster...\n')
-  ncores   <- parallel::detectCores()
-  clust <- parallel::makeCluster(max(c(1,floor(ncores*0.75))))
+  ncores <- parallel::detectCores()
+  clust  <- parallel::makeCluster(max(c(1,floor(ncores*0.75))))
 
-  info <- groupInfo()
+  info       <- groupInfo()
   conditions <- info$condition[which(info$exp == 1)]
 
   for (condition in conditions) {
@@ -150,7 +161,7 @@ bootstrapAllWashoutExpFits <- function(iterations=5000) {
 
 }
 
-bootstrapExponentialWashout <- function(condition, type, iterations=1000, clust=NULL, depvar='reachdeviation_deg') {
+bootstrapExponentialWashout <- function(condition, type, iterations=5000, clust=NULL, depvar='reachdeviation_deg') {
   
   # cat('loading data...\n')
   # load data:
@@ -218,3 +229,5 @@ bootstrapExponentialWashout <- function(condition, type, iterations=1000, clust=
   }
   
 }
+
+
