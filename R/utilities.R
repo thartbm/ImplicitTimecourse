@@ -16,7 +16,11 @@ groupInfo <- function() {
              'purple',
              'blue','darkblue') # blue
   
-  label <- c('15°', '30°', '45°', '60°', 'control', 'cursor-jump', 'terminal', 'aiming', 'lag-terminal', 'terminal-lag')
+  # label <- c('15°', '30°', '45°', '60°', 'control', 'cursor-jump', 'terminal', 'aiming', 'delay->terminal', 'terminal->delay')
+  label <- c('15°', '30°', '45°', '60°', 'control', 'cursor-jump', 'terminal', 'aiming', 'delay -> terminal', 'terminal -> delay')
+  
+  # expression(y %->% x)
+  # &#8594;
   
   return( data.frame( exp = exp,
                       condition = condition,
@@ -33,6 +37,21 @@ expConditions <- function(exp) {
   if (exp == 4) { conditions <- c('control','terminal','delay-trial', 'delay-FB')}
   
   return(conditions)
+  
+}
+
+convertLegend <- function(legends) {
+  
+  for (idx in c(1:length(legends))) {
+    if (legends[idx] == 'delay -> terminal') {
+      legends[idx] <- expression(delay %->% terminal)
+    }
+    if (legends[idx] == 'terminal -> delay') {
+      legends[idx] <- expression(terminal %->% delay)
+    }
+  }
+  
+  return(legends)
   
 }
 
@@ -134,7 +153,7 @@ addAimingTrials <- function(mrot) {
   
 }
 
-addDensities <- function(conditions, type, flipXY, viewscale) {
+addDensities <- function(conditions, type, flipXY=FALSE, viewscale=c(1,1), offset=c(0,0), from=-15, to=60, n=1001) {
   
   info <- groupInfo()
   
@@ -144,24 +163,24 @@ addDensities <- function(conditions, type, flipXY, viewscale) {
     
     dens <- density(x=plotdf$depvar,
                     bw=5,
-                    from=-15,
-                    to=75,
-                    n=1001)
+                    from=from,
+                    to=to,
+                    n=n)
     
     if (flipXY) {
       Y <- dens$x
-      X <- 1-(dens$y/max(dens$y))
+      X <- (dens$y/max(dens$y))
       # X <- 1-(dens$y * 14)
     } else {
       X <- dens$x
-      Y <- 1-(dens$y/max(dens$y))
+      Y <- (dens$y/max(dens$y))
       # Y <- 1-(dens$y * 14)
     }
     
     color <- info$color[which(info$condition == condition)]
     
-    lines(x=X,
-          y=Y,
+    lines(x=(X*viewscale[1])+offset[1],
+          y=(Y*viewscale[2])+offset[2],
           col=color)
     
   }
@@ -211,6 +230,138 @@ addImpExpScatters <- function(conditions) {
   }
   
 }
+
+addAdaptationTimecourses <- function(type, conditions) {
+  
+  info <- groupInfo()
+  
+  for (condition in conditions) {
+    
+    exp <- info$exp[which(info$condition == condition)]
+    color <- info$color[which(info$condition == condition)]
+    if (type == 'aiming') {
+      color <- 'magenta'
+    }
+    
+    # read the exp-fits:
+    df <- read.csv(file = sprintf('data/exp%d/%s_%s_exp-fits.csv',exp,condition,type), stringsAsFactors = FALSE)
+    if (type == 'aiming') {
+      df$N0 <- -1 * df$N0
+    }
+    lambdaCI <- quantile(df$lambda, probs=c(0.025, 0.50, 0.975))
+    N0CI     <- quantile(df$N0, probs=c(0.025, 0.50, 0.975))
+    PropAsym <- N0CI[1]/N0CI[2]
+    names(PropAsym) <- NULL
+    # cat(sprintf('\ngetting saturation for: %s, %s\n',condition,type))
+    # print(lambdaCI)
+    # print(N0CI)
+    # print(N0CI[2] * PropAsym)
+    
+    # hl <- -1*log(0.5)/lambdaCI # "half-life" of errors
+    # names(hl) <- NULL
+    # cat('half lifes of errors:\n')
+    # print(hl)
+
+    # tau <- -1*(log(1-PropAsym))/(lambdaCI)
+    tau <- log(1-PropAsym)/log(1-lambdaCI)
+    # print(PropAsym)
+    names(tau) <- NULL
+    
+    # cat('\n')
+    # print(tau)
+    
+    X <- c()
+    Y <- c()
+
+    thispar <- c(lambdaCI[1], 1)
+    names(thispar) <- c('lambda', 'N0')
+    X <- c(X, (seq(0,1,length.out=101)^2)*tau[1])
+    Y <- c(Y, Reach::exponentialModel(par=thispar, timepoints=(seq(0,1,length.out=101)^2)*tau[1])$output / PropAsym)
+    
+    thispar <- c(lambdaCI[3], 1)
+    names(thispar) <- c('lambda', 'N0')
+    X <- c(X, rev( (seq(0,1,length.out=101)^2)*tau[3]) )
+    Y <- c(Y, rev( Reach::exponentialModel(par=thispar, timepoints=(seq(0,1,length.out=101)^2)*tau[3])$output / PropAsym) )
+    
+    if (type == 'reaches') {
+      X <- X+1
+    }
+    
+    polygon( x=X,
+             y=Y,
+             col=colorAlpha(col=color,alpha=11),
+             border=NA)
+    
+    thispar <- c(lambdaCI[2], 1)
+    names(thispar) <- c('lambda', 'N0')
+    lX <- (seq(0,1,length.out=101)^2)*tau[2]
+    lY <- Reach::exponentialModel(par=thispar, timepoints=(seq(0,1,length.out=101)^2)*tau[2])$output / PropAsym
+    
+    if (type=='reaches') {
+      lX <- lX + 1
+    }
+    
+    lines(x=lX,
+          y=lY,
+          col=color)
+
+  }
+  
+  
+}
+
+
+addWashoutTimecourses <- function(type, conditions) {
+  
+  info <- groupInfo()
+  
+  for (condition in conditions) {
+    
+    exp   <- info$exp[which(info$condition == condition)]
+    color <- info$color[which(info$condition == condition)]
+    
+    df <- read.csv(sprintf('data/exp%d/%s_%s_washout_exp-fits.csv',exp,condition,type), stringsAsFactors = FALSE)
+    
+    lambdaCI <- quantile(df$lambda, probs=c(0.025, 0.50, 0.975))
+    N0CI     <- quantile(df$N0, probs=c(0.025, 0.50, 0.975))
+    # print(lambdaCI)
+    # print(N0CI)
+    
+    X <- c()
+    Y <- c()
+    
+    x_points <- (seq(0,1,length.out=101)^2)*23
+    
+    thispar <- c(lambdaCI[2], N0CI[1])
+    names(thispar) <- c('lambda', 'N0')
+    X <- c(X, x_points)
+    Y <- c(Y, Reach::exponentialModel(par=thispar, timepoints=x_points, mode='washout')$output )
+    
+    thispar <- c(lambdaCI[2], N0CI[3])
+    names(thispar) <- c('lambda', 'N0')
+    X <- c(X, rev( x_points ) )
+    Y <- c(Y, rev( Reach::exponentialModel(par=thispar, timepoints=x_points, mode='washout')$output ) )
+    
+    polygon( x=X+1,
+             y=Y,
+             col=colorAlpha(col=color,alpha=11),
+             border=NA)
+    
+    thispar <- c(lambdaCI[2], N0CI[2])
+    names(thispar) <- c('lambda', 'N0')
+    lX <- x_points
+    lY <- Reach::exponentialModel(par=thispar, timepoints=x_points, mode='washout')$output
+    
+    lines(x=lX+1,
+          y=lY,
+          col=color)
+    
+    
+  }
+  
+}
+
+
 
 # processing -----
 
@@ -293,97 +444,3 @@ getImpExpEst <- function(condition,type) {
 
 }
 
-# exponential fits -----
-
-exponentialModel <- function(par, timepoints, mode='learning', setN0=NULL) {
-  
-  if (length(timepoints) == 1) {
-    timepoints <- c(0:(timepoints-1))
-  }
-  
-  if (is.numeric(setN0)) {
-    par['N0'] = setN0
-  }
-  
-  if (mode == 'learning') {
-    output = par['N0'] - ( par['N0'] * (1-par['lambda'])^timepoints )
-  }
-  if (mode == 'washout') {
-    output = par['N0'] * (par['lambda'])^timepoints
-  }
-  
-  return(data.frame(trial=timepoints,
-                    output=output))
-  
-}
-
-exponentialMSE <- function(par, signal, timepoints=c(0:(length(signal)-1)), mode='learning', setN0=NULL) {
-  
-  MSE <- mean((exponentialModel(par, timepoints, mode=mode, setN0=setN0)$output - signal)^2, na.rm=TRUE)
-  
-  return( MSE )
-  
-}
-
-
-exponentialFit <- function(signal, timepoints=length(signal), mode='learning', gridpoints=11, gridfits=10, setN0=NULL) {
-  
-  # set the search grid:
-  parvals <- seq(1/gridpoints/2,1-(1/gridpoints/2),1/gridpoints)
-  
-  asymptoteRange <- c(-1,2)*max(abs(signal), na.rm=TRUE)
-  
-  # define the search grid:
-  # if (is.numeric(setN0)) {
-  #   searchgrid <- expand.grid('lambda' = parvals)
-  #   lo <- c(0)
-  #   hi <- c(1)
-  # }
-  if (is.null(setN0)) {
-    searchgrid <- expand.grid('lambda' = parvals,
-                              'N0'     = parvals * diff(asymptoteRange) + asymptoteRange[1] )
-    lo <- c(0,asymptoteRange[1])
-    hi <- c(1,asymptoteRange[2])
-  } else {
-    searchgrid <- expand.grid('lambda' = parvals )
-    lo <- c(0)
-    hi <- c(1)
-  }
-  # evaluate starting positions:
-  MSE <- apply(searchgrid, FUN=exponentialMSE, MARGIN=c(1), signal=signal, timepoints=timepoints, mode=mode, setN0=setN0)
-  
-  if (is.null(setN0)) {
-    X <- data.frame(searchgrid[order(MSE)[1:gridfits],])
-  } else {
-    X <- data.frame('lambda'=searchgrid[order(MSE)[1:3],])
-  }
-  
-  # run optimx on the best starting positions:
-  allfits <- do.call("rbind",
-                     apply( X,
-                            MARGIN=c(1),
-                            FUN=optimx::optimx,
-                            fn=exponentialMSE,
-                            method     = 'L-BFGS-B',
-                            lower      = lo,
-                            upper      = hi,
-                            timepoints = timepoints,
-                            signal     = signal,
-                            mode       = mode,
-                            setN0      = setN0 ) )
-  
-  # pick the best fit:
-  win <- allfits[order(allfits$value)[1],]
-  
-  if (is.null(setN0)) {
-    winpar <- unlist(win[1:2])
-  } else {
-    winpar <- c( 'lambda' = unlist(win[1]), 
-                 'N0'     = setN0)
-    names(winpar) <- c('lambda', 'N0')
-  }
-  
-  # return the best parameters:
-  return(winpar)
-  
-}
