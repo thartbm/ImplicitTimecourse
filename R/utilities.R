@@ -250,25 +250,12 @@ addAdaptationTimecourses <- function(type, conditions) {
     }
     lambdaCI <- quantile(df$lambda, probs=c(0.025, 0.50, 0.975))
     N0CI     <- quantile(df$N0, probs=c(0.025, 0.50, 0.975))
+    
     PropAsym <- N0CI[1]/N0CI[2]
     names(PropAsym) <- NULL
-    # cat(sprintf('\ngetting saturation for: %s, %s\n',condition,type))
-    # print(lambdaCI)
-    # print(N0CI)
-    # print(N0CI[2] * PropAsym)
     
-    # hl <- -1*log(0.5)/lambdaCI # "half-life" of errors
-    # names(hl) <- NULL
-    # cat('half lifes of errors:\n')
-    # print(hl)
-
-    # tau <- -1*(log(1-PropAsym))/(lambdaCI)
     tau <- log(1-PropAsym)/log(1-lambdaCI)
-    # print(PropAsym)
     names(tau) <- NULL
-    
-    # cat('\n')
-    # print(tau)
     
     X <- c()
     Y <- c()
