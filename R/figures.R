@@ -8,7 +8,7 @@ source('R/utilities.R')
 expBehaviorFig <- function(exp, target='inline') {
   
   # in inches:
-  width = 7
+  width = 6
   if (exp==1) { height = 10 } else { height = 7.5 }
   dpi = 300
   outfilename <- sprintf('doc/fig%d',exp+1)
@@ -194,7 +194,7 @@ expBehaviorFig <- function(exp, target='inline') {
   plot(x=-1000, y=-1000,
        main='',ylab='implicit (no-cursors) [°]',xlab='explicit (aiming) [°]',
        xlim=c(-15,mrot+15),ylim=c(-15,mrot+15),
-       ax=F,bty='n')
+       ax=F,bty='n',asp=1)
   
   addImpExpScatters(conditions)
   
@@ -214,84 +214,84 @@ expBehaviorFig <- function(exp, target='inline') {
 }
 
 
-implExplFig <- function(exp, target='inline') {
-  
-  # in inches:
-  width  =  4
-  height = 4
-  dpi = 300
-  outfilename <- sprintf('doc/fig%d',exp+5)
-  
-  if (target == 'svg') {
-    svglite::svglite( filename = sprintf('%s.svg',outfilename),
-                      width = width,
-                      height = height,
-                      fix_text_size = FALSE)
-  }
-  # if (target == 'png') {
-  #   png( filename = sprintf('%s.png',outfilename),
-  #        width = width*dpi,
-  #        height = height*dpi
-  #        )
-  # }
-  if (target == 'pdf') {
-    pdf( file = sprintf('%s.pdf', outfilename),
-         width=width,
-         height=height)
-  }
-  # if (target == 'tiff') {
-  #   tiff( filename = sprintf('%s.tiff',outfilename),
-  #         compression = 'lzw',
-  #         width = width*dpi,
-  #         height = height*dpi
-  #   )
-  # }
-  
-  
-  
-  info <- groupInfo()
-  conditions <- expConditions(exp)
-  
-  if (exp > 1) { mrot=45 } else { mrot=60 }
-  
-  
-  layout( mat=matrix(c(2,3,4,1),nrow=2,ncol=2, byrow=TRUE), widths = c(1,3), heights = c(3,1) )
-  
-  relfontsize <- 0.8
-  
-  par(mar=c(4,4,0.1,0.1),
-      cex.axis=relfontsize, cex.lab=relfontsize, cex.main=relfontsize)
-  
-  # implicit <- list()
-  # explicit <- list()
-  
-  plot(x=-1000, y=-1000,
-       main='',xlab='explicit (aiming) [°]',ylab='',
-       ylim=c(0,1),xlim=c(-15,mrot+15),
-       ax=F,bty='n')
-  
-  addDensities(conditions, type='aiming', viewscale=c(1,-1), flipXY=FALSE)
-
-  plot(x=-1000, y=-1000,
-       main='',ylab='implicit (no-cursor) [°]',xlab='',
-       xlim=c(0,1),ylim=c(-15,mrot+15),
-       ax=F,bty='n')
-  
-  addDensities(conditions, type='nocursors', flipXY=TRUE, viewscale=c(-1,1))
-  
-  plot(x=-1000, y=-1000,
-       main='',ylab='',xlab='',
-       xlim=c(-15,mrot+15),ylim=c(-15,mrot+15),
-       ax=F,bty='n')
-  
-  addImpExpScatters(conditions)
-  
-  axis(side=1,at=seq(-15,mrot+15,15))
-  axis(side=2,at=seq(-15,mrot+15,15))
-  
-  
-  if (target %in% c('svg','png','pdf','tiff')) {
-    dev.off()
-  }
-  
-}
+# implExplFig <- function(exp, target='inline') {
+#   
+#   # in inches:
+#   width  =  4
+#   height = 4
+#   dpi = 300
+#   outfilename <- sprintf('doc/fig%d',exp+5)
+#   
+#   if (target == 'svg') {
+#     svglite::svglite( filename = sprintf('%s.svg',outfilename),
+#                       width = width,
+#                       height = height,
+#                       fix_text_size = FALSE)
+#   }
+#   # if (target == 'png') {
+#   #   png( filename = sprintf('%s.png',outfilename),
+#   #        width = width*dpi,
+#   #        height = height*dpi
+#   #        )
+#   # }
+#   if (target == 'pdf') {
+#     pdf( file = sprintf('%s.pdf', outfilename),
+#          width=width,
+#          height=height)
+#   }
+#   # if (target == 'tiff') {
+#   #   tiff( filename = sprintf('%s.tiff',outfilename),
+#   #         compression = 'lzw',
+#   #         width = width*dpi,
+#   #         height = height*dpi
+#   #   )
+#   # }
+#   
+#   
+#   
+#   info <- groupInfo()
+#   conditions <- expConditions(exp)
+#   
+#   if (exp > 1) { mrot=45 } else { mrot=60 }
+#   
+#   
+#   layout( mat=matrix(c(2,3,4,1),nrow=2,ncol=2, byrow=TRUE), widths = c(1,3), heights = c(3,1) )
+#   
+#   relfontsize <- 0.8
+#   
+#   par(mar=c(4,4,0.1,0.1),
+#       cex.axis=relfontsize, cex.lab=relfontsize, cex.main=relfontsize)
+#   
+#   # implicit <- list()
+#   # explicit <- list()
+#   
+#   plot(x=-1000, y=-1000,
+#        main='',xlab='explicit (aiming) [°]',ylab='',
+#        ylim=c(0,1),xlim=c(-15,mrot+15),
+#        ax=F,bty='n')
+#   
+#   addDensities(conditions, type='aiming', viewscale=c(1,-1), flipXY=FALSE)
+# 
+#   plot(x=-1000, y=-1000,
+#        main='',ylab='implicit (no-cursor) [°]',xlab='',
+#        xlim=c(0,1),ylim=c(-15,mrot+15),
+#        ax=F,bty='n')
+#   
+#   addDensities(conditions, type='nocursors', flipXY=TRUE, viewscale=c(-1,1))
+#   
+#   plot(x=-1000, y=-1000,
+#        main='',ylab='',xlab='',
+#        xlim=c(-15,mrot+15),ylim=c(-15,mrot+15),
+#        ax=F,bty='n')
+#   
+#   addImpExpScatters(conditions)
+#   
+#   axis(side=1,at=seq(-15,mrot+15,15))
+#   axis(side=2,at=seq(-15,mrot+15,15))
+#   
+#   
+#   if (target %in% c('svg','png','pdf','tiff')) {
+#     dev.off()
+#   }
+#   
+# }
