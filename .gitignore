@@ -1,4 +1,7 @@
 *.pdf
+*.docx
+*.html
+.docx#
 
 # History files
 .Rhistory
