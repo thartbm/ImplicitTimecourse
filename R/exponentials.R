@@ -3,7 +3,7 @@ source('R/utilities.R')
 # advanced pre-processing -----
 
 
-bootstrapExponentialLearning <- function(condition, type, iterations=1000, clust=NULL, depvar='reachdeviation_deg') {
+bootstrapExponentialLearning <- function(condition, type, iterations=1000, mode='learning', clust=NULL, depvar='reachdeviation_deg', asymptoteRange=NULL) {
   
   # load data:
   info <- groupInfo()
@@ -49,7 +49,8 @@ bootstrapExponentialLearning <- function(condition, type, iterations=1000, clust
                 FUN = fitExp,
                 df = df,
                 prepend = prepend,
-                mode = mode)
+                mode = mode,
+                asymptoteRange = asymptoteRange)
   
   outdf <- as.data.frame(t(a))
   
@@ -59,7 +60,7 @@ bootstrapExponentialLearning <- function(condition, type, iterations=1000, clust
   
 }
 
-fitExp <- function(participants, df, prepend=c(), mode='learning') {
+fitExp <- function(participants, df, prepend=c(), mode='learning', asymptoteRange=NULL) {
   
   dfs <- NA
   for (participant in participants) {
@@ -101,7 +102,7 @@ fitExp <- function(participants, df, prepend=c(), mode='learning') {
   #   gridpoints=11
   # }
   
-  pars <- Reach::exponentialFit(signal, timepoints=length(signal), mode=mode, gridpoints=11, gridfits=10)
+  pars <- Reach::exponentialFit(signal, timepoints=length(signal), mode=mode, gridpoints=11, gridfits=10, asymptoteRange=asymptoteRange)
   
   return(pars)
   
@@ -121,9 +122,10 @@ bootstrapAllLearningExpFits <- function(iterations=5000, conditions=NULL) {
   }
   
   for (condition in conditions) {
+    rotation <- info$rotation[which(info$condition == condition)]
     for (type in types) {
       cat(sprintf('exponential fit (%d iterations) for: %s %s\n',iterations,condition,type))
-      bootstrapExponentialLearning(condition, type, iterations=iterations, clust=clust)
+      bootstrapExponentialLearning(condition, type, iterations=iterations, clust=clust, asymptoteRange=c(0,rotation+5))
     }
   }
   
@@ -142,7 +144,7 @@ bootstrapAllAimingExpFits <- function(iterations=5000) {
   condition = 'aiming'
   type = 'aiming'
   cat(sprintf('exponential fit (%d iterations) for: %s %s\n',iterations,condition,type))
-  bootstrapExponentialLearning(condition, type, iterations=iterations, clust=clust, depvar='aimingdeviation_deg')
+  bootstrapExponentialLearning(condition, type, iterations=iterations, mode='learning', clust=clust, depvar='aimingdeviation_deg', asymptoteRange=c(0,50))
 
   # bootstrapExponentialLearning(condition, type, iterations=iterations, clust=clust)
   
@@ -266,6 +268,7 @@ groupAvgFits <- function(conditions=NULL) {
     condition_idx <- which(info$condition == condition)
     
     exp <- info$exp[condition_idx]
+    rotation <- info$rotation[condition_idx]
     conditiontypes <- c('reaches', 'nocursors')
     if (condition == 'aiming') {conditiontypes <- c(conditiontypes, 'aiming')}
     
@@ -305,7 +308,8 @@ groupAvgFits <- function(conditions=NULL) {
                     fun = fitExp,
                     df = ldf,
                     prepend = prepend,
-                    mode = 'learning')
+                    mode = 'learning',
+                    asymptoteRange = c(0,rotation+5))
       
       # print(a)
       
