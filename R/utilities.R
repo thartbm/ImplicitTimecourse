@@ -7,6 +7,7 @@ library('Reach')
 groupInfo <- function() {
   
   exp <- c(1,1,1,1,2,2,2,3,3,4)
+  # lty <- c(1,1,1,1,1,1,1,1,1,2)
   condition <- c('15deg_distance', '30deg_distance', '45deg_distance', '60deg_distance',
                  'control','cursorjump','terminal',
                  'delay-trial', 'delay-FB',
@@ -19,13 +20,18 @@ groupInfo <- function() {
   # label <- c('15°', '30°', '45°', '60°', 'control', 'cursor-jump', 'terminal', 'aiming', 'delay->terminal', 'terminal->delay')
   label <- c('15°', '30°', '45°', '60°', 'control', 'cursor-jump', 'terminal', 'delay -> terminal', 'terminal -> delay', 'aiming')
   
+  rot <- c(15,30,45,60,45,45,45,45,45,45)
+  
   # expression(y %->% x)
   # &#8594;
   
   return( data.frame( exp = exp,
                       condition = condition,
                       color = color,
-                      label = label ) )
+                      label = label,
+                      rotation = rot
+                      # lty = lty
+                      ) )
   
 }
 
@@ -76,6 +82,7 @@ addLearningCurves <- function(type, conditions=NULL, exp=NULL, phases=c('baselin
   CIs <- list()
   avg <- list()
   color <- list()
+  ltys  <- list()
   label <- list()
   
   for (condition in conditions) {
@@ -88,8 +95,10 @@ addLearningCurves <- function(type, conditions=NULL, exp=NULL, phases=c('baselin
     exp <- info$exp[idx]
     if (type == 'aiming') {
       color[[condition]] <- 'magenta'
+      ltys[[condition]] <- 2
     } else {
       color[[condition]] <- info$color[idx]
+      ltys[[condition]] <- 1
     }
     label[[condition]] <- info$label[idx]
     
@@ -123,7 +132,8 @@ addLearningCurves <- function(type, conditions=NULL, exp=NULL, phases=c('baselin
   for (condition in conditions) {
     cc <- color[[condition]]
     central <- avg[[condition]]
-    lines(central$trialno, central$depvar, col=cc)
+    lty <- ltys[[condition]]
+    lines(central$trialno, central$depvar, col=cc, lty=lty)
   }
   
   # make a legend
@@ -239,8 +249,10 @@ addAdaptationTimecourses <- function(type, conditions, timecoursemode='relative'
     
     exp <- info$exp[which(info$condition == condition)]
     color <- info$color[which(info$condition == condition)]
+    lty <- 1
     if (type == 'aiming') {
       color <- 'magenta'
+      lty <- 2
     }
     
     # read the exp-fits:
@@ -293,9 +305,10 @@ addAdaptationTimecourses <- function(type, conditions, timecoursemode='relative'
       lX <- lX + 1
     }
     
-    lines(x=lX,
-          y=lY,
-          col=color)
+    lines(x   = lX,
+          y   = lY,
+          col = color,
+          lty = lty)
 
   }
   
