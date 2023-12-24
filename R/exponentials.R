@@ -153,14 +153,16 @@ bootstrapAllAimingExpFits <- function(iterations=5000) {
 # washouts ------
 
 
-bootstrapAllWashoutExpFits <- function(iterations=5000) {
+bootstrapAllWashoutExpFits <- function(iterations=5000, conditions=NULL) {
   
   # cat('setting up cluster...\n')
   ncores <- parallel::detectCores()
   clust  <- parallel::makeCluster(max(c(1,floor(ncores*0.75))))
 
   info       <- groupInfo()
-  conditions <- info$condition[which(info$exp == 1)]
+  if (is.null(conditions)) {
+    conditions <- info$condition[which(info$exp == 1)]
+  }
 
   for (condition in conditions) {
     for (type in c('reaches','nocursors')) {
