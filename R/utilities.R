@@ -6,18 +6,18 @@ library('Reach')
 
 groupInfo <- function() {
   
-  exp <- c(1,1,1,1,2,2,2,3,4,4)
+  exp <- c(1,1,1,1,2,2,2,3,3,4)
   condition <- c('15deg_distance', '30deg_distance', '45deg_distance', '60deg_distance',
                  'control','cursorjump','terminal',
-                 'aiming',
-                 'delay-trial', 'delay-FB')
+                 'delay-trial', 'delay-FB',
+                 'aiming')
   color <- c('darkred', '#ae0a23', '#e51636', 'salmon',
              'orange', 'darkturquoise', 'deepskyblue',   # deepskyblue
-             'purple',
-             'blue','darkblue') # blue
+             'blue','darkblue',   # blue
+             'purple')
   
   # label <- c('15°', '30°', '45°', '60°', 'control', 'cursor-jump', 'terminal', 'aiming', 'delay->terminal', 'terminal->delay')
-  label <- c('15°', '30°', '45°', '60°', 'control', 'cursor-jump', 'terminal', 'aiming', 'delay -> terminal', 'terminal -> delay')
+  label <- c('15°', '30°', '45°', '60°', 'control', 'cursor-jump', 'terminal', 'delay -> terminal', 'terminal -> delay', 'aiming')
   
   # expression(y %->% x)
   # &#8594;
@@ -33,9 +33,9 @@ expConditions <- function(exp) {
   
   if (exp == 1) { conditions <- c('15deg_distance', '30deg_distance', '45deg_distance', '60deg_distance') }
   if (exp == 2) { conditions <- c('control','cursorjump','terminal') }
-  if (exp == 3) { conditions <- c('control','aiming') }
-  if (exp == 4) { conditions <- c('control','terminal','delay-trial', 'delay-FB')}
-  
+  if (exp == 3) { conditions <- c('control','terminal','delay-trial', 'delay-FB')}
+  if (exp == 4) { conditions <- c('control','aiming') }
+
   return(conditions)
   
 }
@@ -231,7 +231,7 @@ addImpExpScatters <- function(conditions) {
   
 }
 
-addAdaptationTimecourses <- function(type, conditions) {
+addAdaptationTimecourses <- function(type, conditions, timecoursemode='relative') {
   
   info <- groupInfo()
   
@@ -245,9 +245,7 @@ addAdaptationTimecourses <- function(type, conditions) {
     
     # read the exp-fits:
     df <- read.csv(file = sprintf('data/exp%d/%s_%s_exp-fits.csv',exp,condition,type), stringsAsFactors = FALSE)
-    if (type == 'aiming') {
-      df$N0 <- -1 * df$N0
-    }
+    
     lambdaCI <- quantile(df$lambda, probs=c(0.025, 0.50, 0.975))
     N0CI     <- quantile(df$N0, probs=c(0.025, 0.50, 0.975))
     
@@ -257,18 +255,25 @@ addAdaptationTimecourses <- function(type, conditions) {
     tau <- log(1-PropAsym)/log(1-lambdaCI)
     names(tau) <- NULL
     
+    if (timecoursemode == 'relative') {
+      scale <- 1/PropAsym
+    }
+    if (timecoursemode == 'absolute') {
+      scale <- N0CI[2]
+    }
+    
     X <- c()
     Y <- c()
 
     thispar <- c(lambdaCI[1], 1)
     names(thispar) <- c('lambda', 'N0')
     X <- c(X, (seq(0,1,length.out=101)^2)*tau[1])
-    Y <- c(Y, Reach::exponentialModel(par=thispar, timepoints=(seq(0,1,length.out=101)^2)*tau[1])$output / PropAsym)
+    Y <- c(Y, Reach::exponentialModel(par=thispar, timepoints=(seq(0,1,length.out=101)^2)*tau[1])$output * scale)
     
     thispar <- c(lambdaCI[3], 1)
     names(thispar) <- c('lambda', 'N0')
     X <- c(X, rev( (seq(0,1,length.out=101)^2)*tau[3]) )
-    Y <- c(Y, rev( Reach::exponentialModel(par=thispar, timepoints=(seq(0,1,length.out=101)^2)*tau[3])$output / PropAsym) )
+    Y <- c(Y, rev( Reach::exponentialModel(par=thispar, timepoints=(seq(0,1,length.out=101)^2)*tau[3])$output * scale) )
     
     if (type == 'reaches') {
       X <- X+1
@@ -282,7 +287,7 @@ addAdaptationTimecourses <- function(type, conditions) {
     thispar <- c(lambdaCI[2], 1)
     names(thispar) <- c('lambda', 'N0')
     lX <- (seq(0,1,length.out=101)^2)*tau[2]
-    lY <- Reach::exponentialModel(par=thispar, timepoints=(seq(0,1,length.out=101)^2)*tau[2])$output / PropAsym
+    lY <- Reach::exponentialModel(par=thispar, timepoints=(seq(0,1,length.out=101)^2)*tau[2])$output * scale
     
     if (type=='reaches') {
       lX <- lX + 1
@@ -374,32 +379,34 @@ baseline <- function(df, ignore=4, depvar='reachdeviation_deg', FUN=median) {
   
 }
 
-getWashout <- function(df, asymptote=8, depvar='reachdeviation_deg') {
+getWashout <- function(df) {
   
+  # 
+  # washoutStart <- min(df$trialno[which(df$phase == 'washout')])
+  # # asymptote_idx <- c((washoutStart-asymptote):(washoutStart-1))
+  # 
+  # participants <- unique(df$participant)
+  # 
+  # df$tempvar <- df[,depvar]
+  # adf <- df[which(df$trialno %in% asymptote_idx),]
+  # 
+  # # print(dim(adf))
+  # # print(length(participants)*asymptote)
+  # 
+  # for (participant in participants) {
+  #   df[which(df$trialno %in% asymptote_idx & df$participant == participant),depvar] <- median(adf$tempvar[which(adf$participant == participant)], na.rm=TRUE)
+  #   # print(median(adf$tempvar[which(adf$participant == participant)], na.rm=TRUE))
+  # }
+  # 
+  # # df <- df[which(df$trialno > (washoutStart-2)),]
+  # df <- df[which(df$trialno >= washoutStart),]
+  # df$phase <- 'washout'
+  # 
+  df <- df[which(df$phase == 'washout'),]
   
-  washoutStart <- min(df$trialno[which(df$phase == 'washout')])
-  asymptote_idx <- c((washoutStart-asymptote):(washoutStart-1))
-  
-  participants <- unique(df$participant)
-  
-  df$tempvar <- df[,depvar]
-  adf <- df[which(df$trialno %in% asymptote_idx),]
-  
-  # print(dim(adf))
-  # print(length(participants)*asymptote)
-  
-  for (participant in participants) {
-    df[which(df$trialno %in% asymptote_idx & df$participant == participant),depvar] <- median(adf$tempvar[which(adf$participant == participant)], na.rm=TRUE)
-    # print(median(adf$tempvar[which(adf$participant == participant)], na.rm=TRUE))
-  }
-  
-  # df <- df[which(df$trialno > (washoutStart-2)),]
-  df <- df[which(df$trialno >= washoutStart),]
-  df$phase <- 'washout'
   return(df)
   
 }
-
 
 # data ------
 
