@@ -5,7 +5,7 @@ source('R/utilities.R')
 # figure 1: setup, manipulations, trialtypes
 
 
-expBehaviorFig <- function(exp, target='inline', timecoursemode='relative') {
+expBehaviorFig <- function(exp, target='inline', timecoursemode='absolute') {
   
   # in inches:
   width = 6
