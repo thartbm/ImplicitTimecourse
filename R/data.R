@@ -7,7 +7,7 @@ library('Reach')
 
 downloadData <- function() {
   
-  filelist <- list('data\\' = c('demographics.csv', 'meta_info.csv', 'exp1.zip', 'exp2.zip', 'exp3.zip', 'exp4.zip') )
+  filelist <- list('data\\' = c('demographics.csv', 'meta_info.csv', 'exp1.zip', 'exp2.zip', 'exp3.zip', 'exp4.zip', 'processed.zip') )
   
   dir.create('data/')
   
@@ -28,6 +28,8 @@ extractAngularDeviations <- function() {
   extractReachDeviations(distance=distance)
   extractNoCursorDeviations(distance=distance)
   extractAimingDeviations()
+  
+  combineControls()
   
 }
 
@@ -183,7 +185,10 @@ extractAimingDeviations <- function() {
           ppdf$aimingdeviation_deg[which(ppdf$aimingdeviation_deg < -180)] <- ppdf$aimingdeviation_deg[which(ppdf$aimingdeviation_deg < -180)] + 360
         }
         
+        # remove responses in the wrong direction (arrow starts at 15, but it should be a negative number)
         ppdf$aimingdeviation_deg[which(ppdf$aimingdeviation_deg > 10)] <- NA
+        # remove extreme outliers (twice the maximum reasonable strategy):
+        ppdf$aimingdeviation_deg[which(ppdf$aimingdeviation_deg < -120)] <- NA
         
         pdf <- data.frame(exp                 = rep(exp,dim(ppdf)[1]),
                           condition           = rep(condition,dim(ppdf)[1]),
@@ -207,6 +212,32 @@ extractAimingDeviations <- function() {
       write.csv(cond_df, outfilename, row.names=FALSE, quote=TRUE)
       
     }
+  }
+  
+}
+
+combineControls <- function() {
+  
+  for (type in c('reaches', 'nocursors', 'aiming')) {
+    
+    spring <- read.csv(sprintf('data/exp1/45deg_distance_%s.csv', 
+                               type), 
+                       stringsAsFactors = FALSE)
+    spring <- spring[which(spring$phase %in% c('baseline','rotation')),] # don't need the washout
+    spring$semester <- 'spring'
+    
+    fall   <- read.csv(sprintf('data/exp2/control_%s.csv', 
+                               type), 
+                       stringsAsFactors = FALSE)
+    fall$semester <- 'fall'
+    
+    control <- rbind(spring, fall)
+    
+    write.csv(control, 
+              sprintf('data/exp2/control_%s.csv', type), 
+              row.names = FALSE, 
+              quote = TRUE)
+    
   }
   
 }
