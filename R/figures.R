@@ -5,7 +5,7 @@ source('R/utilities.R')
 # figure 1: setup, manipulations, trialtypes
 
 
-expBehaviorFig <- function(exp, target='inline') {
+expBehaviorFig <- function(exp, target='inline', timecoursemode='relative') {
   
   # in inches:
   width = 6
@@ -41,7 +41,6 @@ expBehaviorFig <- function(exp, target='inline') {
   
   info <- groupInfo()
   conditions <- expConditions(exp)
-  
   
   if (exp > 1) { ntrials = 120; mrot=45; xticks=c(1,21,120) } else { ntrials = 144; mrot=60; xticks=c(1,21,121,144) }
   
@@ -94,7 +93,7 @@ expBehaviorFig <- function(exp, target='inline') {
   # # # # # #   Second plot: no-cursors
   
   main <- 'no-cursor reaches'
-  if (exp == 3) {
+  if (exp == 4) {
     main <- 'no-cursor reaches and aiming'
   }
   
@@ -120,7 +119,7 @@ expBehaviorFig <- function(exp, target='inline') {
                                 conditions=conditions
                                 )
   
-  if (exp == 3) {
+  if (exp == 4) {
     leg.info <- rbind(leg.info, addLearningCurves(type='aiming',conditions=c('aiming'),FUN=mean))
   }
   # legend(x=-5,y=mrot+20,
@@ -131,33 +130,48 @@ expBehaviorFig <- function(exp, target='inline') {
   axis(side=1,at=xticks)
   axis(side=2,at=seq(-15,(mrot+15),15),las=1)
   
+  
+  # # # # # # # 3 # # #
+  # exp time courses
+  
+  if (timecoursemode == 'relative') {
+    ylim <- c(0,1)
+    yticklocs <- c(0,0.25,0.5,0.75,1)
+    yticklabels <- c('0%','25%','50%','75%','100%')
+  }
+  if (timecoursemode == 'absolute') {
+    ylim <- c(0,mrot)
+    yticklocs <- seq(0,mrot,15)
+    yticklabels <- sprintf('%d',yticklocs)
+  }
+  
   plot(-1000,-1000,
        main='learning timecourse',xlab='trial',ylab='adaptation',
-       xlim=c(0,30),ylim=c(0,1),
+       xlim=c(0,30),ylim=ylim,
        ax=F,bty='n'
        )
   
-  addAdaptationTimecourses(type='reaches',conditions=conditions)
+  addAdaptationTimecourses(type='reaches',conditions=conditions, timecoursemode=timecoursemode)
   
   axis(side=1,at=c(1,10,20,30))
-  axis(side=2,at=c(0,0.25,0.5,0.75,1),las=1,labels=c('0%','25%','50%','75%','100%'))
+  axis(side=2,at=yticklocs,las=1,labels=yticklabels)
   
   
   plot(-1000,-1000,
        main='no-cursor timecourse',xlab='trial',ylab='adaptation',
-       xlim=c(0,30),ylim=c(0,1),
+       xlim=c(0,30),ylim=ylim,
        ax=F,bty='n'
   )
   
-  addAdaptationTimecourses(type='nocursors',conditions=conditions)
+  addAdaptationTimecourses(type='nocursors',conditions=conditions, timecoursemode=timecoursemode)
   
-  if (exp == 3) {
-    addAdaptationTimecourses(type='aiming',conditions=c('aiming'))
+  if (exp == 4) {
+    addAdaptationTimecourses(type='aiming',conditions=c('aiming'), timecoursemode=timecoursemode)
   }
   
 
   axis(side=1,at=c(0,10,20,30),labels=c('baseline','10','20','30'))
-  axis(side=2,at=c(0,0.25,0.5,0.75,1),las=1,labels=c('0%','25%','50%','75%','100%'))
+  axis(side=2,at=yticklocs,las=1,labels=yticklabels)
   
   
   if (exp == 1) {
