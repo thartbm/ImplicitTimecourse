@@ -13,7 +13,7 @@ groupInfo <- function() {
                  'delay-trial', 'delay-FB',
                  'aiming')
   color <- c('darkred', '#ae0a23', '#e51636', 'salmon',
-             'orange', 'darkturquoise', 'deepskyblue',   # deepskyblue
+             '#e51636', 'orange', 'darkturquoise', # 'deepskyblue',   # deepskyblue
              'blue','darkblue',   # blue
              'purple')
   
@@ -258,6 +258,8 @@ addAdaptationTimecourses <- function(type, conditions, timecoursemode='relative'
     # read the exp-fits:
     df <- read.csv(file = sprintf('data/exp%d/%s_%s_exp-fits.csv',exp,condition,type), stringsAsFactors = FALSE)
     
+    
+    
     lambdaCI <- quantile(df$lambda, probs=c(0.025, 0.50, 0.975))
     N0CI     <- quantile(df$N0, probs=c(0.025, 0.50, 0.975))
     
@@ -451,3 +453,27 @@ getImpExpEst <- function(condition,type) {
 
 }
 
+# demographics ------
+
+demographicsTable <- function() {
+  
+  demographics <- read.csv('data/demographics.csv')
+  gender_table <- table(demographics$condition_label, demographics$sex)
+  
+  group <- rownames(dd)
+  
+  females <- gender_table[,1]
+  males   <- gender_table[,2]
+  other   <- gender_table[,3]
+  totalN  <- females + males + other
+  
+  age_mean <- aggregate(age ~ condition_label, data=demographics, FUN=mean)
+  age_sd   <- aggregate(age ~ condition_label, data=demographics, FUN=sd)
+  
+  hand_table <- table(demographics$condition_label, demographics$handedness)
+  
+  right <- hand_table[,3]
+  left  <- hand_table[,1]
+  other <- hand_table[,2]
+  
+}
