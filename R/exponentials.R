@@ -376,3 +376,91 @@ groupAvgFits <- function(conditions=NULL) {
   stopCluster(clust)
   
 } 
+
+behaviorDescriptors <- function() {
+  
+  info <- groupInfo()
+  
+  exp <- c(1,1,1,1,1,1,1,1,2,2,2,3,3,4)
+  mode <- c(rep(c('learning','washout'),each=4),rep('learning',6))
+  condition <- c(rep(sprintf('%ddeg_distance',c(15,30,45,60)),2),'control','cursorjump','terminal','delay-FB','delay-trial','aiming')
+  
+  df <- data.frame(exp=exp,
+                   mode=mode,
+                   condition=condition)
+  
+  rowlabels <- c()
+  
+  reaches_RofC <- c()
+  reaches_asymptote <- c()
+  nocursors_RofC <- c()
+  nocursors_asymptote <- c()
+  aiming_RofC <- c()
+  aiming_asymptote <- c()
+  
+  for (rown in c(1:dim(df)[1])) {
+    
+    exp <- df$exp[rown]
+    mode <- df$mode[rown]
+    condition <- df$condition[rown]
+    
+    rowlabels <- c(rowlabels, sprintf('%s %s', info$label[which(info$condition == condition)], list('learning'='', 'washout'='(washout)')[[mode]]))
+    
+    for (trialtype in c('reaches','nocursors','aiming')) {
+      
+      if (trialtype == 'aiming' & exp < 4) {
+        aiming_RofC <- c(aiming_RofC, '')
+        aiming_asymptote <- c(aiming_asymptote, '')
+      } else {
+        
+        descriptors <- getDescriptors(exp=exp,
+                                      condition=condition,
+                                      mode=mode,
+                                      trialtype=trialtype)
+        
+        if (trialtype == 'reaches') {
+          reaches_RofC      <- c(reaches_RofC,      descriptors[['lambda']])
+          reaches_asymptote <- c(reaches_asymptote, descriptors[['N0']])
+        }
+        if (trialtype == 'nocursors') {
+          nocursors_RofC      <- c(nocursors_RofC,      descriptors[['lambda']])
+          nocursors_asymptote <- c(nocursors_asymptote, descriptors[['N0']])
+        }
+        if (trialtype == 'aiming') {
+          aiming_RofC      <- c(aiming_RofC,      descriptors[['lambda']])
+          aiming_asymptote <- c(aiming_asymptote, descriptors[['N0']])
+        }
+        
+      }
+      
+      
+    }
+    
+  }
+  
+  outdf <- data.frame("reaches\nRofC"= reaches_RofC,
+                      "reaches\nasymptote"=reaches_asymptote,
+                      "no-cursors\nRofC"=nocursors_RofC,
+                      "no-cursors\nasymptote"=nocursors_asymptote,
+                      "re-aiming\nRofC"=aiming_RofC,
+                      "re-aiming\nasymptote"=aiming_asymptote)
+  row.names(outdf) <- rowlabels
+  
+  return(outdf)
+}
+
+getDescriptors <- function(exp, condition, mode, trialtype) {
+  
+  idf <- read.csv(sprintf('data/exp%d/%s_individual_exp-fits.csv',exp,condition), stringsAsFactors = FALSE)
+  lambda_all <- idf$lambda[which(idf$participant == 'all' & idf$phase == mode & idf$trialtype == trialtype)]
+  N0_all     <- idf$N0[    which(idf$participant == 'all' & idf$phase == mode & idf$trialtype == trialtype)]
+  
+  df <- read.csv(sprintf('data/exp%d/%s_%s%s_exp-fits.csv',exp,condition,trialtype,list('learning'='','washout'='_washout')[[mode]]), stringsAsFactors = FALSE)
+  
+  lambdaCI <- quantile(df$lambda, probs=c(0.025, 0.50, 0.975)) 
+  N0CI     <- quantile(df$N0,     probs=c(0.025, 0.50, 0.975)) 
+  
+  return(list('lambda' = sprintf('%0.3f/%0.3f (%0.3f-%0.3f)',lambda_all, lambdaCI[2], lambdaCI[1],lambdaCI[3]) ,
+              'N0' = sprintf('%0.2f°/%0.2f° (%0.2f°-%0.2f°)',N0_all,N0CI[2],N0CI[1],N0CI[3]) ) )
+  
+}
