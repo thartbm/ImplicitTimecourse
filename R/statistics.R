@@ -1,5 +1,40 @@
 library('BayesFactor')
 
+# generic -----
+
+getComparisons <- function(exp, mode) {
+  
+  info <- groupInfo()
+  conditions <- expConditions(exp)
+  
+  if (exp == 1) {
+    if (mode == 'learning') {
+      comparisons <- list(c('15deg_distance', '30deg_distance'),
+                          c('30deg_distance', '45deg_distance'),
+                          c('45deg_distance', '60deg_distance'))
+    }
+    if (mode == 'washout') {
+      comparisons <- list(c('15deg_distance', '30deg_distance'),
+                          c('15deg_distance', '45deg_distance'),
+                          c('15deg_distance', '60deg_distance'))
+    }
+  } else {
+    comparisons <- list()
+    for (condition in conditions) {
+      if (exp==3) {reference <- 'terminal'} else {reference <- 'control'}
+      if (condition == reference) {
+        next
+      } else {
+        comparisons[[length(comparisons)+1]]  <- c(reference,condition)
+      }
+    }
+  }
+  
+  return(comparisons)
+  
+}
+
+
 # reaches & no-cursors -----
 
 getExpFitDF <- function(conditions, mode, type, timecoursemode='relative') {
@@ -74,28 +109,7 @@ expFitGroupBayesianTtest <- function(exp,
   info <- groupInfo()
   conditions <- expConditions(exp)
   
-  if (exp == 1) {
-    if (mode == 'learning') {
-      comparisons <- list(c('15deg_distance', '30deg_distance'),
-                          c('30deg_distance', '45deg_distance'),
-                          c('45deg_distance', '60deg_distance'))
-    }
-    if (mode == 'washout') {
-      comparisons <- list(c('15deg_distance', '30deg_distance'),
-                          c('15deg_distance', '45deg_distance'),
-                          c('15deg_distance', '60deg_distance'))
-    }
-  } else {
-    comparisons <- list()
-    for (condition in conditions) {
-      if (exp==3) {reference <- 'terminal'} else {reference <- 'control'}
-      if (condition == reference) {
-        next
-      } else {
-        comparisons[[length(comparisons)+1]]  <- c(reference,condition)
-      }
-    }
-  }
+  comparisons <- getComparisons(exp=exp, mode=mode)
   
   df <- getExpFitDF(conditions = conditions, 
                     mode = mode, 
@@ -218,6 +232,36 @@ aimingZero <- function() {
     } else {
       cat( sprintf('BF: %0.3f\n\n', bf) )
     }
+  }
+  
+}
+
+aimingGroupTtest <- function(exp) {
+  
+  info <- groupInfo()
+  conditions <- expConditions(exp)
+  
+  comparisons <- getComparisons(exp=exp, mode='learning')
+  
+  df <- getAimingDF(conditions)
+  
+  for (comparison in comparisons) {
+    
+    con1 <- comparison[1]
+    con2 <- comparison[2]
+    
+    cat(sprintf('\ncomparing %s with %s\n', toupper(con1), toupper(con2)))
+    
+    bttRA <-  BayesFactor::ttestBF(df[which(df$condition == con1),'explicit'], 
+                                   df[which(df$condition == con2),'explicit'])
+    bf <- extractBF(bttRA)[[1]]
+    if (bf > 1000) {
+      cat( sprintf( 'BF: %s\n', formatC(bf, format = "e", digits = 2) ) )
+    } else {
+      cat( sprintf('BF: %0.3f\n', bf) )
+    }
+    
+    
   }
   
 }
