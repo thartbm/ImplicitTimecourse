@@ -52,7 +52,16 @@ groupAvgFits()
 
 
 # Experiment 1: rotation size
-In the first part we gauge our method of interleaved no-cursor trials to see how this responds to 4 different rotation sizes (15, 30, 45, and 60 degree rotations). We don't find anything surprising. Here is the plot of the data.
+In the first part we gauge our method of interleaved no-cursor trials to see how this responds to 4 different rotation sizes (15, 30, 45, and 60 degree rotations). We don't find anything surprising. 
+
+Here is a table about the sample of participants:
+
+```{r}
+knitr::kable(demographicsTable(exp=1))
+```
+
+
+Here is the plot of the data.
 
 ```{r fig.width=6.7, fig.height=10}
 expBehaviorFig(exp=1, target='inline', timecoursemode = 'absolute')
@@ -65,42 +74,106 @@ However, the washout periods show the same pattern for both regular reaches and 
 
 When looking at the relationship between explicit (re-aiming) and implicit (no-cursors), there is no linear relationship, although both seem to get a bit larger with increasing rotation size. Additionally, the distribution of our measures of implicit shows the same peak for the 3 larger conditions, and a smaller one for the smallest rotation; the same pattern as in the no-cursor time-courses and in the reach and no-cursor washouts. For explicit re-aiming strategies, we see uni-modal distributions around zero for the two smaller rotations, and bi-modal distributions for the two larger rotations, with 1 peak around zero and another peak at around 20 degrees. Maybe there is even a 3rd peak at 45 degrees for the largest rotation.
 
+## Statistics
+
+### Exponential fits
+
 Here are the Bayesian F-tests on rate of change and asymptote of reach training:
 
 ```{r}
-expFitBF(exp=1,type='reaches')
+expFitBayesianFtest(exp=1,type='reaches')
+```
+
+Since both show effects, we look at between-group comparisons for successive rotation sizes:
+
+```{r}
+expFitGroupBayesianTtest(exp=1, type='reaches', mode='learning', timecoursemode='absolute', lambda=FALSE)
 ```
 
 Here are the Bayesian F-tests on rate of change and asymptote of no-cursors:
 
 ```{r}
-expFitBF(exp=1, type='nocursors')
+expFitBayesianFtest(exp=1, type='nocursors')
 ```
 
+Again, we look at between-group comparisons for successive rotation sizes, and only for asymptote / N0:
 
+```{r}
+expFitGroupBayesianTtest(exp=1, type='nocursors', mode='learning', lambda=FALSE)
+```
 
 Here are the Bayesian F-tests on rate of change and asymptote of reach washout:
 
 ```{r}
-expFitBF(exp=1,type='reaches',mode='washout')
+expFitBayesianFtest(exp=1,type='reaches',mode='washout')
 ```
 
+Again, we look at between-group comparisons for successive rotation sizes, but now also for lambda / RofC:
 
+```{r}
+expFitGroupBayesianTtest(exp=1, type='reaches', mode='washout')
+```
 
 Here are the Bayesian F-tests on rate of change and asymptote of no-cursor washout:
 
 ```{r}
-expFitBF(exp=1,type='nocursors',mode='washout')
+expFitBayesianFtest(exp=1,type='nocursors',mode='washout')
 ```
 
+In the figure it really does look like the 15 deg group has a lower N0 than the other groups. More or less like in reach training. So, despite a lack of an effect on the starting value (N0 is not the asymptote in this case) in washouts for no-cursors, we do look at between-group comparisons for successive rotation sizes:
+
+```{r}
+expFitGroupBayesianTtest(exp=1, type='nocursors', mode='washout', lambda=FALSE)
+```
+
+There might be some kind of effect comparing 15 to 45 degrees, but it's not very convincing.
+
+### Aiming
+
+We have complemented the continuous measures of implicit reach aftereffects with 8 re-aiming trials after 56 trials of training. Each set of 4 training and 4 no-cursor trials is preceded by a single re-aiming task, where people orient an arrow to indicate where they would move their hand in order to get the cursor on the target. The re-aiming trials are timed such that aiming does not affect the normal adaptation processes, as we have seen before ('t Hart et al., 2023, [bioRxiv](https://www.biorxiv.org/content/10.1101/2022.06.07.495044v3)). We expect little explicit strategy in the 15 and 30 degree conditions, and will see how this develops in larger rotations. Finally, we will also test if implicit adaptation can be predicted from explicit adaptation.
+
+For those interested; in the last experiment we compare a continuous aiming condition with a control condition.
+
+First we test if there is any effect of condition / rotation size on the magnitude of re-aiming responses:
+
+```{r}
+aimingBayesianFtest(exp=1)
+```
+
+There is, so that we now first compare the re-aiming responses to 0 for each condition, and then compare them between successive rotations.
+
+Here are the comparisons with 0:
+
+```{r}
+aimingZero()
+```
+
+The evidence goes toward some small amount of re-aiming in the 15 degree condition, although this is largely driven by 2 participants and it does not reach threshold (BF=3). There is some re-aiming happening in the 30 degree condition. In Fig 2XXX we can see that the distribution of re-aiming responses is still close to zero, but it is about 3 degrees. In the other two conditions, it is much more clear that almost all participants engage in some amount of re-aiming. This can both be seen in Fig 2XXX and is shown by the statistics above.
+
+Now we compare aiming between successive rotations.
 
 ## Conclusions
 
 The interleaved trial method works here as well. The explicit re-aiming trials also behave more or less as expected. To test how different kinds of feedback impact the time course of implicit adaptation - in particular in the presence of explicit adaptation as well, we will continue using the 45 degree rotation. We will skip the washout phases however, as they don't seem to add much to other measures. This also leaves time for additional measures.
 
+There are no effects on rates of change whatsoever - if they are expressed in degrees reach deviation, rather than as a percentage of asymptote.
+
+Reach training aymptotes keep increasing with rotation size.
+
+Similarly for training no-cursors, except that they seem maxed out for 45 degrees. There is even a small difference between 30 and 45 degrees.
+
+For washout reaches, the starting point for the 15 degrees group is lower than the other three groups. Unlike during training, no-cursors during washout don't show a clear pattern. It may be that the 15 degree group has somewhat lower starting point compared to some groups, but the evidence is inconclusive.
+
+
 # Experiment 2: feedback types
 
 Here we test the timecourse of implicit adaptation, with two different kinds of feedback. Previously, the cursor was visible continuously, and was rotated right from the start. Here, in one condition, we keep the cursor aligned the first 50% of the reach, and introduce the rotation only after 50% of the reahc is completed. At that point, the cursor jumps from aligned to 45 degrees rotated: the _"cursor-jump"_ condition. Then, we also introduce a condition where the cursor is not shown during the reach, or during the return. It is only shown at 1 point: the first point that is at or beyond the distance of the target. The feedback is shown is for XXX ms. (During the return to the start position, different feedback is provided to allow returning to the start position without given position feedback.) We call this the _"terminal"_ condition. Both are supposed to increase explicit learning, and should or could reduce implicit learning. This has been shown before, but the time-course of implicit learning has not been characterized yet (but see Ruttle et al., 2022). Apart from these 2 new conditions, we collect more participants doing a 45 degree rotation (albeit without the washout) and we combine these participants with the existing 45 degree as a reference condition for all new experiments, and we call this the _"control"_ condition.
+
+Here is a table about the sample of participants:
+
+```{r}
+knitr::kable(demographicsTable(exp=2))
+```
 
 Here is the data:
 
@@ -115,13 +188,13 @@ The distribution of explicit (re-aiming) strategies, is no longer clearly bi-mod
 Here are the Bayesian F-tests on rate of change and asymptote of reach training:
 
 ```{r}
-expFitBF(exp=2,type='reaches')
+expFitBayesianFtest(exp=2,type='reaches')
 ```
 
 Here are the Bayesian F-tests on rate of change and asymptote of no-cursors:
 
 ```{r}
-expFitBF(exp=2, type='nocursors')
+expFitBayesianFtest(exp=2, type='nocursors')
 ```
 
 ## Conclusions
@@ -130,7 +203,15 @@ These two feedback types indeed increased explicit adaptation, which may have le
 
 # Experiment 3: delays with terminal feedback
 
-The terminal feedback in the previous experiment should lead to "explicit-only" adaptation, if there is a delay after reach completion and before the feedback is shown. We test this in a variant on the previous "terminal" condition where the feedback is presented after a delay, the _"delay -> feedback"_ condition. This changes both the overall duration of the experiment, as well as the time between the onset of trials. This could also change learning, so we matched this with a condition where the terminal feedback is shown first, and then there is a delay of the same duration. We call this the _"feedback -> delay"_ condition. The data is shown here:
+The terminal feedback in the previous experiment should lead to "explicit-only" adaptation, if there is a delay after reach completion and before the feedback is shown. We test this in a variant on the previous "terminal" condition where the feedback is presented after a delay, the _"delay -> feedback"_ condition. This changes both the overall duration of the experiment, as well as the time between the onset of trials. This could also change learning, so we matched this with a condition where the terminal feedback is shown first, and then there is a delay of the same duration. We call this the _"feedback -> delay"_ condition.
+
+Here is a table about the sample of participants:
+
+```{r}
+knitr::kable(demographicsTable(exp=3))
+```
+
+The data is shown here:
 
 
 ```{r fig.width=6.7, fig.height=8}
@@ -142,13 +223,13 @@ In the two new conditions, overall adaptation is comparable in both speed and as
 Here are the Bayesian F-tests on rate of change and asymptote of reach training:
 
 ```{r}
-expFitBF(exp=3,type='reaches')
+expFitBayesianFtest(exp=3,type='reaches')
 ```
 
 Here are the Bayesian F-tests on rate of change and asymptote of no-cursors:
 
 ```{r}
-expFitBF(exp=3, type='nocursors')
+expFitBayesianFtest(exp=3, type='nocursors')
 ```
 
 ## Conclusion
@@ -157,7 +238,15 @@ Terminal feedback did increase explicit adaptation, and decreased implicit adapt
 
 # Experiment 4: continuous aiming
 
-So far, we have only used 8 re-aiming trials when adaptation was relatively close to saturation. In this experiment, we want to see if adding a re-aiming trial before every trial affects explicit adaptation, and perhaps implicit adaptation as well. So we added a condition where every reach training trial was preceded by a re-aiming assessment (arrow orienting). We call this the _"aiming"_ condition. Here is the data:
+So far, we have only used 8 re-aiming trials when adaptation was relatively close to saturation. In this experiment, we want to see if adding a re-aiming trial before every trial affects explicit adaptation, and perhaps implicit adaptation as well. So we added a condition where every reach training trial was preceded by a re-aiming assessment (arrow orienting). We call this the _"aiming"_ condition.
+
+Here is a table about the sample of participants:
+
+```{r}
+knitr::kable(demographicsTable(exp=4))
+```
+
+Here is the data:
 
 ```{r fig.width=6.7, fig.height=8}
 expBehaviorFig(exp=4, target='inline', timecoursemode = 'absolute')
@@ -168,13 +257,13 @@ Magenta is aiming (should be added to the legend somewhere...). The asymptote fo
 Here are the Bayesian F-tests on rate of change and asymptote of reach training:
 
 ```{r}
-expFitBF(exp=4,type='reaches')
+expFitBayesianFtest(exp=4,type='reaches')
 ```
 
 Here are the Bayesian F-tests on rate of change and asymptote of no-cursors:
 
 ```{r}
-expFitBF(exp=4, type='nocursors')
+expFitBayesianFtest(exp=4, type='nocursors')
 ```
 
 ## Conclusion
@@ -184,14 +273,6 @@ For rotations that are already likely to elicit more of an explicit strategy, th
 # Information for manuscript
 
 This section is meant to generate bits and pieces to put in the manuscript.
-
-## Demographics
-
-```{r}
-knitr::kable(demographicsTable())
-```
-
-
 
 ## Process descriptors
 
