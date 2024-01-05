@@ -455,25 +455,70 @@ getImpExpEst <- function(condition,type) {
 
 # demographics ------
 
-demographicsTable <- function() {
+demographicsTable <- function(exp=1, mergeControls=TRUE) {
   
+  # read the demographics file:
   demographics <- read.csv('data/demographics.csv')
+  
+  # get conditions for the experiment:
+  conditions <- expConditions(exp)
+  
+  # merge controls, or keep 45deg as separate group:
+  if (mergeControls) {
+    if (exp != 1) {
+      demographics$condition_label[which(demographics$condition_label == '45deg_distance')] <- 'control'
+    }
+  } else {
+    conditions <- unique(c(conditions, '45deg_distance'))
+  }
+  
+  alldem <- demographics[which(demographics$condition_label %in% conditions),]
+  alldem$condition_label <- 'all'
+  
+  demographics <- rbind(demographics, alldem)
+  
+  conditions <- c('all', conditions)
+  
   gender_table <- table(demographics$condition_label, demographics$sex)
   
-  group <- rownames(dd)
+  dgroup <- rownames(gender_table)
   
   females <- gender_table[,1]
   males   <- gender_table[,2]
   other   <- gender_table[,3]
   totalN  <- females + males + other
   
+  gender_df <- data.frame(group = dgroup,
+                          females = females,
+                          males = males,
+                          other_gender = other,
+                          total_N = totalN
+                          )
+  
   age_mean <- aggregate(age ~ condition_label, data=demographics, FUN=mean)
+  names(age_mean) <- c('group', 'age_mean')
+  df <- merge(gender_df, age_mean, by.x='group', by.y='group')
+  
   age_sd   <- aggregate(age ~ condition_label, data=demographics, FUN=sd)
+  names(age_sd) <- c('group', 'age_sd')
+  df <- merge(df, age_sd, by.x='group', by.y='group')
   
   hand_table <- table(demographics$condition_label, demographics$handedness)
   
+  hgroup <- rownames(hand_table)
   right <- hand_table[,3]
   left  <- hand_table[,1]
   other <- hand_table[,2]
+  
+  hand_df <- data.frame(group = hgroup,
+                        right_handed = right,
+                        left_handed = left,
+                        other_handed = other)
+  
+  df <- merge(df, hand_df, by.x='group', by.y='group')
+  
+  df <- df[which(df$group %in% conditions),]
+  
+  return(df)
   
 }
