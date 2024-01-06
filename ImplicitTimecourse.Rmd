@@ -52,6 +52,7 @@ groupAvgFits()
 
 
 # Experiment 1: rotation size
+
 In the first part we gauge our method of interleaved no-cursor trials to see how this responds to 4 different rotation sizes (15, 30, 45, and 60 degree rotations). We don't find anything surprising. 
 
 Here is a table about the sample of participants:
@@ -152,6 +153,22 @@ The evidence goes toward some small amount of re-aiming in the 15 degree conditi
 
 Now we compare aiming between successive rotations.
 
+```{r}
+aimingGroupTtest(exp=1)
+```
+
+Despite there being pretty good evidence for re-aiming strategies in the 30 degree group and not in the 15 degree group, re-aiming is not very different between the two groups. We do see the expected different between the 30 and 45 degree group, but it is only approaching significance when comparing the 45 anf 60 degree group. Perhaps this can be explained by the larger spread with larger rotations. 
+
+### Linear prediction of measures of implicit from measures of explicit adaptation
+
+Here we test explicit adaptation as a predictor of implicit adaptation.
+
+```{r}
+testGroupLinearAdditivity(exp=1)
+```
+
+There is a significant linear relationship in the 60 degree group only, but this is far from linear. In the groups with lower rotations, the relationship is not even significant.
+
 ## Conclusions
 
 The interleaved trial method works here as well. The explicit re-aiming trials also behave more or less as expected. To test how different kinds of feedback impact the time course of implicit adaptation - in particular in the presence of explicit adaptation as well, we will continue using the 45 degree rotation. We will skip the washout phases however, as they don't seem to add much to other measures. This also leaves time for additional measures.
@@ -191,11 +208,47 @@ Here are the Bayesian F-tests on rate of change and asymptote of reach training:
 expFitBayesianFtest(exp=2,type='reaches')
 ```
 
+We're not doing any follow-ups because there are no effects, and that's what it looks like in the figure as well.
+
 Here are the Bayesian F-tests on rate of change and asymptote of no-cursors:
 
 ```{r}
 expFitBayesianFtest(exp=2, type='nocursors')
 ```
+
+It _looks_ like the implicit time courses develop at different speeds in the figure, so we'll test those, despite there not being any main effect.
+
+```{r}
+expFitGroupBayesianTtest(exp=2, type='nocursors', mode='learning', timecoursemode='absolute', N0=FALSE)
+```
+
+But there really is no effect...
+
+### Aiming
+
+Testing for an effect of condition / group on re-aiming:
+
+```{r}
+aimingBayesianFtest(exp=2)
+```
+
+Seems there is an effect, so now we compare the control group to the others:
+
+```{r}
+aimingGroupTtest(exp=2)
+```
+
+Both groups are different from control.
+
+### Linear prediction of implicit from explicit
+
+Here we test explicit adaptation as a predictor of implicit adaptation.
+
+```{r}
+testGroupLinearAdditivity(exp=2)
+```
+
+None of the relations are significant, and confidence intervals of the slopes include 0 but not -1.
 
 ## Conclusions
 
@@ -226,11 +279,41 @@ Here are the Bayesian F-tests on rate of change and asymptote of reach training:
 expFitBayesianFtest(exp=3,type='reaches')
 ```
 
+These Bayes Factors indicate both the rates of change and the asymptotes in overall reach training are equal between all groups. We won't do any follow-ups.
+
 Here are the Bayesian F-tests on rate of change and asymptote of no-cursors:
 
 ```{r}
 expFitBayesianFtest(exp=3, type='nocursors')
 ```
+
+This also does not indicate any differences.
+
+### Aiming
+
+We see if there is any effect on aiming responses:
+
+```{r}
+aimingBayesianFtest(exp=3)
+```
+
+There is an effect. Slightly surprising as there are no effects on overall learning or implicit reach aftereffects. Let's see where the differences are.
+
+```{r}
+aimingGroupTtest(exp=3)
+```
+
+It appears that in the terminal feedback without any kind of delay, the re-aiming responses are larger than in all other groups. That is: added delays do not seem to make learning more explicit in this data set. Perhaps we want to see if the delay conditions are different from control as well.
+
+### Linear correlation between implicit and explicit adaptation
+
+Here we test explicit adaptation as a predictor of implicit adaptation.
+
+```{r}
+testGroupLinearAdditivity(exp=3)
+```
+
+The two untested groups here (the two with delays) again show no linear relationship between implicit and explicit adaptation.
 
 ## Conclusion
 
@@ -265,6 +348,28 @@ Here are the Bayesian F-tests on rate of change and asymptote of no-cursors:
 ```{r}
 expFitBayesianFtest(exp=4, type='nocursors')
 ```
+
+Adding continuous aiming does not seems to affect the speed or extent of overall learning or implicit adaptation.
+
+### Aiming
+
+Let's see if there is a difference in aiming between the continuous aiming group and the control group.
+
+```{r}
+aimingGroupTtest(exp=4)
+```
+
+Looking at the data in the figure, the re-aiming responses in the continuous aiming group turned out higher than those in the control group.
+
+### Implicit-explicit correlation
+
+Here we test explicit adaptation as a predictor of implicit adaptation.
+
+```{r}
+testGroupLinearAdditivity(exp=4)
+```
+
+Also in the aiming group, there seems to be no relationship between measures of implicit and measures of explicit adaptation.
 
 ## Conclusion
 
