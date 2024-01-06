@@ -261,6 +261,36 @@ aimingGroupTtest <- function(exp) {
       cat( sprintf('BF: %0.3f\n', bf) )
     }
     
+  }
+  
+}
+
+# implicit over explicit -----
+
+testGroupLinearAdditivity <- function(exp) {
+  
+  info <- groupInfo()
+  conditions <- expConditions(exp)
+  
+  df <- getAimingDF(conditions)
+  
+  for (condition in conditions) {
+    
+    expl <- df$explicit[which(df$condition == condition)]
+    impl <- df$implicit[which(df$condition == condition)]
+    
+    ei.lm <- lm(impl ~ expl)
+    
+    slope <- as.numeric(ei.lm$coefficients[2])
+    CI <- confint(ei.lm,parm='expl',level=0.95)
+    
+    cat(sprintf('linear prediction of implicit over explicit measure in %s\n', toupper(condition)))
+    corr <- cor.test(x=expl, y=impl)
+    
+    cat(sprintf('r=%0.3f, p=%0.3f, t=%0.3f, df=%d\n',corr$estimate, corr$p.value, corr$statistic, length(impl)-2))
+    
+    cat(sprintf('slope: %0.3f CI: [%0.3f - %0.3f]\n\n', slope, CI[1], CI[2]))
+    
     
   }
   
