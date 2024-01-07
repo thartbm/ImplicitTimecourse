@@ -32,7 +32,7 @@ Before doing anything, we need to get the data on the local machine.
 downloadData()
 ```
 
-If we'd also want to redo all the processing, we could uncomment and run the code in this cell:
+If we'd also want to redo all the processing, we could run the code in this cell:
 
 ```{r eval=FALSE}
 # this summarizes each reach or re-aiming response to an angular deviation relative to the target
@@ -49,7 +49,7 @@ bootstrapAllAimingExpFits()
 groupAvgFits()
 ```
 
-
+The above two chunks of code have been set to not evaluate, but they can be run manually in the notebook.
 
 # Experiment 1: rotation size
 
@@ -381,7 +381,7 @@ This section is meant to generate bits and pieces to put in the manuscript.
 
 ## Process descriptors
 
-Below we generate a table with descriptors of processes: learning rates and asymptotes training trials and no-cursor reaches (and aiming responses for the aiming condition). Mostly during learning, but also the washout phases in experiment 1. In each cell, the first value is from a single fit on the group average data. The second value is the 50th percentile from 5k fits on a bootstrapped sample. The 2 values in parentheses are the 2.5th percentila and the 97.5th percentile respectively, or the lower and upper bounds of the 95% confidence interval.
+Below we generate a table with descriptors of processes: learning rates and asymptotes training trials and no-cursor reaches (and aiming responses for the aiming condition). Mostly during learning, but also the washout phases in experiment 1. In each cell, the first value is from a single fit on the group average data. The second value is the 50th percentile from 5k fits on a bootstrapped sample. The 2 values in parentheses are the 2.5th percentile and the 97.5th percentile respectively, or the lower and upper bounds of the 95% confidence interval.
 
 ```{r}
 knitr::kable(behaviorDescriptors(), row.names=TRUE)

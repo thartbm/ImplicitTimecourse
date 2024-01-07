@@ -410,7 +410,11 @@ behaviorDescriptors <- function() {
       
       if (trialtype == 'aiming' & exp < 4) {
         aiming_RofC <- c(aiming_RofC, '')
-        aiming_asymptote <- c(aiming_asymptote, '')
+        if (mode == 'washout') {
+          aiming_asymptote <- c(aiming_asymptote, '')
+        } else {
+          aiming_asymptote <- c(aiming_asymptote, getAimingAsymptote(condition=condition))
+        }
       } else {
         
         descriptors <- getDescriptors(exp=exp,
@@ -462,5 +466,20 @@ getDescriptors <- function(exp, condition, mode, trialtype) {
   
   return(list('lambda' = sprintf('%0.3f/%0.3f (%0.3f-%0.3f)',lambda_all, lambdaCI[2], lambdaCI[1],lambdaCI[3]) ,
               'N0' = sprintf('%0.2f°/%0.2f° (%0.2f°-%0.2f°)',N0_all,N0CI[2],N0CI[1],N0CI[3]) ) )
+  
+}
+
+getAimingAsymptote <- function(condition) {
+  
+  info <- groupInfo()
+  exp <- info$exp[which(info$condition == condition)]
+  
+  aims <- read.csv(sprintf('data/exp%d/%s_aiming.csv', exp, condition), stringsAsFactors = FALSE)
+  
+  aims <- aggregate(aimingdeviation_deg ~ participant, data=aims, FUN=mean, na.rm=TRUE)$aimingdeviation_deg * -1
+  
+  CI <- Reach::getConfidenceInterval(data=aims, method='b')
+  
+  return(sprintf('%0.2f° (%0.2f - %0.2f)', mean(aims), CI[1], CI[2]))
   
 }
