@@ -15,7 +15,13 @@ In this project we set out to characterize the speed of implicit adaptation unde
 
 In all conditions, 4 reach training targets were used, and after each training trial (with feedback) a no-cursor trial was completed. For these trials, participants were instructed to just move their hand straight to the target, regardless of how the cursor moved. After a brief familiarization task, participants did a 20+20 reach trial baseline, and a 100+100 reach trial adaptation phase. In the first experiment, this was followed by a 24+24 trial washout phase. In most conditions, there were 8 re-aiming responses given before the 57th, 61st, 65th, 69th, 73rd, 77th, 81st and 85th reach training trial. Except for the very last condition, where every reach training trial was preceded by a re-aiming response. (These were given by orienting an arrow in the screen, with 1 degree precision.)
 
-```{r}
+Using the no-cursor reach aftereffects after every reach training trial, we can map out the speed of implicit adaptation with high temporal precision. The conditions are all supposed to evoke larger explicit strategies (or just overall adaptation, in the first experiment with rotation sizes). The re-aiming responses assess the magnitude of this strategy in each participant, such that we can also see if increased explicit strategies go hand in hand with decreased implicit adaptation (or vice versa) or whether or not these two kinds of adaptation are largely indepedent. Except for the last condition, we can't (and don't need to) assess the speed of explicit adaptation.
+
+# Setting up R session
+
+First we load all the code for this project:
+
+```{r echo=T, results='hide', quietly=T, warn.conflicts=F}
 source('R/data.R')
 source('R/utilities.R')
 source('R/figures.R')
@@ -32,6 +38,8 @@ Before doing anything, we need to get the data on the local machine.
 downloadData()
 ```
 
+## Processing
+
 If we'd also want to redo all the processing, we could run the code in this cell:
 
 ```{r eval=FALSE}
@@ -39,7 +47,13 @@ If we'd also want to redo all the processing, we could run the code in this cell
 extractAngularDeviations()
 ```
 
-We could even redo the bootstrapping of all the exponential fit parameters, even though it would take a long time. By default, the code uses 75% of available cores.
+For all reaches, this extracts the reach deviations at 0.2 times the home-target distance (i.e. 2 cm of a 10 cm reaching movement). And for aiming responses the aiming deviation from the target. The code to do so is provided, so if you think it should be done a different (and obviously better) way, the code can be changed.
+
+## Bootstrapping exponential fits
+
+We could even redo the bootstrapping of all the exponential fit parameters, even though it would take a long time. If you changed the way the dependent variables are calculated, this step can not be skipped though, as most of the statistics / conclusion depend on the bootstrapped exponential fits.
+
+By default, the code uses 75% of available cores and does 5000 bootstraps for each fit. This could also be changed but it's not an easy, single function argument.
 
 ```{r eval=FALSE}
 # these are sorted by how much time they take: most time at the top
@@ -49,7 +63,7 @@ bootstrapAllAimingExpFits()
 groupAvgFits()
 ```
 
-The above two chunks of code have been set to not evaluate, but they can be run manually in the notebook.
+The above three chunks of code have been set to not evaluate, but they can be run manually in the notebook.
 
 # Experiment 1: rotation size
 
@@ -68,6 +82,15 @@ Here is the plot of the data.
 expBehaviorFig(exp=1, target='inline', timecoursemode = 'absolute')
 ```
 
+## Table of behavioral descriptors
+
+The table below lists group average estimates as well as bootstrapped 95% confidence intervals for several descriptors of behavior. The first 4 columns show parameters of exponential fits, for training reaches as well as no-cursor reaches. The first value is the optimal parameter for the average of the group data, the two values or the 2.5% and 97.5% value over 5k bootstraps. Then there are the re-aiming responses, which are simple the average and the upper and lower limit of a bootstrapped 95% confidence interval (1k values). The last two columns show exponential fits on the washout data, similar to the first 4 columns, but for simplicity we only show the starting points (here "asymptotes", need to re-label this in the paper) as the rates of changes are all very high (> 90%) and don't show any effects.
+
+```{r}
+knitr::kable(expTable(exp=1))
+```
+
+## First impression of figure and table
 
 First, we confirm that with rotations smaller than 30 degrees, implicit reach aftereffects develop slower, while at all other rotation sizes, the rate of change is comparable, but only if expressed in real degrees change per trial, rather than percentage of asymptote. For total adaptation, the two larger rotations behave similarly, with the rate of change decreasing for smaller rotations. The asymptotes for the two larger rotations seems similar as well, but perhaps the adaptation period was too short.
 
@@ -198,9 +221,21 @@ Here is the data:
 expBehaviorFig(exp=2, target='inline', timecoursemode = 'absolute')
 ```
 
+## Table
+
+The table below is similar to that for experiment 1, except that there are no washout phases.
+
+```{r}
+knitr::kable(expTable(exp=2))
+```
+
+## Impressions left by figure and table
+
 Overall adaptation seems equal for the three groups, but the control group appears to have larger implicit aftereffects at the end. The timecourses don't show much of a difference between the groups for overall adaptation. However, the implicit, no-cursor timecourses do look qualitatively different. Implicit adaptation seems suppressed for cursor-jump and more so for terminal feedback, in terms of the rate of change (in degrees) per trial.
 
-The distribution of explicit (re-aiming) strategies, is no longer clearly bi-modal with 1 peak at 0 explicit strategies for the two new conditions. It would seem that _all_ participants developed some kind fo strategy in these conditions. The distribution of implicit (no-cursors) seems to have changed in the control group as well, because of the addition of extra participants. Where before there was only the impression of a long-tailed distribution, no it seems that there are two larger peaks. As also seen in the timecourse, implicit adaptation was larger in the control group than in the other groups. The asymptotic levels of implicit adaptation are suppressed, but they do not disappear. Finally, there is no clear relationship between these measures of implicit and explicit components of adaptation.
+The distribution of explicit (re-aiming) strategies, is no longer clearly bi-modal with 1 peak at 0 explicit strategies for the two new conditions. It would seem that _all_ participants developed some kind fo strategy in these conditions. The distribution of implicit (no-cursors) seems to have changed in the control group as well, because of the addition of extra participants. Where before there was only the impression of a long-tailed distribution, now it seems that there are two distinct peaks. The conditions are exactly identical however, so we have no reason to interpret this as anything else but natural variance. As also seen in the timecourse, implicit adaptation was larger in the control group than in the other groups. The asymptotic levels of implicit adaptation are suppressed, but they do not disappear. Finally, there is no clear relationship between these measures of implicit and explicit components of adaptation.
+
+## Statistics
 
 Here are the Bayesian F-tests on rate of change and asymptote of reach training:
 
@@ -271,7 +306,17 @@ The data is shown here:
 expBehaviorFig(exp=3, target='inline', timecoursemode = 'absolute')
 ```
 
+## Table
+
+```{r}
+knitr::kable(expTable(exp=3))
+```
+
+## First observations
+
 In the two new conditions, overall adaptation is comparable in both speed and asymptote with the previous terminal condition, as well as the control condition. The speed of implicit adaptation seems to be in between that of the previous terminal condition and the control condition. In both conditions with delay there is a wide range of explicit re-aiming strategies, including 0 strategy this time. Distributions of implicit adaptation are comparable in all 3 terminal feedback condition: the presence of delays, or the order of feedback and delay do not seem to affect the asymptotic levels of implicit adaptation. Given the consistently low levels of implicit adaptation, it should not be surprising there was no relationship between explicit and implicit measures of adaptation.
+
+## Statistics
 
 Here are the Bayesian F-tests on rate of change and asymptote of reach training:
 
@@ -334,8 +379,17 @@ Here is the data:
 ```{r fig.width=6.7, fig.height=8}
 expBehaviorFig(exp=4, target='inline', timecoursemode = 'absolute')
 ```
+## Table
+
+```{r}
+knitr::kable(expTable(exp=4))
+```
+
+## First observations
 
 Magenta is aiming (should be added to the legend somewhere...). The asymptote for the continuous aiming group looks a bit higher, at least at the start. We can see this in the exponential timecourse plots (fit on only the data up to where the first aiming is seen in most conditions: the 57th trial). At the end of the 100 trials of adaptation, levels seem more similar again, but it might just been that having to think about strategies in terms of directions of hand movements, gives away information to participants on the nature of the perturbation, and perhaps how to deal with it - acting as a partial instruction on how to counter the rotation. The no-cursor timecourse is similar in the continuous aiming group and the control group. The timecourse of explicit adaptation rises much faster though. The level of implicit adaptation in the new continuous adaptation group seems uni-modal, aligning with the first component in the distribution of implicit adaptation in the control group, so that it's overall slightly smaller. The distribution of explicit adaptation also looks uni-modal, but it's on the higher end compared to the control group. That is: for 45 degree rotations, the introduction of continuous aiming does not change behavior as much as with 30 degree rotations ('t Hart et al., under review).
+
+## Statistics
 
 Here are the Bayesian F-tests on rate of change and asymptote of reach training:
 
@@ -373,17 +427,6 @@ Also in the aiming group, there seems to be no relationship between measures of 
 
 ## Conclusion
 
-For rotations that are already likely to elicit more of an explicit strategy, the introduction of aiming assessments before every reach training trials does change behavior, but not as much as for smaller rotations.
+For rotations that are already likely to elicit more of an explicit strategy, the introduction of aiming assessments before every reach training trials does change behavior, but not as much as we've seen for smaller rotations.
 
-# Information for manuscript
-
-This section is meant to generate bits and pieces to put in the manuscript.
-
-## Process descriptors
-
-Below we generate a table with descriptors of processes: learning rates and asymptotes training trials and no-cursor reaches (and aiming responses for the aiming condition). Mostly during learning, but also the washout phases in experiment 1. In each cell, the first value is from a single fit on the group average data. The second value is the 50th percentile from 5k fits on a bootstrapped sample. The 2 values in parentheses are the 2.5th percentile and the 97.5th percentile respectively, or the lower and upper bounds of the 95% confidence interval.
-
-```{r}
-knitr::kable(behaviorDescriptors(), row.names=TRUE)
-```
 

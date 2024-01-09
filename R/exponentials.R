@@ -395,6 +395,7 @@ behaviorDescriptors <- function() {
   reaches_asymptote <- c()
   nocursors_RofC <- c()
   nocursors_asymptote <- c()
+  aiming_extent <- c()
   aiming_RofC <- c()
   aiming_asymptote <- c()
   
@@ -406,21 +407,26 @@ behaviorDescriptors <- function() {
     
     rowlabels <- c(rowlabels, sprintf('%s %s', info$label[which(info$condition == condition)], list('learning'='', 'washout'='(washout)')[[mode]]))
     
+    if (mode == 'washout') {
+      aiming_extent <- c(aiming_extent, '')
+    } else {
+      aiming_extent <- c(aiming_extent, getAimingAsymptote(condition=condition))
+    }
+    
     for (trialtype in c('reaches','nocursors','aiming')) {
       
       if (trialtype == 'aiming' & exp < 4) {
         aiming_RofC <- c(aiming_RofC, '')
-        if (mode == 'washout') {
-          aiming_asymptote <- c(aiming_asymptote, '')
-        } else {
-          aiming_asymptote <- c(aiming_asymptote, getAimingAsymptote(condition=condition))
-        }
+        aiming_asymptote <- c(aiming_asymptote, '')
       } else {
         
         descriptors <- getDescriptors(exp=exp,
                                       condition=condition,
                                       mode=mode,
-                                      trialtype=trialtype)
+                                      trialtype=trialtype,
+                                      centralvalue = 'group',
+                                      timecoursemode='absolute',
+                                      othermode='central')
         
         if (trialtype == 'reaches') {
           reaches_RofC      <- c(reaches_RofC,      descriptors[['lambda']])
@@ -437,23 +443,24 @@ behaviorDescriptors <- function() {
         
       }
       
-      
     }
     
   }
   
-  outdf <- data.frame("reaches\nRofC"= reaches_RofC,
-                      "reaches\nasymptote"=reaches_asymptote,
-                      "no-cursors\nRofC"=nocursors_RofC,
-                      "no-cursors\nasymptote"=nocursors_asymptote,
-                      "re-aiming\nRofC"=aiming_RofC,
-                      "re-aiming\nasymptote"=aiming_asymptote)
+  outdf <- data.frame("reaches_RofC"= reaches_RofC,
+                      "reaches_asymptote"=reaches_asymptote,
+                      "no_cursors_RofC"=nocursors_RofC,
+                      "no_cursors_asymptote"=nocursors_asymptote,
+                      "re_aiming_extent"=aiming_extent,
+                      "re_aiming_RofC"=aiming_RofC,
+                      "re_aiming_asymptote"=aiming_asymptote)
   row.names(outdf) <- rowlabels
   
   return(outdf)
+  
 }
 
-getDescriptors <- function(exp, condition, mode, trialtype) {
+getDescriptors <- function(exp, condition, mode, trialtype, centralvalue = 'group', ratesas = 'perc', timecoursemode='absolute', othermode='central') {
   
   idf <- read.csv(sprintf('data/exp%d/%s_individual_exp-fits.csv',exp,condition), stringsAsFactors = FALSE)
   lambda_all <- idf$lambda[which(idf$participant == 'all' & idf$phase == mode & idf$trialtype == trialtype)]
@@ -464,8 +471,68 @@ getDescriptors <- function(exp, condition, mode, trialtype) {
   lambdaCI <- quantile(df$lambda, probs=c(0.025, 0.50, 0.975)) 
   N0CI     <- quantile(df$N0,     probs=c(0.025, 0.50, 0.975)) 
   
-  return(list('lambda' = sprintf('%0.3f/%0.3f (%0.3f-%0.3f)',lambda_all, lambdaCI[2], lambdaCI[1],lambdaCI[3]) ,
-              'N0' = sprintf('%0.2f°/%0.2f° (%0.2f°-%0.2f°)',N0_all,N0CI[2],N0CI[1],N0CI[3]) ) )
+  if (timecoursemode == 'absolute') {
+    otherlambda_all <- lambda_all
+    otherlambdaCI   <- lambdaCI
+    lambda_all <- lambda_all * N0_all
+    lambdaCI <- lambdaCI * N0CI[2]
+    dp <- 1
+    un <- '°'
+    oun <- list('perc'='%', 'prop'='')[[ratesas]]
+    if (ratesas == 'perc') {
+      otherlambda_all <- 100 * otherlambda_all
+      otherlambdaCI <- 100 * otherlambdaCI
+    }
+  }
+  if (timecoursemode == 'relative') {
+    otherlambda_all <- lambda_all * N0_all
+    otherlambdaCI <- lambdaCI * N0CI[2]
+    oun <- '°'
+    if (ratesas == 'perc') {
+      lambda_all <- 100 * lambda_all
+      lambdaCI <- 100 * lambdaCI
+      dp <- 1
+      un <- '%'
+    }
+    if (ratesas == 'prop') {
+      dp <- 3
+      un <- ''
+    }
+  }
+  
+  lambda <- ''
+  if (centralvalue %in% c('group', 'both')) {
+    lambda <- sprintf('%s%0.*f%s', lambda, dp, lambda_all, un)
+  }
+  if (centralvalue == 'both') {
+    lambda <- sprintf('%s/', lambda)
+  }
+  if (centralvalue %in% c('perc50','both')) {
+    lambda <- sprintf('%s%0.*f%s', lambda, dp, lambdaCI[2], un)
+  }
+  lambda <- sprintf('%s (%0.*f%s-%0.*f%s)',lambda, dp,lambdaCI[1],un, dp,lambdaCI[3],un )
+  
+  if (othermode %in% c('central','full')) {
+    lambdaCentral <- list('group'=otherlambda_all , 'perc50'=otherlambdaCI[2])[[centralvalue]]
+    lambda <- sprintf('%s %0.*f%s', lambda, dp,lambdaCentral,oun)
+  }
+  if (othermode %in% c('full','CI')) {
+    lambda <- sprintf('%s (%0.*f%s-%0.*f%s)',lambda, dp,otherlambdaCI[1],oun, dp,otherlambdaCI[3],oun )
+  }
+
+  adp <- 1
+  if (centralvalue == 'group') {
+    N0 = sprintf('%0.*f° (%0.*f°-%0.*f°)',adp,N0_all, adp,N0CI[1], adp,N0CI[3])
+  }
+  if (centralvalue == 'perc50') {
+    N0 = sprintf('%0.*f° (%0.*f°-%0.*f°)',adp,N0CI[2], adp,N0CI[1], adp,N0CI[3])
+  }
+  if (centralvalue == 'both') {
+    N0 = sprintf('%0.*f°/%0.*f° (%0.*f°-%0.*f°)',adp,N0_all, adp,N0CI[2], adp,N0CI[1], adp,N0CI[3])
+  }
+  
+  return(list('lambda' = lambda,
+              'N0'     = N0))
   
 }
 
@@ -476,10 +543,46 @@ getAimingAsymptote <- function(condition) {
   
   aims <- read.csv(sprintf('data/exp%d/%s_aiming.csv', exp, condition), stringsAsFactors = FALSE)
   
-  aims <- aggregate(aimingdeviation_deg ~ participant, data=aims, FUN=mean, na.rm=TRUE)$aimingdeviation_deg * -1
+  aims <- aggregate(aimingdeviation_deg ~ participant, data=aims[which(aims$trialno %in% c(77,81,85,89,93,97,101,105)),], FUN=mean, na.rm=TRUE)$aimingdeviation_deg * -1
   
   CI <- Reach::getConfidenceInterval(data=aims, method='b')
   
-  return(sprintf('%0.2f° (%0.2f - %0.2f)', mean(aims), CI[1], CI[2]))
+  return(sprintf('%0.1f° (%0.1f°-%0.1f°)', mean(aims), CI[1], CI[2]))
+  
+}
+
+expTable <- function(exp) {
+  
+  info <- groupInfo()
+  conditions <- expConditions(exp=exp) # do we even need this?
+  
+  expTable <- behaviorDescriptors()
+  
+  if (exp %in% c(1,2,3)) {
+    expTable <- expTable[,c('reaches_RofC','reaches_asymptote','no_cursors_RofC','no_cursors_asymptote','re_aiming_extent')]
+  }
+  
+  if (exp==1) {
+    trainingTable <- expTable[c("15° ","30° ","45° ","60° "),]
+    washoutTable  <- expTable[c("15° (washout)","30° (washout)","45° (washout)","60° (washout)"),]
+    washoutTable  <- washoutTable[,c('reaches_asymptote','no_cursors_asymptote')]
+    rownames(washoutTable) <- NULL
+    expTable <- cbind(trainingTable, washoutTable)
+  }
+  
+  if (exp == 2) {
+    expTable <- expTable[c('control','cursor-jump','terminal '),]
+  }
+  
+  if (exp == 3) {
+    expTable <- expTable[c('control','terminal ','terminal -> delay', 'delay -> terminal'),]
+  }
+  
+  if (exp == 4) {
+    expTable <- expTable[c('control','aiming '),]
+  }
+  
+  return(expTable)
+  
   
 }
