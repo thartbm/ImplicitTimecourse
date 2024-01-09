@@ -1,10 +1,22 @@
 ---
 title: "Implicit Timecourse Project"
 output:
-  word_document: default
+  word_document:
+    toc: yes
+    toc_depth: 2
   html_document:
     df_print: paged
+    toc: yes
+    toc_depth: 2
+    number_sections: yes
+    theme: united
+  pdf_document:
+    toc: yes
+    toc_depth: '2'
+    number_sections: yes
 ---
+
+# Pre-amble
 
 In this project we set out to characterize the speed of implicit adaptation under various circumstances. There are 4 experiments.
 
@@ -17,7 +29,7 @@ In all conditions, 4 reach training targets were used, and after each training t
 
 Using the no-cursor reach aftereffects after every reach training trial, we can map out the speed of implicit adaptation with high temporal precision. The conditions are all supposed to evoke larger explicit strategies (or just overall adaptation, in the first experiment with rotation sizes). The re-aiming responses assess the magnitude of this strategy in each participant, such that we can also see if increased explicit strategies go hand in hand with decreased implicit adaptation (or vice versa) or whether or not these two kinds of adaptation are largely indepedent. Except for the last condition, we can't (and don't need to) assess the speed of explicit adaptation.
 
-# Setting up R session
+## Setting up R session
 
 First we load all the code for this project:
 
@@ -38,6 +50,8 @@ Before doing anything, we need to get the data on the local machine.
 downloadData()
 ```
 
+This downloads the relevant data from the associated [OSF repository](https://osf.io/ajwyr/).
+
 ## Processing
 
 If we'd also want to redo all the processing, we could run the code in this cell:
@@ -47,13 +61,11 @@ If we'd also want to redo all the processing, we could run the code in this cell
 extractAngularDeviations()
 ```
 
-For all reaches, this extracts the reach deviations at 0.2 times the home-target distance (i.e. 2 cm of a 10 cm reaching movement). And for aiming responses the aiming deviation from the target. The code to do so is provided, so if you think it should be done a different (and obviously better) way, the code can be changed.
+For all reaches, this extracts the reach deviations at 0.2 times the home-target distance (i.e. 2 cm of a 10 cm reaching movement). And for aiming responses the aiming deviation from the target. The code to do so is provided, so if you think it should be done a different (and obviously better) way, the code can be changed / replaced.
 
-## Bootstrapping exponential fits
+You could even redo the bootstrapping of all the exponential fit parameters, even though it would take a long time. If you changed the way the dependent variables are calculated, this step can not be skipped though, as most of the statistics / conclusion depend on the bootstrapped exponential fits.
 
-We could even redo the bootstrapping of all the exponential fit parameters, even though it would take a long time. If you changed the way the dependent variables are calculated, this step can not be skipped though, as most of the statistics / conclusion depend on the bootstrapped exponential fits.
-
-By default, the code uses 75% of available cores and does 5000 bootstraps for each fit. This could also be changed but it's not an easy, single function argument.
+By default, this code uses 75% of available cores (the parallelization is meant to work on Linux and MacOS as well as on Windows) and does 5000 bootstraps for each fit. This could also be changed but it's not an easy, single function argument.
 
 ```{r eval=FALSE}
 # these are sorted by how much time they take: most time at the top
@@ -92,7 +104,9 @@ knitr::kable(expTable(exp=1))
 
 ## First impression of figure and table
 
-First, we confirm that with rotations smaller than 30 degrees, implicit reach aftereffects develop slower, while at all other rotation sizes, the rate of change is comparable, but only if expressed in real degrees change per trial, rather than percentage of asymptote. For total adaptation, the two larger rotations behave similarly, with the rate of change decreasing for smaller rotations. The asymptotes for the two larger rotations seems similar as well, but perhaps the adaptation period was too short.
+First, we confirm that with rotations smaller than 30 degrees, implicit reach aftereffects develop slower, while at all other rotation sizes, the rate of change is comparable, but only if expressed in real degrees change per trial, rather than percentage of asymptote. This casts some doubt on the use of rates/proportion to express speed of learning. Here we plot the exponential fits in real degrees, rather than relative percentages, but to allow comparisons with previous papers (like [Ruttle et al., 2021](https://doi.org/10.1038/s41598-021-81031-y) and [Ruttle et al., 2022](https://doi.org/10.1152/jn.00082.2022)) we also provide the group average rate of change as a percentage of asymptote. The statistics here are all done on the absolute degree change: which is the relative rate of change multiplied by the asymptote (which is roughly the degree change in the first trial, but informed by the full timecourse, so much less noisy).
+
+For total adaptation, the two larger rotations behave similarly, with the rate of change decreasing for smaller rotations. The asymptotes for the two larger rotations seems similar as well, but perhaps the adaptation period was too short.
 
 However, the washout periods show the same pattern for both regular reaches and no-cursor reaches. In the 2 largest rotations - if not the 3 largest rotations, there seems a significant portion of labile (implicit) adaptation. Starting with the first aligned trial in the washout phase, the 3 larger rotations are indistinguishable from each other. The 15 degree rotation shows smaller reach deviations in both types of trials, which signifies a qualitative difference between this small rotation and the 3 larger ones.
 
