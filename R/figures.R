@@ -19,24 +19,26 @@ expBehaviorFig <- function(exp, target='inline', timecoursemode='absolute') {
                       height = height,
                       fix_text_size = FALSE)
   }
-  # if (target == 'png') {
-  #   png( filename = sprintf('%s.png',outfilename),
-  #        width = width*dpi,
-  #        height = height*dpi
-  #        )
-  # }
+  if (target == 'png') {
+    png( filename = sprintf('%s.png',outfilename),
+         width = width*dpi,
+         height = height*dpi,
+         res = dpi
+         )
+  }
   if (target == 'pdf') {
     pdf( file = sprintf('%s.pdf', outfilename),
          width=width,
          height=height)
   }
-  # if (target == 'tiff') {
-  #   tiff( filename = sprintf('%s.tiff',outfilename),
-  #         compression = 'lzw',
-  #         width = width*dpi,
-  #         height = height*dpi
-  #   )
-  # }
+  if (target == 'tiff') {
+    tiff( filename = sprintf('%s.tiff',outfilename),
+          compression = 'lzw',
+          width = width*dpi,
+          height = height*dpi,
+          res = dpi
+    )
+  }
   
   
   info <- groupInfo()
@@ -52,16 +54,28 @@ expBehaviorFig <- function(exp, target='inline', timecoursemode='absolute') {
   
   relfontsize <- 0.8
   
-  par(mar=c(4,4,4,0.1),
-      cex.axis=relfontsize, cex.lab=relfontsize, cex.main=relfontsize)
+  # text(0,0.95,'B: less explicit', font.main=1, cex=1.35*1.5, adj=0)
+  # title(xlab='explicit [°]', line = 0.5,cex.lab=textsize)
+  # title(ylab='implicit [°]', line = 2.5,cex.lab=textsize)
+  
+  par(mar=c(3,3.5,2,0.1),
+      cex.axis=relfontsize, 
+      cex.lab=relfontsize,
+      cex.main=relfontsize*1.5,
+      xpd=TRUE)
   
   
   # # # # # #   First plot: reaches
   
   plot(x=-1000, y=-1000,
-       main='training reaches',xlab='trial',ylab='deviation [°]',
+       main='',xlab='',ylab='',
        xlim=c(0,ntrials+1),ylim=c(-15,mrot+15),
        ax=F,bty='n')
+  
+  title(main='A: training reaches', line=0.25, adj=0)
+  title(xlab='trial', line = 2)
+  title(ylab='deviation [°]', line = 2.5)
+  
   
   if (exp == 1) {
     lines(x=c(1,21,21,121,121,144),
@@ -92,15 +106,20 @@ expBehaviorFig <- function(exp, target='inline', timecoursemode='absolute') {
   
   # # # # # #   Second plot: no-cursors
   
-  main <- 'no-cursor reaches'
+  main <- 'B: no-cursor reaches'
   if (exp == 4) {
-    main <- 'no-cursor reaches and aiming'
+    main <- 'B: no-cursor reaches and aiming'
   }
   
   plot(x=-1000, y=-1000,
-       main=main,xlab='trial',ylab='deviation [°]',
+       main='',xlab='',ylab='',
        xlim=c(0,ntrials+1),ylim=c(-15,mrot+15),
        ax=F,bty='n')
+  
+  title(main=main, line=0.25, adj=0)
+  title(xlab='trial', line = 2)
+  title(ylab='deviation [°]', line = 2.5)
+  
   
   if (exp == 1) {
     lines(x=c(1,21,21,121,121,144),
@@ -145,23 +164,38 @@ expBehaviorFig <- function(exp, target='inline', timecoursemode='absolute') {
     yticklabels <- sprintf('%d',yticklocs)
   }
   
+  # # # # # # # # # # # # # # # #
+  # reach training time course
+  
   plot(-1000,-1000,
-       main='learning timecourse',xlab='trial',ylab='adaptation',
+       main='',xlab='',ylab='',
        xlim=c(0,30),ylim=ylim,
        ax=F,bty='n'
        )
+  
+  title(main='C: training timecourse', line=0.25, adj=0)
+  title(xlab='trial', line = 2)
+  title(ylab='deviation [°]', line = 2.5)
   
   addAdaptationTimecourses(type='reaches',conditions=conditions, timecoursemode=timecoursemode)
   
   axis(side=1,at=c(1,10,20,30))
   axis(side=2,at=yticklocs,las=1,labels=yticklabels)
   
+  main <- 'D: implicit timecourse'
+  if (exp == 4) {
+    main <- 'D: implicit timecourse'
+  }
   
   plot(-1000,-1000,
-       main='no-cursor timecourse',xlab='trial',ylab='adaptation',
+       main='',xlab='',ylab='',
        xlim=c(0,30),ylim=ylim,
        ax=F,bty='n'
   )
+  
+  title(main=main, line=0.25, adj=0)
+  title(xlab='trial', line = 2)
+  title(ylab='deviation [°]', line = 2.5)
   
   addAdaptationTimecourses(type='nocursors',conditions=conditions, timecoursemode=timecoursemode)
   
@@ -176,10 +210,15 @@ expBehaviorFig <- function(exp, target='inline', timecoursemode='absolute') {
   
   if (exp == 1) {
     plot(-1000,-1000,
-         main='washout reach timecourses',xlab='trial',ylab='reach aftereffects',
+         main='',xlab='',ylab='',
          xlim=c(0,30),ylim=c(0,45),
          ax=F,bty='n'
     )
+    
+    title(main='E: washout reaches', line=0.25, adj=0)
+    title(xlab='trial', line = 2)
+    title(ylab='deviation [°]', line = 2.5)
+    
     
     addWashoutTimecourses(type='reaches',conditions=conditions)
     
@@ -187,10 +226,14 @@ expBehaviorFig <- function(exp, target='inline', timecoursemode='absolute') {
     axis(side=2,at=c(0,15,30,45),las=1)
     
     plot(-1000,-1000,
-         main='washout no-cursor timecourses',xlab='trial',ylab='no-cursor aftereffects',
+         main='',xlab='',ylab='',
          xlim=c(0,30),ylim=c(0,45),
          ax=F,bty='n'
     )
+    
+    title(main='F: washout no-cursors', line=0.25, adj=0)
+    title(xlab='trial', line = 2)
+    title(ylab='deviation [°]', line = 2.5)
     
     addWashoutTimecourses(type='nocursors',conditions=conditions)
     
@@ -205,10 +248,20 @@ expBehaviorFig <- function(exp, target='inline', timecoursemode='absolute') {
   if (exp > 1) { mrot=45 } else { mrot=60 }
   mrot <- 60
   
+  if (exp == 1) {
+    main <- 'G'
+  } else {
+    main <- 'E'
+  }
+  
   plot(x=-1000, y=-1000,
-       main='',ylab='implicit (no-cursors) [°]',xlab='explicit (aiming) [°]',
+       main='',ylab='',xlab='',
        xlim=c(-15,mrot+15),ylim=c(-15,mrot+15),
        ax=F,bty='n',asp=1)
+  
+  title(main=main, line=0.25, adj=0)
+  title(xlab='explicit (aiming) [°]', line = 2)
+  title(ylab='implicit (no-cursors) [°]', line = 2.5)
   
   addImpExpScatters(conditions)
   
