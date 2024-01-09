@@ -78,7 +78,7 @@ knitr::kable(demographicsTable(exp=1))
 
 Here is the plot of the data.
 
-```{r fig.width=6.7, fig.height=10}
+```{r fig.width=6, fig.height=9}
 expBehaviorFig(exp=1, target='inline', timecoursemode = 'absolute')
 ```
 
@@ -217,7 +217,7 @@ knitr::kable(demographicsTable(exp=2))
 
 Here is the data:
 
-```{r fig.width=6.7, fig.height=8}
+```{r fig.width=6, fig.height=7.5}
 expBehaviorFig(exp=2, target='inline', timecoursemode = 'absolute')
 ```
 
@@ -302,7 +302,7 @@ knitr::kable(demographicsTable(exp=3))
 The data is shown here:
 
 
-```{r fig.width=6.7, fig.height=8}
+```{r fig.width=6, fig.height=7.5}
 expBehaviorFig(exp=3, target='inline', timecoursemode = 'absolute')
 ```
 
@@ -376,7 +376,7 @@ knitr::kable(demographicsTable(exp=4))
 
 Here is the data:
 
-```{r fig.width=6.7, fig.height=8}
+```{r fig.width=6, fig.height=7.5}
 expBehaviorFig(exp=4, target='inline', timecoursemode = 'absolute')
 ```
 ## Table
@@ -429,4 +429,14 @@ Also in the aiming group, there seems to be no relationship between measures of 
 
 For rotations that are already likely to elicit more of an explicit strategy, the introduction of aiming assessments before every reach training trials does change behavior, but not as much as we've seen for smaller rotations.
 
+# Export manuscript figures
+
+```{r eval=F}
+targets <- c('pdf') # svg, png, tiff
+for (exp in c(1:4)) {
+  for (target in targets) {
+    expBehaviorFig(exp=exp, target=target)
+  }
+}
+```
 

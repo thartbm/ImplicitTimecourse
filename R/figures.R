@@ -9,7 +9,7 @@ expBehaviorFig <- function(exp, target='inline', timecoursemode='absolute') {
   
   # in inches:
   width = 6
-  if (exp==1) { height = 10 } else { height = 7.5 }
+  if (exp==1) { height = 9 } else { height = 7.5 }
   dpi = 300
   outfilename <- sprintf('doc/fig%d',exp+1)
   
@@ -58,7 +58,7 @@ expBehaviorFig <- function(exp, target='inline', timecoursemode='absolute') {
   # title(xlab='explicit [°]', line = 0.5,cex.lab=textsize)
   # title(ylab='implicit [°]', line = 2.5,cex.lab=textsize)
   
-  par(mar=c(3,3.5,2,0.1),
+  par(mar=c(3.2,3.5,2,0.1),
       cex.axis=relfontsize, 
       cex.lab=relfontsize,
       cex.main=relfontsize*1.5,
@@ -73,7 +73,7 @@ expBehaviorFig <- function(exp, target='inline', timecoursemode='absolute') {
        ax=F,bty='n')
   
   title(main='A: training reaches', line=0.25, adj=0)
-  title(xlab='trial', line = 2)
+  title(xlab='trial', line = 1.75)
   title(ylab='deviation [°]', line = 2.5)
   
   
@@ -117,7 +117,7 @@ expBehaviorFig <- function(exp, target='inline', timecoursemode='absolute') {
        ax=F,bty='n')
   
   title(main=main, line=0.25, adj=0)
-  title(xlab='trial', line = 2)
+  title(xlab='trial', line = 1.75)
   title(ylab='deviation [°]', line = 2.5)
   
   
@@ -174,7 +174,7 @@ expBehaviorFig <- function(exp, target='inline', timecoursemode='absolute') {
        )
   
   title(main='C: training timecourse', line=0.25, adj=0)
-  title(xlab='trial', line = 2)
+  title(xlab='trial', line = 1.75)
   title(ylab='deviation [°]', line = 2.5)
   
   addAdaptationTimecourses(type='reaches',conditions=conditions, timecoursemode=timecoursemode)
@@ -194,7 +194,7 @@ expBehaviorFig <- function(exp, target='inline', timecoursemode='absolute') {
   )
   
   title(main=main, line=0.25, adj=0)
-  title(xlab='trial', line = 2)
+  title(xlab='trial', line = 1.75)
   title(ylab='deviation [°]', line = 2.5)
   
   addAdaptationTimecourses(type='nocursors',conditions=conditions, timecoursemode=timecoursemode)
@@ -216,7 +216,7 @@ expBehaviorFig <- function(exp, target='inline', timecoursemode='absolute') {
     )
     
     title(main='E: washout reaches', line=0.25, adj=0)
-    title(xlab='trial', line = 2)
+    title(xlab='trial', line = 1.75)
     title(ylab='deviation [°]', line = 2.5)
     
     
@@ -232,7 +232,7 @@ expBehaviorFig <- function(exp, target='inline', timecoursemode='absolute') {
     )
     
     title(main='F: washout no-cursors', line=0.25, adj=0)
-    title(xlab='trial', line = 2)
+    title(xlab='trial', line = 1.75)
     title(ylab='deviation [°]', line = 2.5)
     
     addWashoutTimecourses(type='nocursors',conditions=conditions)
@@ -249,9 +249,9 @@ expBehaviorFig <- function(exp, target='inline', timecoursemode='absolute') {
   mrot <- 60
   
   if (exp == 1) {
-    main <- 'G'
+    main <- 'G: linear model'
   } else {
-    main <- 'E'
+    main <- 'E: linear model'
   }
   
   plot(x=-1000, y=-1000,
@@ -260,7 +260,7 @@ expBehaviorFig <- function(exp, target='inline', timecoursemode='absolute') {
        ax=F,bty='n',asp=1)
   
   title(main=main, line=0.25, adj=0)
-  title(xlab='explicit (aiming) [°]', line = 2)
+  title(xlab='explicit (aiming) [°]', line = 1.75)
   title(ylab='implicit (no-cursors) [°]', line = 2.5)
   
   addImpExpScatters(conditions)
