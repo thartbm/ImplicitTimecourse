@@ -102,7 +102,7 @@ expFitBayesianFtest <- function(exp, type, mode='learning', timecoursemode='abso
 expFitGroupBayesianTtest <- function(exp,
                                      type, 
                                      mode='learning', 
-                                     timecoursemode='relative',
+                                     timecoursemode='absolute',
                                      lambda=TRUE,
                                      N0=TRUE) {
   
