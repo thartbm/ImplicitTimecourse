@@ -39,9 +39,21 @@ install.packages('renv', version="1.0.3")
 loadNamespace('renv')
 
 renv::activate()
+```
+
+You will want to restore the `renv` as used while doing this project:
+
+```{r}
 renv::restore()
 ```
 
+Install the most recent Reach package:
+
+```{r}
+remotes::install_github('thartbm/Reach')
+```
+
+The project was done with version="2023.12.17" but I don't know how to do proper versioning yet.
 
 We load all the code for this project:
 
