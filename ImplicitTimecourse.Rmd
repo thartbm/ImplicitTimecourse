@@ -43,13 +43,13 @@ renv::activate()
 
 You will want to restore the `renv` as used while doing this project:
 
-```{r}
+```{r eval=F}
 renv::restore()
 ```
 
 Install the most recent Reach package:
 
-```{r}
+```{r eval=F}
 remotes::install_github('thartbm/Reach')
 ```
 
@@ -57,7 +57,7 @@ The project was done with version="2023.12.17" but I don't know how to do proper
 
 We load all the code for this project:
 
-```{r echo=T, results='hide', quietly=T, warn.conflicts=F}
+```{r echo=F, results='hide', quietly=T, warn.conflicts=F}
 source('R/data.R')
 source('R/utilities.R')
 source('R/figures.R')
@@ -303,13 +303,7 @@ Here are the Bayesian F-tests on rate of change and asymptote of no-cursors:
 expFitBayesianFtest(exp=2, type='nocursors')
 ```
 
-It _looks_ like the implicit time courses develop at different speeds in the figure, so we'll test those, despite there not being any main effect.
-
-```{r}
-expFitGroupBayesianTtest(exp=2, type='nocursors', mode='learning', timecoursemode='absolute', N0=FALSE)
-```
-
-But there really is no effect...
+It _looks_ like the implicit time courses develop at different speeds in the figure, but there really is no effect...
 
 ### Aiming
 
@@ -372,7 +366,7 @@ knitr::kable(expTable(exp=3))
 
 ## First observations
 
-In the two new conditions, overall adaptation is comparable in both speed and asymptote with the previous terminal condition, as well as the control condition. The speed of implicit adaptation seems to be in between that of the previous terminal condition and the control condition. In both conditions with delay there is a wide range of explicit re-aiming strategies, including 0 strategy this time. Distributions of implicit adaptation are comparable in all 3 terminal feedback condition: the presence of delays, or the order of feedback and delay do not seem to affect the asymptotic levels of implicit adaptation. Given the consistently low levels of implicit adaptation, it should not be surprising there was no relationship between explicit and implicit measures of adaptation.
+In the two new conditions, overall adaptation is comparable in both speed and asymptote with the previous terminal condition, as well as the control condition. The speed of implicit adaptation seems to be in between that of the previous terminal condition and the control condition. In both conditions with delay there is a wide range of explicit re-aiming strategies, including 0 strategy this time. On average they might actually be lower in these conditions, rather than higher. Distributions of implicit adaptation are comparable in all 3 terminal feedback condition: the presence of delays, or the order of feedback and delay do not seem to affect the asymptotic levels of implicit adaptation. It might no longer be surprising there was no relationship between explicit and implicit measures of adaptation.
 
 ## Statistics
 
@@ -400,13 +394,13 @@ We see if there is any effect on aiming responses:
 aimingBayesianFtest(exp=3)
 ```
 
-There is an effect. Slightly surprising as there are no effects on overall learning or implicit reach aftereffects. Let's see where the differences are.
+There is an effect. Slightly surprising? Let's see where the differences are.
 
 ```{r}
 aimingGroupTtest(exp=3)
 ```
 
-It appears that in the terminal feedback without any kind of delay, the re-aiming responses are larger than in all other groups. That is: added delays do not seem to make learning more explicit in this data set. Perhaps we want to see if the delay conditions are different from control as well.
+It appears that in the terminal feedback without any kind of delay, the re-aiming responses are larger than in all other groups. That is: added delays do not seem to make learning more explicit in this data set, but _less_ explicit.
 
 ### Linear correlation between implicit and explicit adaptation
 
@@ -420,11 +414,15 @@ The two untested groups here (the two with delays) again show no linear relation
 
 ## Conclusion
 
-Terminal feedback did increase explicit adaptation, and decreased implicit adaptation. While the RofC of implicit adaptation might counterintuitively be slighty larger again with added delays, the delays had no other effects: asymptotic levels of explicit and implicit adaptation remained largely the same as those in the condition with terminal feedback without delays.
+1. Terminal feedback did increase explicit adaptation. Counter to previous papers, adding delays before (or after) the terminal feedback decreased explicit re-aiming.
+
+2. There were no effects on overall learning or implicit adaptation. 
+
+3. Implicit and explicit adaptation varied in both new conditions, but independently.
 
 # Experiment 4: continuous aiming
 
-So far, we have only used 8 re-aiming trials when adaptation was relatively close to saturation. In this experiment, we want to see if adding a re-aiming trial before every trial affects explicit adaptation, and perhaps implicit adaptation as well. So we added a condition where every reach training trial was preceded by a re-aiming assessment (arrow orienting). We call this the _"aiming"_ condition.
+So far, we have only used 8 re-aiming trials when adaptation was relatively close to saturation. In this experiment, we want to see if adding a re-aiming trial before each and every training trial affects explicit adaptation, and perhaps implicit adaptation as well. So we added a condition where every reach training trial was preceded by a re-aiming assessment (arrow orienting). We call this the _"aiming"_ condition. This group also did a no-cursor reach after every training trial.
 
 Here is a table about the sample of participants:
 
@@ -445,7 +443,7 @@ knitr::kable(expTable(exp=4))
 
 ## First observations
 
-Magenta is aiming (should be added to the legend somewhere...). The asymptote for the continuous aiming group looks a bit higher, at least at the start. We can see this in the exponential timecourse plots (fit on only the data up to where the first aiming is seen in most conditions: the 57th trial). At the end of the 100 trials of adaptation, levels seem more similar again, but it might just been that having to think about strategies in terms of directions of hand movements, gives away information to participants on the nature of the perturbation, and perhaps how to deal with it - acting as a partial instruction on how to counter the rotation. The no-cursor timecourse is similar in the continuous aiming group and the control group. The timecourse of explicit adaptation rises much faster though. The level of implicit adaptation in the new continuous adaptation group seems uni-modal, aligning with the first component in the distribution of implicit adaptation in the control group, so that it's overall slightly smaller. The distribution of explicit adaptation also looks uni-modal, but it's on the higher end compared to the control group. That is: for 45 degree rotations, the introduction of continuous aiming does not change behavior as much as with 30 degree rotations ('t Hart et al., under review).
+Magenta is aiming (should be added to the legend somewhere...). The asymptote for the continuous aiming group looks a bit higher, at least at the start. We can see this in the exponential timecourse plots (fit on only the data up to where the first aiming is seen in most conditions: the 57th trial, but of course there has been a lot of aiming trials in the new condition at that point). At the end of the 100 trials of adaptation, levels seem more similar again, but it might just be that having to think about strategies in terms of directions of hand movements, gives away information to participants on the nature of the perturbation, and perhaps how to deal with it - acting as a partial instruction on how to counter the rotation. The no-cursor timecourse is similar in the continuous aiming group and the control group. The timecourse of explicit adaptation rises a bit faster though. The level of implicit adaptation in the new continuous adaptation group seems uni-modal, aligning with the first component in the distribution of implicit adaptation in the control group, so that it's overall slightly smaller. The distribution of explicit adaptation also looks uni-modal, but the average is twice as large as in the control group. That is: for 45 degree rotations, the introduction of continuous aiming does not change behavior as much as with 30 degree rotations ('t Hart et al., under review).
 
 ## Statistics
 
@@ -485,7 +483,9 @@ Also in the aiming group, there seems to be no relationship between measures of 
 
 ## Conclusion
 
-For rotations that are already likely to elicit more of an explicit strategy, the introduction of aiming assessments before every reach training trials does change behavior, but not as much as we've seen for smaller rotations.
+1. Adding continuous aiming increases explicit strategies. It does not increase overall learning, or decrease implicit adaptation.
+
+2. Continuously asking for re-aiming responses does not lead to a relationship between implicit and explicit adaptation, where there otherwise would be none.
 
 # Export manuscript figures
 
