@@ -93,13 +93,17 @@ expBehaviorFig <- function(exp, target='inline', timecoursemode='absolute') {
   leg.info <- addLearningCurves(type='reaches',
                                 conditions=conditions)
   
-  legends <- convertLegend(leg.info$label)
-  
-  legend(x=c(-5,120)[(exp==1)+1],y=mrot+20,
-         legend=legends,
-         col=leg.info$color,
-         lty=1, bty='n',
-         cex=relfontsize)
+  if (exp < 4) {
+    legends <- convertLegend(leg.info$label)
+    color <- leg.info$color
+    ltys <- rep(1,length(legends))
+    
+    legend(x=c(125,0,-5)[exp],y=mrot,
+           legend=legends,
+           col=color,
+           lty=ltys, bty='n',
+           cex=relfontsize)
+  }
   
   axis(side=1,at=xticks)
   axis(side=2,at=seq(-15,(mrot+15),15),las=1)
@@ -108,7 +112,7 @@ expBehaviorFig <- function(exp, target='inline', timecoursemode='absolute') {
   
   main <- 'B: no-cursor reaches'
   if (exp == 4) {
-    main <- 'B: no-cursor reaches and aiming'
+    main <- 'B: no-cursor reaches and re-aiming responses'
   }
   
   plot(x=-1000, y=-1000,
@@ -140,7 +144,19 @@ expBehaviorFig <- function(exp, target='inline', timecoursemode='absolute') {
   
   if (exp == 4) {
     leg.info <- rbind(leg.info, addLearningCurves(type='aiming',conditions=c('aiming'),FUN=mean))
+    
+    legends <- c(convertLegend(leg.info$label)[c(1,2)],'re-aiming')
+    color <- leg.info$color
+    ltys <- c(1,1,2)
+    
+    legend(x=0,y=mrot,
+           legend=legends,
+           col=color,
+           lty=ltys, bty='n',
+           cex=relfontsize)
+    
   }
+  
   # legend(x=-5,y=mrot+20,
   #        legend=leg.info$label,
   #        col=leg.info$color,
