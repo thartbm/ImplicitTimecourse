@@ -49,11 +49,19 @@ renv::restore()
 
 Install the most recent Reach package:
 
-```{r eval=F}
-remotes::install_github('thartbm/Reach')
+```{r}
+library('remotes')
+ip <- installed.packages()
+if ('Reach' %in% ip[,'Package']) {
+  if (ip[which(ip[,'Package'] == 'Reach'),'Version'] < "2023.12.17") {
+    remotes::install_github('thartbm/Reach')
+  }
+} else {
+  remotes::install_github('thartbm/Reach')
+}
 ```
 
-The project was done with version="2023.12.17" but I don't know how to do proper versioning yet.
+The project was done with Reach version="2023.12.17" but I don't know how to do proper versioning yet.
 
 We load all the code for this project:
 
@@ -243,7 +251,7 @@ The interleaved trial method works here as well. The explicit re-aiming trials a
 
 1. Amounts of initial change do not increases between pairs of successive rotation sizes. There is an overall effect of rotation size on initial change in reach training though... not sure what this means: more analyses? There is no effect on initial change in no-cursor reach deviations.
 
-2. Reach training aymptotes keep increasing with rotation size. In no-cursor reach deviations the asymptote increases with rotation size, except between 45 and 60 degrees.
+2. Reach training asymptotes keep increasing with rotation size. In no-cursor reach deviations the asymptote increases with rotation size, except between 45 and 60 degrees.
 
 3. In washout, the overall tests indicate effects of rotation size on both starting point and initial change. Both starting points and initial change are different between the 15 degree group and all 3 other groups.
 
