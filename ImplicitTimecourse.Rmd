@@ -31,7 +31,19 @@ Using the no-cursor reach aftereffects after every reach training trial, we can 
 
 ## Setting up R session
 
-First we load all the code for this project:
+This chunk might help solve some issues with `renv`:
+
+```{r eval=F}
+unloadNamespace('renv')
+install.packages('renv', version="1.0.3")
+loadNamespace('renv')
+
+renv::activate()
+renv::restore()
+```
+
+
+We load all the code for this project:
 
 ```{r echo=T, results='hide', quietly=T, warn.conflicts=F}
 source('R/data.R')
@@ -106,9 +118,9 @@ knitr::kable(expTable(exp=1))
 
 First, we confirm that with rotations smaller than 30 degrees, implicit reach aftereffects develop slower, while at all other rotation sizes, the rate of change is comparable, but only if expressed in real degrees change per trial, rather than percentage of asymptote. This casts some doubt on the use of rates/proportion to express speed of learning. Here we plot the exponential fits in real degrees, rather than relative percentages, but to allow comparisons with previous papers (like [Ruttle et al., 2021](https://doi.org/10.1038/s41598-021-81031-y) and [Ruttle et al., 2022](https://doi.org/10.1152/jn.00082.2022)) we also provide the group average rate of change as a percentage of asymptote. The statistics here are all done on the absolute degree change: which is the relative rate of change multiplied by the asymptote (which is roughly the degree change in the first trial, but informed by the full timecourse, so much less noisy).
 
-For total adaptation, the two larger rotations behave similarly, with the rate of change decreasing for smaller rotations. The asymptotes for the two larger rotations seems similar as well, but perhaps the adaptation period was too short.
+For total adaptation, the two larger rotations behave similarly, with the rate of change decreasing for smaller rotations. The asymptotes for the two larger rotations seems similar as well.
 
-However, the washout periods show the same pattern for both regular reaches and no-cursor reaches. In the 2 largest rotations - if not the 3 largest rotations, there seems a significant portion of labile (implicit) adaptation. Starting with the first aligned trial in the washout phase, the 3 larger rotations are indistinguishable from each other. The 15 degree rotation shows smaller reach deviations in both types of trials, which signifies a qualitative difference between this small rotation and the 3 larger ones.
+The washout periods otoh show the same pattern for both regular reaches and no-cursor reaches. In the 2 largest rotations - if not the 3 largest rotations, there seems a significant portion of labile implicit adaptation. Starting with the first aligned trial in the washout phase, the 3 larger rotations appear indistinguishable from each other. The 15 degree rotation shows smaller reach deviations in both types of trials, which signifies a qualitative difference between this small rotation and the 3 larger ones.
 
 When looking at the relationship between explicit (re-aiming) and implicit (no-cursors), there is no linear relationship, although both seem to get a bit larger with increasing rotation size. Additionally, the distribution of our measures of implicit shows the same peak for the 3 larger conditions, and a smaller one for the smallest rotation; the same pattern as in the no-cursor time-courses and in the reach and no-cursor washouts. For explicit re-aiming strategies, we see uni-modal distributions around zero for the two smaller rotations, and bi-modal distributions for the two larger rotations, with 1 peak around zero and another peak at around 20 degrees. Maybe there is even a 3rd peak at 45 degrees for the largest rotation.
 
@@ -125,8 +137,10 @@ expFitBayesianFtest(exp=1,type='reaches')
 Since both show effects, we look at between-group comparisons for successive rotation sizes:
 
 ```{r}
-expFitGroupBayesianTtest(exp=1, type='reaches', mode='learning', timecoursemode='absolute', lambda=FALSE)
+expFitGroupBayesianTtest(exp=1, type='reaches', mode='learning', timecoursemode='absolute')
 ```
+
+THIS DOES NOT EXPLAIN THE EFFECT OF ROTATION SIZE ON LAMBDA, FOUND ABOVE!!!
 
 Here are the Bayesian F-tests on rate of change and asymptote of no-cursors:
 
@@ -134,11 +148,13 @@ Here are the Bayesian F-tests on rate of change and asymptote of no-cursors:
 expFitBayesianFtest(exp=1, type='nocursors')
 ```
 
-Again, we look at between-group comparisons for successive rotation sizes, and only for asymptote / N0:
+Again, we look at between-group comparisons for successive rotation sizes, and since the BF for lambda indicates pretty good support _for_ the null hypothesis, we only do this for the asymptote / N0:
 
 ```{r}
 expFitGroupBayesianTtest(exp=1, type='nocursors', mode='learning', lambda=FALSE)
 ```
+
+So for the two larger rotations, the asymptote of no-cursors is equivalent, but between 15 and 30 degrees and 30 and 45 degrees, the asymptote does increase.
 
 Here are the Bayesian F-tests on rate of change and asymptote of reach washout:
 
@@ -146,11 +162,12 @@ Here are the Bayesian F-tests on rate of change and asymptote of reach washout:
 expFitBayesianFtest(exp=1,type='reaches',mode='washout')
 ```
 
-Again, we look at between-group comparisons for successive rotation sizes, but now also for lambda / RofC:
+We look at between-group comparisons for successive rotation sizes, but now also for lambda / RofC:
 
 ```{r}
 expFitGroupBayesianTtest(exp=1, type='reaches', mode='washout')
 ```
+Every comparison indicates some kind of difference.
 
 Here are the Bayesian F-tests on rate of change and asymptote of no-cursor washout:
 
@@ -158,7 +175,9 @@ Here are the Bayesian F-tests on rate of change and asymptote of no-cursor washo
 expFitBayesianFtest(exp=1,type='nocursors',mode='washout')
 ```
 
-In the figure it really does look like the 15 deg group has a lower N0 than the other groups. More or less like in reach training. So, despite a lack of an effect on the starting value (N0 is not the asymptote in this case) in washouts for no-cursors, we do look at between-group comparisons for successive rotation sizes:
+No-cursors are not different between the groups in either parameter fit to the washout data.
+
+In the figure it really does look like the 15 deg group has a lower N0 than the other groups. More or less like in reach training. So, despite a lack of an effect on the starting value (N0 is not the asymptote in this case) in washouts for no-cursors, we compare the starting point (asymptote / N0) between the 15 deg group and the three other groups:
 
 ```{r}
 expFitGroupBayesianTtest(exp=1, type='nocursors', mode='washout', lambda=FALSE)
@@ -186,7 +205,7 @@ Here are the comparisons with 0:
 aimingZero()
 ```
 
-The evidence goes toward some small amount of re-aiming in the 15 degree condition, although this is largely driven by 2 participants and it does not reach threshold (BF=3). There is some re-aiming happening in the 30 degree condition. In Fig 2XXX we can see that the distribution of re-aiming responses is still close to zero, but it is about 3 degrees. In the other two conditions, it is much more clear that almost all participants engage in some amount of re-aiming. This can both be seen in Fig 2XXX and is shown by the statistics above.
+The evidence goes toward some small amount of re-aiming in the 15 degree condition, although this is largely driven by 2 participants and it does not reach threshold (BF=3). There is some re-aiming happening in the 30 degree condition (3 degrees on average). In Fig 2G we can see that the distribution of re-aiming responses is still close to zero, but it is about 3 degrees. In the other two conditions, it is much more clear that almost all participants engage in some amount of re-aiming. This can both be seen in Fig 2G and is shown by the statistics above.
 
 Now we compare aiming between successive rotations.
 
@@ -194,7 +213,7 @@ Now we compare aiming between successive rotations.
 aimingGroupTtest(exp=1)
 ```
 
-Despite there being pretty good evidence for re-aiming strategies in the 30 degree group and not in the 15 degree group, re-aiming is not very different between the two groups. We do see the expected different between the 30 and 45 degree group, but it is only approaching significance when comparing the 45 anf 60 degree group. Perhaps this can be explained by the larger spread with larger rotations. 
+Despite there being pretty good evidence for re-aiming strategies in the 30 degree group and not in the 15 degree group, re-aiming is not very different between the two groups. We do see the expected difference between the 30 and 45 degree group, but it is only approaching significance when comparing the 45 and 60 degree group. Perhaps this can be explained by the larger spread with larger rotations.
 
 ### Linear prediction of measures of implicit from measures of explicit adaptation
 
@@ -204,24 +223,29 @@ Here we test explicit adaptation as a predictor of implicit adaptation.
 testGroupLinearAdditivity(exp=1)
 ```
 
-There is a significant linear relationship in the 60 degree group only, but this is far from linear. In the groups with lower rotations, the relationship is not even significant.
+There is a significant linear relationship in the 60 degree group only, but this is far from indicating additivity (slope -1). In the groups with lower rotations, the relationship is not even significant.
 
 ## Conclusions
 
-The interleaved trial method works here as well. The explicit re-aiming trials also behave more or less as expected. To test how different kinds of feedback impact the time course of implicit adaptation - in particular in the presence of explicit adaptation as well, we will continue using the 45 degree rotation. We will skip the washout phases however, as they don't seem to add much to other measures. This also leaves time for additional measures.
+The interleaved trial method works here as well. The explicit re-aiming trials also behave more or less as expected. Here is an overview of findings.
 
-There are no effects on rates of change whatsoever - if they are expressed in degrees reach deviation, rather than as a percentage of asymptote.
+1. Amounts of initial change do not increases between pairs of successive rotation sizes. There is an overall effect of rotation size on initial change in reach training though... not sure what this means: more analyses? There is no effect on initial change in no-cursor reach deviations.
 
-Reach training aymptotes keep increasing with rotation size.
+2. Reach training aymptotes keep increasing with rotation size. In no-cursor reach deviations the asymptote increases with rotation size, except between 45 and 60 degrees.
 
-Similarly for training no-cursors, except that they seem maxed out for 45 degrees. There is even a small difference between 30 and 45 degrees.
+3. In washout, the overall tests indicate effects of rotation size on both starting point and initial change. Both starting points and initial change are different between the 15 degree group and all 3 other groups.
 
-For washout reaches, the starting point for the 15 degrees group is lower than the other three groups. Unlike during training, no-cursors during washout don't show a clear pattern. It may be that the 15 degree group has somewhat lower starting point compared to some groups, but the evidence is inconclusive.
+4. There is some amount of re-aiming in all groups, except for the lowest rotation of 15 degrees (and in the 30 degree condition it is very low: ~3 degrees). Re-aiming strategies are equivalent between 15 and 30 degrees, and between 45 and 60 degrees. The latter perhaps due to large variability and multi-modal distributions.
 
+5. The amount of explicit strategies is barely informative about the amount of implicit adaptation, but only in the 60 degree group.
+
+To test how different kinds of feedback impact the time course of implicit adaptation - in particular in the presence of explicit adaptation as well, we will continue using the 45 degree rotation. It's an easier rotation to learn, but there is still sufficient explicit adaptation to modulate it either way. We will skip the washout phases however, as they don't seem to add much to other measures. This also leaves time for additional measures.
 
 # Experiment 2: feedback types
 
-Here we test the timecourse of implicit adaptation, with two different kinds of feedback. Previously, the cursor was visible continuously, and was rotated right from the start. Here, in one condition, we keep the cursor aligned the first 50% of the reach, and introduce the rotation only after 50% of the reahc is completed. At that point, the cursor jumps from aligned to 45 degrees rotated: the _"cursor-jump"_ condition. Then, we also introduce a condition where the cursor is not shown during the reach, or during the return. It is only shown at 1 point: the first point that is at or beyond the distance of the target. The feedback is shown is for XXX ms. (During the return to the start position, different feedback is provided to allow returning to the start position without given position feedback.) We call this the _"terminal"_ condition. Both are supposed to increase explicit learning, and should or could reduce implicit learning. This has been shown before, but the time-course of implicit learning has not been characterized yet (but see Ruttle et al., 2022). Apart from these 2 new conditions, we collect more participants doing a 45 degree rotation (albeit without the washout) and we combine these participants with the existing 45 degree as a reference condition for all new experiments, and we call this the _"control"_ condition.
+Here we test the timecourse of implicit adaptation, with two different kinds of feedback. In the rotation size experiment, the cursor was visible continuously, and was rotated right from the start of each trial. Here, in one condition, we keep the cursor aligned the first 50% of the reach, and introduce the rotation only after 50% of the home-target distance is exceeded. At that point, the cursor jumps from aligned to 45 degrees rotated: the _"cursor-jump"_ condition (cf. [Gastrock et al., 2020](https://doi.org/10.1038/s41598-020-76940-3)). Then, we also introduce a condition where the cursor is not shown during the reach, or during the return. It is only shown at 1 point: the first point that is at or beyond the distance of the target. The feedback is shown is for 750 ms. (During the return to the start position, different feedback is provided to allow returning to the start position without given position feedback: a circle, centred on the home position, with radius equal to the distance between where the cursor would be and the home position.) We call this the _"terminal"_ condition.
+
+Both are supposed to increase explicit learning, and should or could reduce implicit learning. We've observed both for the _cursor-jump_ condition ([Gastrock et al., 2020](https://doi.org/10.1038/s41598-020-76940-3)). While this has been shown before, but the time-course of implicit learning has not been characterized yet (but see [Ruttle et al., 2022](https://doi.org/10.1152/jn.00082.2022) for a first look at the effect of terminal feedback on the timecourse of implicit adaptation). Apart from these 2 new conditions, we collect more participants doing a 45 degree rotation (albeit without the washout) and we combine these participants with the existing 45 degree as a reference condition for all new experiments, and we call this the _"control"_ condition.
 
 Here is a table about the sample of participants:
 
@@ -245,9 +269,11 @@ knitr::kable(expTable(exp=2))
 
 ## Impressions left by figure and table
 
-Overall adaptation seems equal for the three groups, but the control group appears to have larger implicit aftereffects at the end. The timecourses don't show much of a difference between the groups for overall adaptation. However, the implicit, no-cursor timecourses do look qualitatively different. Implicit adaptation seems suppressed for cursor-jump and more so for terminal feedback, in terms of the rate of change (in degrees) per trial.
+Overall adaptation seems equal for the three groups. The control group does appear to have larger implicit aftereffects. The timecourses don't show much of a difference between the groups for overall adaptation. However, at first glance, the implicit, no-cursor timecourses do look qualitatively different. Implicit adaptation seems slower for cursor-jump and more so for terminal feedback, and perhaps lower.
 
-The distribution of explicit (re-aiming) strategies, is no longer clearly bi-modal with 1 peak at 0 explicit strategies for the two new conditions. It would seem that _all_ participants developed some kind fo strategy in these conditions. The distribution of implicit (no-cursors) seems to have changed in the control group as well, because of the addition of extra participants. Where before there was only the impression of a long-tailed distribution, now it seems that there are two distinct peaks. The conditions are exactly identical however, so we have no reason to interpret this as anything else but natural variance. As also seen in the timecourse, implicit adaptation was larger in the control group than in the other groups. The asymptotic levels of implicit adaptation are suppressed, but they do not disappear. Finally, there is no clear relationship between these measures of implicit and explicit components of adaptation.
+The distribution of explicit (re-aiming) strategies, is no longer clearly bi-modal with 1 peak at 0 explicit strategies for the two new conditions. It would seem that _all_ participants developed some kind of strategy in these conditions. That means they indeed evoked explicit adaptation to a much larger degree than the control condition.
+
+The distribution of implicit (no-cursors) seems to have changed in the control group as well, because of the addition of extra participants. Where before there was only the impression of a long-tailed distribution, now it seems that there are two separate peaks. The two conditions making up the control group are exactly identical however, so we have no reason to interpret this as anything but natural variance (luckily, we have a reasonably large sample). As also seen in the timecourse, implicit adaptation was larger in the control group than in the other groups. The asymptotic levels of implicit adaptation are suppressed in the two conditions with larger explicit adaptation, slightly. Finally, there appears to be no clear relationship between these measures of implicit and explicit components of adaptation.
 
 ## Statistics
 
@@ -281,7 +307,7 @@ Testing for an effect of condition / group on re-aiming:
 aimingBayesianFtest(exp=2)
 ```
 
-Seems there is an effect, so now we compare the control group to the others:
+Seems there is an effect on explicit strategies, so now we compare the control group to the others:
 
 ```{r}
 aimingGroupTtest(exp=2)
@@ -301,11 +327,17 @@ None of the relations are significant, and confidence intervals of the slopes in
 
 ## Conclusions
 
-These two feedback types indeed increased explicit adaptation, which may have led to decreased implicit adaptation, but the relationship is not 1:1.
+1. The two new conditions: terminal feedback and cursor-jump, did have the expected effect of increased explicit strategies.
+
+2. This did not go hand-in-hand with any changes in implicit adaptation: both the asymptotic levels and the initial changes in implicit adaptation were equivalent in all conditions.
+
+3. There was no relationship between levels of implicit adaptation and levels of explicit adaptation in any of the three conditions.
+
+In this experiment we can see that some manipulations (types of feedback) may work very well to increase explicit strategies, but this is not necessarily accompanied by any changes in the level or speed of implicit adaptation. This shows that explicit and implicit adaptation can be independent processes.
 
 # Experiment 3: delays with terminal feedback
 
-The terminal feedback in the previous experiment should lead to "explicit-only" adaptation, if there is a delay after reach completion and before the feedback is shown. We test this in a variant on the previous "terminal" condition where the feedback is presented after a delay, the _"delay -> feedback"_ condition. This changes both the overall duration of the experiment, as well as the time between the onset of trials. This could also change learning, so we matched this with a condition where the terminal feedback is shown first, and then there is a delay of the same duration. We call this the _"feedback -> delay"_ condition.
+The terminal feedback in the previous experiment should lead to "explicit-only" adaptation, if there is a delay after reach completion and before the feedback is shown. We test this in a variant on the previous "terminal" condition where the feedback is presented after a delay, the _"delay -> feedback"_ condition. This changes both the overall duration of the experiment, which could also change learning. So we controlled for this with a condition where the terminal feedback is shown first, and then there is a delay of the same duration. We call this the _"feedback -> delay"_ condition. In these two tasks, the delays (with no feedback on the screen at all) are 1200 ms and the terminal feedback is shown for 600 ms. In both cases, the participant is supposed to _hold_ at the endpoint of their reach, so there is a separate hold time of 1800 ms. If the hold is broken (a movement of more than **XXX** away from the end position) then **WHAT HAPPENS?**.
 
 Here is a table about the sample of participants:
 
