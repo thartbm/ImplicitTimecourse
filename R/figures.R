@@ -47,7 +47,7 @@ expBehaviorFig <- function(exp, target='inline', timecoursemode='absolute') {
   if (exp > 1) { ntrials = 120; mrot=45; xticks=c(1,21,120) } else { ntrials = 144; mrot=60; xticks=c(1,21,121,144) }
   
   if (exp == 1) {
-    layout( mat=matrix(c(1,1,1,1,1,1,2,2,2,2,2,2,3,3,3,4,4,4,5,5,6,6,7,7),nrow=4,ncol=6, byrow=TRUE) )
+    layout( mat=matrix(c(1,1,1,1,1,1,2,2,2,2,2,2,3,3,4,4,5,5,6,6,7,7,8,8),nrow=4,ncol=6, byrow=TRUE) )
   } else {
     layout( mat=matrix(c(1,1,1,2,2,2,3,4,5),nrow=3,ncol=3, byrow=TRUE) )
   }
@@ -223,52 +223,12 @@ expBehaviorFig <- function(exp, target='inline', timecoursemode='absolute') {
   axis(side=1,at=c(0,10,20,30),labels=c('baseline','10','20','30'))
   axis(side=2,at=yticklocs,las=1,labels=yticklabels)
   
-  
-  if (exp == 1) {
-    plot(-1000,-1000,
-         main='',xlab='',ylab='',
-         xlim=c(0,30),ylim=c(0,45),
-         ax=F,bty='n'
-    )
-    
-    title(main='E: washout reaches', line=0.25, adj=0)
-    title(xlab='trial', line = 1.75)
-    title(ylab='deviation [°]', line = 2.5)
-    
-    
-    addWashoutTimecourses(type='reaches',conditions=conditions)
-    
-    axis(side=1,at=c(1,12,24))
-    axis(side=2,at=c(0,15,30,45),las=1)
-    
-    plot(-1000,-1000,
-         main='',xlab='',ylab='',
-         xlim=c(0,30),ylim=c(0,45),
-         ax=F,bty='n'
-    )
-    
-    title(main='F: washout no-cursors', line=0.25, adj=0)
-    title(xlab='trial', line = 1.75)
-    title(ylab='deviation [°]', line = 2.5)
-    
-    addWashoutTimecourses(type='nocursors',conditions=conditions)
-    
-    axis(side=1,at=c(1,12,24))
-    axis(side=2,at=c(0,15,30,45),las=1)
-    
-  }
-  
-  
   # now the implicit/explicit scatters:
   
   if (exp > 1) { mrot=45 } else { mrot=60 }
   mrot <- 60
   
-  if (exp == 1) {
-    main <- 'G: linear model'
-  } else {
-    main <- 'E: linear model'
-  }
+  main <- 'E: linear model'
   
   plot(x=-1000, y=-1000,
        main='',ylab='',xlab='',
@@ -289,6 +249,39 @@ expBehaviorFig <- function(exp, target='inline', timecoursemode='absolute') {
   axis(side=2,at=seq(0,mrot,15))
   
   
+  if (exp == 1) {
+    plot(-1000,-1000,
+         main='',xlab='',ylab='',
+         xlim=c(0,30),ylim=c(0,45),
+         ax=F,bty='n'
+    )
+    
+    title(main='F: washout reaches', line=0.25, adj=0)
+    title(xlab='trial', line = 1.75)
+    title(ylab='deviation [°]', line = 2.5)
+    
+    
+    addWashoutTimecourses(type='reaches',conditions=conditions)
+    
+    axis(side=1,at=c(1,12,24))
+    axis(side=2,at=c(0,15,30,45),las=1)
+    
+    plot(-1000,-1000,
+         main='',xlab='',ylab='',
+         xlim=c(0,30),ylim=c(0,45),
+         ax=F,bty='n'
+    )
+    
+    title(main='G: washout no-cursors', line=0.25, adj=0)
+    title(xlab='trial', line = 1.75)
+    title(ylab='deviation [°]', line = 2.5)
+    
+    addWashoutTimecourses(type='nocursors',conditions=conditions)
+    
+    axis(side=1,at=c(1,12,24))
+    axis(side=2,at=c(0,15,30,45),las=1)
+    
+  }
   
   if (target %in% c('svg','png','pdf','tiff')) {
     dev.off()
