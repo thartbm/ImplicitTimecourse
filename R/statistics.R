@@ -69,7 +69,7 @@ getExpFitDF <- function(conditions, mode, type, timecoursemode='relative') {
   
 }
 
-expFitBayesianFtest <- function(exp, type, mode='learning', timecoursemode='absolute') {
+expFitBayesianFtest <- function(exp, type, mode='learning', timecoursemode='relative') {
   
   info <- groupInfo()
   conditions <- expConditions(exp)
@@ -102,7 +102,7 @@ expFitBayesianFtest <- function(exp, type, mode='learning', timecoursemode='abso
 expFitGroupBayesianTtest <- function(exp,
                                      type, 
                                      mode='learning', 
-                                     timecoursemode='absolute',
+                                     timecoursemode='relative',
                                      lambda=TRUE,
                                      N0=TRUE) {
   

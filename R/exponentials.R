@@ -377,7 +377,7 @@ groupAvgFits <- function(conditions=NULL) {
   
 } 
 
-behaviorDescriptors <- function() {
+behaviorDescriptors <- function(timecoursemode='relative') {
   
   info <- groupInfo()
   
@@ -425,7 +425,7 @@ behaviorDescriptors <- function() {
                                       mode=mode,
                                       trialtype=trialtype,
                                       centralvalue = 'group',
-                                      timecoursemode='absolute',
+                                      timecoursemode=timecoursemode,
                                       othermode='central')
         
         if (trialtype == 'reaches') {
