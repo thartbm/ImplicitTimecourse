@@ -41,13 +41,13 @@ loadNamespace('renv')
 renv::activate()
 ```
 
-You will want to restore the `renv` as used while doing this project:
+You will want to `restore()` the `renv` as used while doing this project. This should install a lot of packages so this might take a while.
 
 ```{r eval=F}
 renv::restore()
 ```
 
-Install the most recent Reach package:
+Install the most recent Reach package (can't be handled by renv):
 
 ```{r}
 library('remotes')
@@ -146,7 +146,7 @@ When looking at the relationship between explicit (re-aiming) and implicit (no-c
 
 ## Statistics
 
-### Exponential fits
+### Exponential fits on initial rotation
 
 Here are the Bayesian F-tests on rate of change and asymptote of reach training:
 
@@ -154,13 +154,13 @@ Here are the Bayesian F-tests on rate of change and asymptote of reach training:
 expFitBayesianFtest(exp=1,type='reaches')
 ```
 
-Since both show effects, we look at between-group comparisons for successive rotation sizes:
+Since only the asymptote shows an effect and the rate of changes shows support _for_ the null hypothesis, we look at between-group comparisons for successive rotation sizes on asymptote only:
 
 ```{r}
-expFitGroupBayesianTtest(exp=1, type='reaches', mode='learning', timecoursemode='absolute')
+expFitGroupBayesianTtest(exp=1, type='reaches', mode='learning', lambda=FALSE)
 ```
 
-THIS DOES NOT EXPLAIN THE EFFECT OF ROTATION SIZE ON LAMBDA, FOUND ABOVE!!!
+The asymptotes in reach-training trials get successively larger with larger rotations. No surprise there.
 
 Here are the Bayesian F-tests on rate of change and asymptote of no-cursors:
 
@@ -174,7 +174,9 @@ Again, we look at between-group comparisons for successive rotation sizes, and s
 expFitGroupBayesianTtest(exp=1, type='nocursors', mode='learning', lambda=FALSE)
 ```
 
-So for the two larger rotations, the asymptote of no-cursors is equivalent, but between 15 and 30 degrees and 30 and 45 degrees, the asymptote does increase.
+So for the two larger rotations, the asymptote of no-cursors is equivalent, but between 15 and 30 degrees and 30 and 45 degrees, the asymptote does increase. This is what it looks like in the figure as well.
+
+### Exponential fits on washout phase
 
 Here are the Bayesian F-tests on rate of change and asymptote of reach washout:
 
@@ -182,10 +184,10 @@ Here are the Bayesian F-tests on rate of change and asymptote of reach washout:
 expFitBayesianFtest(exp=1,type='reaches',mode='washout')
 ```
 
-We look at between-group comparisons for successive rotation sizes, but now also for lambda / RofC:
+We look at between-group comparisons for successive rotation sizes, again only for asymptote:
 
 ```{r}
-expFitGroupBayesianTtest(exp=1, type='reaches', mode='washout')
+expFitGroupBayesianTtest(exp=1, type='reaches', mode='washout', lambda=FALSE)
 ```
 Every comparison indicates some kind of difference.
 
@@ -195,7 +197,7 @@ Here are the Bayesian F-tests on rate of change and asymptote of no-cursor washo
 expFitBayesianFtest(exp=1,type='nocursors',mode='washout')
 ```
 
-No-cursors are not different between the groups in either parameter fit to the washout data.
+No-cursors are not different between the groups in either parameter fit to the washout data, and for rate of change there is even support _for_ the null hypothesis.
 
 In the figure it really does look like the 15 deg group has a lower N0 than the other groups. More or less like in reach training. So, despite a lack of an effect on the starting value (N0 is not the asymptote in this case) in washouts for no-cursors, we compare the starting point (asymptote / N0) between the 15 deg group and the three other groups:
 
@@ -263,7 +265,7 @@ To test how different kinds of feedback impact the time course of implicit adapt
 
 # Experiment 2: feedback types
 
-Here we test the timecourse of implicit adaptation, with two different kinds of feedback. In the rotation size experiment, the cursor was visible continuously, and was rotated right from the start of each trial. Here, in one condition, we keep the cursor aligned the first 50% of the reach, and introduce the rotation only after 50% of the home-target distance is exceeded. At that point, the cursor jumps from aligned to 45 degrees rotated: the _"cursor-jump"_ condition (cf. [Gastrock et al., 2020](https://doi.org/10.1038/s41598-020-76940-3)). Then, we also introduce a condition where the cursor is not shown during the reach, or during the return. It is only shown at 1 point: the first point that is at or beyond the distance of the target. The feedback is shown is for 750 ms. (During the return to the start position, different feedback is provided to allow returning to the start position without given position feedback: a circle, centred on the home position, with radius equal to the distance between where the cursor would be and the home position.) We call this the _"terminal"_ condition.
+Here we test the time course of implicit adaptation, with two different kinds of feedback. In the rotation size experiment, the cursor was visible continuously, and was rotated right from the start of each trial. Here, in one condition, we keep the cursor aligned the first 50% of the reach, and introduce the rotation only after 50% of the home-target distance is exceeded. At that point, the cursor jumps from aligned to 45 degrees rotated: the _"cursor-jump"_ condition (cf. [Gastrock et al., 2020](https://doi.org/10.1038/s41598-020-76940-3)). Then, we also introduce a condition where the cursor is not shown during the reach, or during the return. It is only shown at 1 point: the first point that is at or beyond the distance of the target. The feedback is shown is for 750 ms. (During the return to the start position, different feedback is provided to allow returning to the start position without given position feedback: a circle, centred on the home position, with radius equal to the distance between where the cursor would be and the home position.) We call this the _"terminal"_ condition.
 
 Both are supposed to increase explicit learning, and should or could reduce implicit learning. We've observed both for the _cursor-jump_ condition ([Gastrock et al., 2020](https://doi.org/10.1038/s41598-020-76940-3)). While this has been shown before, but the time-course of implicit learning has not been characterized yet (but see [Ruttle et al., 2022](https://doi.org/10.1152/jn.00082.2022) for a first look at the effect of terminal feedback on the timecourse of another implicit process: proprioceptive recalibration). Apart from these 2 new conditions, we collect more participants doing a 45 degree rotation (albeit without the washout) and we combine these participants with the existing 45 degree as a reference condition for all new experiments, and we call this the _"control"_ condition.
 
@@ -327,7 +329,7 @@ Seems there is an effect on explicit strategies, so now we compare the control g
 aimingGroupTtest(exp=2)
 ```
 
-Both groups are different from control.
+Both groups are different from control, and we can see in the table that the terminal group and cursorjump group have more than twice the amount of explicit strategy as compared to the control group.
 
 ### Linear prediction of implicit from explicit
 
