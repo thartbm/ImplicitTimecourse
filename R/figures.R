@@ -175,8 +175,9 @@ expBehaviorFig <- function(exp, target='inline', timecoursemode='absolute') {
     yticklabels <- c('0%','25%','50%','75%','100%')
   }
   if (timecoursemode == 'absolute') {
-    ylim <- c(0,mrot)
-    yticklocs <- seq(0,mrot,15)
+    ymrot <- 45
+    ylim <- c(0,ymrot)
+    yticklocs <- seq(0,ymrot,15)
     yticklabels <- sprintf('%d',yticklocs)
   }
   
