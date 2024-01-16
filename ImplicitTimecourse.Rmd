@@ -199,7 +199,7 @@ expFitBayesianFtest(exp=1,type='nocursors',mode='washout')
 
 No-cursors are not different between the groups in either parameter fit to the washout data, and for rate of change there is even support _for_ the null hypothesis.
 
-In the figure it really does look like the 15 deg group has a lower N0 than the other groups. More or less like in reach training. So, despite a lack of an effect on the starting value (N0 is not the asymptote in this case) in washouts for no-cursors, we compare the starting point (asymptote / N0) between the 15 deg group and the three other groups:
+In the figure it does look like the 15 deg group has a lower N0 than the other groups. More or less like in reach training. So, despite a lack of an effect on the starting value (N0 is not the asymptote in this case) in washouts for no-cursors, we compare the starting point (asymptote / N0) between the 15 deg group and the three other groups:
 
 ```{r}
 expFitGroupBayesianTtest(exp=1, type='nocursors', mode='washout', lambda=FALSE)
@@ -227,7 +227,7 @@ Here are the comparisons with 0:
 aimingZero()
 ```
 
-The evidence goes toward some small amount of re-aiming in the 15 degree condition, although this is largely driven by 2 participants and it does not reach threshold (BF=3). There is some re-aiming happening in the 30 degree condition (3 degrees on average). In Fig 2G we can see that the distribution of re-aiming responses is still close to zero, but it is about 3 degrees. In the other two conditions, it is much more clear that almost all participants engage in some amount of re-aiming. This can both be seen in Fig 2G and is shown by the statistics above.
+The evidence goes toward some small amount of re-aiming in the 15 degree condition, although this is largely driven by 2 participants and it does not reach threshold (BF=3). There is some re-aiming happening in the 30 degree condition (3 degrees on average), but still close to 0. In the other two conditions, it is much more clear that almost all participants engage in some amount of re-aiming. This can both be seen in Fig 2E and is shown by the statistics above.
 
 Now we compare aiming between successive rotations.
 
@@ -235,7 +235,7 @@ Now we compare aiming between successive rotations.
 aimingGroupTtest(exp=1)
 ```
 
-Despite there being pretty good evidence for re-aiming strategies in the 30 degree group and not in the 15 degree group, re-aiming is not very different between the two groups. We do see the expected difference between the 30 and 45 degree group, but it is only approaching significance when comparing the 45 and 60 degree group. Perhaps this can be explained by the larger spread with larger rotations.
+Despite there being pretty good evidence for re-aiming strategies in the 30 degree group and not in the 15 degree group, re-aiming is not very different between the two groups. We do see the expected difference between the 30 and 45 degree group, but it is only approaching significance when comparing the 45 and 60 degree group. Perhaps this can be explained by the larger spread with larger rotations?
 
 ### Linear prediction of measures of implicit from measures of explicit adaptation
 
@@ -251,15 +251,15 @@ There is a significant linear relationship in the 60 degree group only, but this
 
 The interleaved trial method works here as well. The explicit re-aiming trials also behave more or less as expected. Here is an overview of findings.
 
-1. Amounts of initial change do not increases between pairs of successive rotation sizes. There is an overall effect of rotation size on initial change in reach training though... not sure what this means: more analyses? There is no effect on initial change in no-cursor reach deviations.
+1. Rates of change do not increases between pairs of successive rotation sizes. This goes for both reach training trials and no-cursor trials.
 
 2. Reach training asymptotes keep increasing with rotation size. In no-cursor reach deviations the asymptote increases with rotation size, except between 45 and 60 degrees.
 
-3. In washout, the overall tests indicate effects of rotation size on both starting point and initial change. Both starting points and initial change are different between the 15 degree group and all 3 other groups.
+3. In washout, the overall tests indicate effects of rotation size on the starting point of reach training trials - and no effect of rotation size on washout no-cursors. The 15 degree group has a lower starting point for reach trials than the other groups.
 
-4. There is some amount of re-aiming in all groups, except for the lowest rotation of 15 degrees (and in the 30 degree condition it is very low: ~3 degrees). Re-aiming strategies are equivalent between 15 and 30 degrees, and between 45 and 60 degrees. The latter perhaps due to large variability and multi-modal distributions.
+4. Except for the lowest rotation of 15 degrees, there is some amount of re-aiming in all groups (and in the 30 degree condition it is very low). Re-aiming strategies are not different (data doesn't provide evidence one way or another) between 15 and 30 degrees, and between 45 and 60 degrees. The latter perhaps due to large variability and multi-modal distributions.
 
-5. The amount of explicit strategies is barely informative about the amount of implicit adaptation, but only in the 60 degree group.
+5. The amount of explicit strategies is barely informative about the amount of implicit adaptation, and only in the 60 degree group.
 
 To test how different kinds of feedback impact the time course of implicit adaptation - in particular in the presence of explicit adaptation as well, we will continue using the 45 degree rotation. It's an easier rotation to learn, but there is still sufficient explicit adaptation to modulate it either way. We will skip the washout phases however, as they don't seem to add much to other measures. This also leaves time for additional measures.
 
@@ -313,7 +313,7 @@ Here are the Bayesian F-tests on rate of change and asymptote of no-cursors:
 expFitBayesianFtest(exp=2, type='nocursors')
 ```
 
-It _looks_ like the implicit time courses develop at different speeds in the figure, but there really is no effect...
+It _looks_ like the implicit time courses develop at different speeds in the figure, but there really is no effect. The data even supports the null hypothesis (equivalence).
 
 ### Aiming
 
@@ -329,7 +329,7 @@ Seems there is an effect on explicit strategies, so now we compare the control g
 aimingGroupTtest(exp=2)
 ```
 
-Both groups are different from control, and we can see in the table that the terminal group and cursorjump group have more than twice the amount of explicit strategy as compared to the control group.
+Both groups are different from control, and we can see in the table that the terminal group and cursor-jump group have more than twice the amount of explicit strategy as compared to the control group.
 
 ### Linear prediction of implicit from explicit
 
@@ -345,15 +345,15 @@ None of the relations are significant, and confidence intervals of the slopes in
 
 1. The two new conditions: terminal feedback and cursor-jump, did have the expected effect of increased explicit strategies.
 
-2. This did not go hand-in-hand with any changes in implicit adaptation: both the asymptotic levels and the initial changes in implicit adaptation were equivalent in all conditions.
+2. This did not go hand-in-hand with any changes in implicit adaptation: both the asymptotic levels and the initial changes in implicit adaptation were equivalent in all conditions. Similarly the asymptotes and rates of change were equivalent for reach-training trials.
 
-3. There was no relationship between levels of implicit adaptation and levels of explicit adaptation in any of the three conditions.
+3. There was no relationship between levels of implicit adaptation and levels of explicit adaptation in any of the conditions.
 
-In this experiment we can see that some manipulations (types of feedback) may work very well to increase explicit strategies, but this is not necessarily accompanied by any changes in the level or speed of implicit adaptation. This shows that explicit and implicit adaptation can be independent processes.
+In this experiment we can see that some manipulations (types of feedback) may work very well to increase explicit strategies, but this is not necessarily accompanied by any changes in the level or speed of implicit adaptation (or overall adaptation). This already shows that explicit and implicit adaptation can be independent processes.
 
 # Experiment 3: delays with terminal feedback
 
-The terminal feedback in the previous experiment should lead to "explicit-only" adaptation, if there is a delay after reach completion and before the feedback is shown. We test this in a variant on the previous "terminal" condition where the feedback is presented after a delay, the _"delay -> feedback"_ condition. This changes both the overall duration of the experiment, which could also change learning. So we controlled for this with a condition where the terminal feedback is shown first, and then there is a delay of the same duration. We call this the _"feedback -> delay"_ condition. In these two tasks, the delays (with no feedback on the screen at all) are 1200 ms and the terminal feedback is shown for 600 ms. In both cases, the participant is supposed to _hold_ at the endpoint of their reach, so there is a separate hold time of 1800 ms. If the hold is broken (a movement of more than **XXX** away from the end position) then **WHAT HAPPENS?**.
+The terminal feedback in the previous experiment should lead to "explicit-only" adaptation, if there is a delay after reach completion and before the feedback is shown. We test this in a variant on the previous "terminal" condition where the feedback is presented after a delay, the _"delay -> feedback"_ condition. This changes both the overall duration of the experiment, which could also change learning. So we controlled for this with a condition where the terminal feedback is shown first, and then there is a delay of the same duration. We call this the _"feedback -> delay"_ condition. In these two tasks, the delays (with no feedback on the screen at all) are 1200 ms and the terminal feedback is shown for 600 ms. In both cases, the participant is supposed to _hold_ at the endpoint of their reach, so there is a separate hold time of 1800 ms. If the hold is broken (a movement of more than 1 cm away from the end position) then participants have to move to any point at 10 cm distance from the home position and restart the hold period of 1.8 s.
 
 Here is a table about the sample of participants:
 
@@ -394,7 +394,7 @@ Here are the Bayesian F-tests on rate of change and asymptote of no-cursors:
 expFitBayesianFtest(exp=3, type='nocursors')
 ```
 
-This also does not indicate any differences.
+This also does not indicate any differences. The evidence is unclear for asymptotes, but supports the null hypothesis for rates of change.
 
 ### Aiming
 
@@ -410,7 +410,7 @@ There is an effect. Slightly surprising? Let's see where the differences are.
 aimingGroupTtest(exp=3)
 ```
 
-It appears that in the terminal feedback without any kind of delay, the re-aiming responses are larger than in all other groups. That is: added delays do not seem to make learning more explicit in this data set, but _less_ explicit.
+It appears that in the terminal feedback without any kind of delay, the re-aiming responses are larger than in all other groups. That is: added delays do not seem to make learning more explicit in this data set, but _less_ explicit. This is unexpected.
 
 ### Linear correlation between implicit and explicit adaptation
 
@@ -424,11 +424,11 @@ The two untested groups here (the two with delays) again show no linear relation
 
 ## Conclusion
 
-1. Terminal feedback did increase explicit adaptation. Counter to previous papers, adding delays before (or after) the terminal feedback decreased explicit re-aiming.
+1. Terminal feedback did increase explicit adaptation relative to control. Counter to previous papers, adding delays before (or after) the terminal feedback decreased explicit re-aiming (instead of the expected increase). We don't attach much meaning to this finding here, but it shows that delays do not automatically make adaptation more explicit.
 
-2. There were no effects on overall learning or implicit adaptation. 
+2. There were no effects on overall learning or implicit adaptation. (Except for no-cursor asymptotes, the data supported the null-hypothesis.)
 
-3. Implicit and explicit adaptation varied in both new conditions, but independently.
+3. Implicit and explicit adaptation varied in both new conditions, but independently from each other.
 
 # Experiment 4: continuous aiming
 
@@ -493,9 +493,9 @@ Also in the aiming group, there seems to be no relationship between measures of 
 
 ## Conclusion
 
-1. Adding continuous aiming increases explicit strategies. It does not increase overall learning, or decrease implicit adaptation.
+1. Adding continuous aiming increases explicit strategies. It does not affect overall learning, or implicit adaptation.
 
-2. Continuously asking for re-aiming responses does not lead to a relationship between implicit and explicit adaptation, where there otherwise would be none.
+2. Continuously asking for re-aiming responses does not lead to a relationship between implicit and explicit adaptation.
 
 # Export manuscript figures
 
