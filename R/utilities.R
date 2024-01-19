@@ -372,9 +372,27 @@ addWashoutTimecourses <- function(type, conditions) {
 
 # processing -----
 
-removeOutliers <- function(df, depvar='reachdeviation_deg') {
+removeOutliers <- function(df, depvar='reachdeviation_deg', margin = 15) {
   
-  df[which(abs(df[,depvar]) > (abs(df$rotation) + 60)), depvar] <- NA
+  info <- groupInfo()
+  condition <- df$condition[1]
+  rot <- info$rot[which(info$condition == condition)]
+  
+  if (sign(rot) == -1) {
+    ub <- -rot + margin
+    lb <- -margin
+  }
+  if (sign(rot) == 1) {
+    ub <-  margin
+    lb <- -rot - margin
+  }
+  
+  df[which(df[,depvar] > ub), depvar] <- NA
+  df[which(df[,depvar] < lb), depvar] <- NA
+  
+  
+  # this used to be a one-liner:
+  # df[which(abs(df[,depvar]) > (abs(df$rotation) + 30)), depvar] <- NA
   
   return(df)
   
@@ -455,13 +473,18 @@ getImpExpEst <- function(condition,type) {
 
 # demographics ------
 
-demographicsTable <- function(exp=1, mergeControls=TRUE) {
+demographicsTable <- function(exp=1, mergeControls=TRUE, onlyLearners=TRUE) {
   
   # read the demographics file:
-  demographics <- read.csv('data/demographics.csv')
+  demographics <- read.csv('data/demographics.csv', stringsAsFactors = FALSE)
+  
+  # remove non-learners?
+  if (onlyLearners) {
+    demographics <- demographics[which(demographics$learner == TRUE),]
+  }
   
   # get conditions for the experiment:
-  conditions <- expConditions(exp)
+  if (exp > 0) { conditions <- expConditions(exp) } else {conditions <- unique(demographics$condition_label)}
   
   # merge controls, or keep 45deg as separate group:
   if (mergeControls) {
@@ -469,7 +492,9 @@ demographicsTable <- function(exp=1, mergeControls=TRUE) {
       demographics$condition_label[which(demographics$condition_label == '45deg_distance')] <- 'control'
     }
   } else {
-    conditions <- unique(c(conditions, '45deg_distance'))
+    if (exp > 0) {
+      conditions <- unique(c(conditions, '45deg_distance'))
+    }
   }
   
   alldem <- demographics[which(demographics$condition_label %in% conditions),]
@@ -478,6 +503,7 @@ demographicsTable <- function(exp=1, mergeControls=TRUE) {
   demographics <- rbind(demographics, alldem)
   
   conditions <- c('all', conditions)
+  if (exp == 0) {conditions <- c('all')}
   
   gender_table <- table(demographics$condition_label, demographics$sex)
   
@@ -517,7 +543,18 @@ demographicsTable <- function(exp=1, mergeControls=TRUE) {
   
   df <- merge(df, hand_df, by.x='group', by.y='group')
   
+  df$age_mean <- round(df$age_mean, digits=3)
+  df$age_sd <- round(df$age_sd, digits=3)
+  
   df <- df[which(df$group %in% conditions),]
+  
+  if (dim(df)[1] > 1) {
+    groups <- df$group
+    df <- df[ , !(names(df) %in% c('group'))]
+    df <- t(sapply(df, as.character))
+    df <- as.data.frame(df)
+    names(df) <- groups
+  }
   
   return(df)
   
