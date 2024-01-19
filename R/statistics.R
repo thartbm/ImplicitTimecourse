@@ -20,8 +20,9 @@ getComparisons <- function(exp, mode) {
     }
   } else {
     comparisons <- list()
+    if (exp==3) { conditions <- conditions[-which(conditions == 'control')]; reference <- 'terminal'} else {reference <- 'control'}
     for (condition in conditions) {
-      if (exp==3) {reference <- 'terminal'} else {reference <- 'control'}
+      # if (exp==3) {reference <- 'terminal'} else {reference <- 'control'}
       if (condition == reference) {
         next
       } else {
@@ -36,6 +37,67 @@ getComparisons <- function(exp, mode) {
 
 
 # reaches & no-cursors -----
+
+differenceCI <- function(conditions, type, mode, lambda=TRUE, N0=TRUE) {
+  
+  info <- groupInfo()
+  
+  if (mode == 'washout') {
+    df1 <- read.csv(sprintf('data/exp%d/%s_%s_washout_exp-fits.csv',info$exp[which(info$condition == conditions[1])], conditions[1], type), stringsAsFactors = FALSE)
+    df2 <- read.csv(sprintf('data/exp%d/%s_%s_washout_exp-fits.csv',info$exp[which(info$condition == conditions[2])], conditions[2], type), stringsAsFactors = FALSE)
+  } else {
+    df1 <- read.csv(sprintf('data/exp%d/%s_%s_exp-fits.csv',info$exp[which(info$condition == conditions[1])], conditions[1], type), stringsAsFactors = FALSE)
+    df2 <- read.csv(sprintf('data/exp%d/%s_%s_exp-fits.csv',info$exp[which(info$condition == conditions[2])], conditions[2], type), stringsAsFactors = FALSE)
+  }
+  
+  if (lambda) {
+    ld <- df1$lambda - df2$lambda
+    CI <- quantile(ld, probs=c(0.025, 0.975))
+    cat('\n')
+    # cat(sprintf('comparing %s and %s rate of change (lambda):\n',conditions[1],conditions[2]))
+    if (all(CI > 0)) {cat(sprintf('%s has a LARGER rate of change in %s than %s\n', conditions[1], type, conditions[2]))}
+    if (all(CI < 0)) {cat(sprintf('%s has a SMALLER rate of change in %s than %s\n', conditions[1], type, conditions[2]))}
+    if (all(c((CI[1] < 0), (CI[2] > 0)))) {cat(sprintf('rate of change in %s of %s and %s are not different\n', type, conditions[1], conditions[2]))}
+    print(CI)
+  }
+  if (N0) {
+    ld <- df1$N0 - df2$N0
+    CI <- quantile(ld, probs=c(0.025, 0.975))
+    cat('\n')
+    # cat(sprintf('comparing %s and %s asymptote (N0):\n',conditions[1],conditions[2]))
+    if (all(CI > 0)) {cat(sprintf('%s has a LARGER asymptote in %s than %s\n', conditions[1], type, conditions[2]))}
+    if (all(CI < 0)) {cat(sprintf('%s has a SMALLER asymptote in %s than %s\n', conditions[1], type, conditions[2]))}
+    if (all(c((CI[1] < 0), (CI[2] > 0)))) {cat(sprintf('asymptote in %s of %s and %s are not different\n', type, conditions[1], conditions[2]))}
+    print(CI)
+  }
+  
+}
+
+expCIdiffs <- function(exp, type, mode='learning') {
+  
+  for (param in c('lambda','N0')) {
+    
+    if (param == 'lambda') {lambda=TRUE; N0=FALSE}
+    if (param == 'N0') {lambda=FALSE; N0=TRUE}
+    
+    comparisons <- getComparisons(exp=exp, mode=mode)
+    
+    for (comparison in comparisons) {
+      
+      differenceCI(conditions = comparison,
+                   type=type,
+                   mode=mode,
+                   lambda=lambda,
+                   N0=N0)
+      
+    }
+    
+  }
+  
+  
+}
+
+# old approach -----
 
 getExpFitDF <- function(conditions, mode, type, timecoursemode='relative') {
   
