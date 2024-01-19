@@ -29,6 +29,8 @@ extractAngularDeviations <- function() {
   extractNoCursorDeviations(distance=distance)
   extractAimingDeviations()
   
+  removeNonLearners()
+  
   combineControls()
   
 }
@@ -215,6 +217,73 @@ extractAimingDeviations <- function() {
   }
   
 }
+
+
+removeNonLearners <- function() {
+  
+  info <- read.csv('data/demographics.csv', stringsAsFactors = FALSE)
+  
+  info$learner = FALSE
+  
+  totalN <- 0
+  nlearners <- 0
+  
+  for (exp in unique(info$exp)) {
+    
+    for (condition in unique(info$condition_label[which(info$exp == exp)])) {
+      
+      learners <- c()
+      
+      # cat(sprintf('exp %d, %s\n',exp,toupper(condition)))
+      
+      cond_df <- read.csv(sprintf('data/exp%d/%s_reaches.csv', exp, condition), stringsAsFactors = FALSE)
+      org_participants <- unique(cond_df$participant)
+      totalN <- totalN + length(org_participants)
+      for (participant in unique(cond_df$participant)) {
+        
+        # print(participant)
+        part_df <- cond_df[which(cond_df$participant == participant),]
+        part_df <- part_df[which(part_df$phase == 'rotation'),]
+        # print(dim(part_df))
+        ntrials <- dim(part_df)[1]
+        stst <- mean(part_df$reachdeviation_deg[c((ntrials-19):ntrials)], na.rm=TRUE)
+        rot <- part_df$rotation_deg[1]
+        if (rot < 0) {rot <- -1 * rot} else {stst <- -1 * stst}
+        # print(stst)
+        # print(rot)
+        if (stst > (rot/2)) {
+          learners <- c( learners, participant)
+          info$learner[which(info$participant == participant)] <- TRUE
+        }
+
+      }
+      
+      cat(sprintf('removed %d non-learners from %d %s participants\n',(length(org_participants)-length(learners)),length(org_participants),toupper(condition)))
+      nlearners <- nlearners + length(learners)
+      cond_df <- cond_df[which(cond_df$participant %in% learners),]
+      outfilename <- sprintf('data/exp%d/%s_reaches.csv', exp, condition)
+      write.csv(cond_df, outfilename, row.names=FALSE, quote=TRUE)
+      
+      # remove from no-cursor and aiming data as well:
+      for (datatype in c('nocursors', 'aiming')) {
+        filename <- sprintf('data/exp%d/%s_%s.csv', exp, condition, datatype)
+        cond_df <- read.csv(filename, stringsAsFactors = FALSE)
+        cond_df <- cond_df[which(cond_df$participant %in% learners),]
+        write.csv(cond_df, filename, row.names=FALSE, quote=TRUE)
+      }
+
+    }
+    
+  }
+  
+  info <- info[order(info$condition_label),]
+  info <- info[order(info$exp),]
+  
+  write.csv(info, 'data/demographics.csv', quote=TRUE, row.names = FALSE)
+  cat(sprintf('\nkept %d learners out of %d participants\n',nlearners, totalN))
+  
+}
+
 
 combineControls <- function() {
   
