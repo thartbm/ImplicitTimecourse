@@ -45,6 +45,14 @@ differenceCI <- function(conditions, type, mode, lambda=TRUE, N0=TRUE) {
   if (mode == 'washout') {
     df1 <- read.csv(sprintf('data/exp%d/%s_%s_washout_exp-fits.csv',info$exp[which(info$condition == conditions[1])], conditions[1], type), stringsAsFactors = FALSE)
     df2 <- read.csv(sprintf('data/exp%d/%s_%s_washout_exp-fits.csv',info$exp[which(info$condition == conditions[2])], conditions[2], type), stringsAsFactors = FALSE)
+  } else if (type == 'aiming') {
+    if ('control' %in% conditions) {
+      df1 <- read.csv('data/exp2/control_nocursors_exp-fits.csv', stringsAsFactors = FALSE)
+      df2 <- read.csv('data/exp4/aiming_aiming_exp-fits.csv', stringsAsFactors = FALSE)
+    } else {
+      df1 <- read.csv('data/exp4/aiming_nocursors_exp-fits.csv', stringsAsFactors = FALSE)
+      df2 <- read.csv('data/exp4/aiming_aiming_exp-fits.csv', stringsAsFactors = FALSE)
+    }
   } else {
     df1 <- read.csv(sprintf('data/exp%d/%s_%s_exp-fits.csv',info$exp[which(info$condition == conditions[1])], conditions[1], type), stringsAsFactors = FALSE)
     df2 <- read.csv(sprintf('data/exp%d/%s_%s_exp-fits.csv',info$exp[which(info$condition == conditions[2])], conditions[2], type), stringsAsFactors = FALSE)
@@ -75,12 +83,21 @@ differenceCI <- function(conditions, type, mode, lambda=TRUE, N0=TRUE) {
 
 expCIdiffs <- function(exp, type, mode='learning') {
   
-  for (param in c('lambda','N0')) {
+  params <- c('lambda','N0')
+  if (exp == 4 & type == 'aiming') {
+    params <- c('lambda')
+  }
+  
+  for (param in params) {
     
     if (param == 'lambda') {lambda=TRUE; N0=FALSE}
     if (param == 'N0') {lambda=FALSE; N0=TRUE}
     
     comparisons <- getComparisons(exp=exp, mode=mode)
+    
+    if (exp == 4 & type == 'aiming') {
+      comparisons <- list(c('control','aiming'), c('aiming','aiming'))
+    }
     
     for (comparison in comparisons) {
       
