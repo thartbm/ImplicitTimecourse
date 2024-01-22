@@ -11,7 +11,7 @@ expBehaviorFig <- function(exp, target='inline', timecoursemode='absolute') {
   width = 6
   if (exp==1) { height = 9 } else { height = 7.5 }
   dpi = 300
-  outfilename <- sprintf('doc/fig%d',exp+1)
+  outfilename <- sprintf('doc/fig%d',exp+2)
   
   if (target == 'svg') {
     svglite::svglite( filename = sprintf('%s.svg',outfilename),
