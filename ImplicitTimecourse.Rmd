@@ -524,7 +524,7 @@ Therefore: implicit adaptation seems pretty fast to us as well as mostly indepen
 # Export manuscript figures
 
 ```{r eval=F}
-targets <- c('pdf') # svg, png, tiff
+targets <- c('pdf', 'svg', 'png', 'tiff') # c('pdf', 'svg', 'png', 'tiff')
 for (exp in c(1:4)) {
   for (target in targets) {
     expBehaviorFig(exp=exp, target=target)
