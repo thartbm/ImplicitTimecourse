@@ -281,7 +281,7 @@ knitr::kable(expTable(exp=2))
 
 Overall adaptation seems equal for the three groups. The control group does appear to have larger implicit aftereffects. The timecourses don't show much of a difference between the groups for overall adaptation. However, at first glance, the implicit, no-cursor timecourses do look qualitatively different. Implicit adaptation seems slower for cursor-jump and more so for terminal feedback, and they appear to have lower extent.
 
-The distribution of explicit (re-aiming) strategies, is no longer clearly bi-modal with 1 peak at 0 explicit strategies for the two new conditions. It would seem that _all_ participants developed some kind of strategy in these conditions. That means they indeed evoked explicit adaptation to a much larger degree than the control condition.
+The distribution of explicit (re-aiming) strategies, appears to have more of a single solid peak, suggest that nearly all participants show some explicit strategy. That means they indeed evoked explicit adaptation to a much larger degree than the control condition.
 
 Finally, there appears to be no clear relationship between these measures of implicit and explicit components of adaptation.
 
@@ -317,7 +317,7 @@ Seems there is an effect on explicit strategies, so now we compare the control g
 aimingGroupTtest(exp=2)
 ```
 
-Both groups are different from control, and we can see in the table and figure that the terminal group and cursor-jump group have almost twice the amount of explicit strategy as compared to the control group.
+Both groups are different from control, and we can see in the table and figure that the terminal group and cursor-jump group have 170% the amount of explicit strategy as compared to the control group (~14 and ~25 degrees).
 
 ### Linear prediction of implicit from explicit
 
@@ -452,10 +452,13 @@ knitr::kable(expTable(exp=4))
 
 ## First observations
 
-Magenta is aiming (should be added to the legend somewhere...). The asymptote for the continuous aiming group looks a bit higher, at least at the start. We can see this in the exponential timecourse plots (fit on only the data up to where the first aiming is seen in most conditions: the 57th trial, but of course there has been a lot of aiming trials in the new condition at that point). At the end of the 100 trials of adaptation, levels seem more similar again, but it might just be that having to think about strategies in terms of directions of hand movements, gives away information to participants on the nature of the perturbation, and perhaps how to deal with it - acting as a partial instruction on how to counter the rotation. The no-cursor timecourse is similar in the continuous aiming group and the control group. The timecourse of explicit adaptation rises a bit faster though. The level of implicit adaptation in the new continuous adaptation group seems uni-modal, aligning with the first component in the distribution of implicit adaptation in the control group, so that it's overall slightly smaller. The distribution of explicit adaptation also looks uni-modal, but the average is twice as large as in the control group. That is: for 45 degree rotations, the introduction of continuous aiming does not change behavior as much as with 30 degree rotations ('t Hart et al., under review).
+The asymptote for the continuous aiming group looks a bit higher, at least at the start. We can see this in the exponential timecourse plots (fit on only the data up to where the first aiming is seen in most conditions: the 57th trial, but of course there has been a lot of aiming trials in the new condition at that point). At the end of the 100 trials of adaptation, levels seem more similar again, but it might just be that having to think about strategies in terms of directions of hand movements, gives away information to participants on the nature of the perturbation, and perhaps how to deal with it - acting as a partial instruction on how to counter the rotation. The no-cursor timecourse is similar in the continuous aiming group and the control group. The timecourse of explicit adaptation rises a bit faster though. The level of implicit adaptation in the new continuous adaptation group seems uni-modal, aligning with the first component in the distribution of implicit adaptation in the control group, so that it's overall slightly smaller. The distribution of explicit adaptation also looks uni-modal, but the average is ~170% of that in the control group. That is; adding continuous aiming increased the average strategy just as much as the cursorjump or terminal feedback did.
+
+This is reminiscent of one of our earlier studies ('t Hart et al., under review). Compared to a 30 degree rotations, such as used there, the shift in average aiming strategy is larger here. On the other hand, with a 30 degree rotation, participants in a control condition seem not to have ay strategy, and adding continuous aiming to the same task now evokes a strategy, while here a large proportion of participants in the 45 degree rotation control already seemed to have a strategy. It could be that the data can still be explained as having 2 groups of participants, leading to what looks like a bi-modal distribution of strategies (I'm not adding any analyses here, can do later if wanted). One group would hover around no strategy, and the second group is spread out around some optimal strategy for dealing with a 45 degree rotation. Under continuous aiming, more people switch from the no-strategy sub-group to the strategy sub-group.
+
+In this case, the added aiming even benefits overall adaptation - which we didn't see in the study using a smaller rotation.
 
 ## Statistics
-
 
 ```{r}
 expCIdiffs(exp=4, type='reaches')
