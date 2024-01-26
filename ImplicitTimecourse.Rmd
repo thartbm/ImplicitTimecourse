@@ -141,8 +141,6 @@ Here is the plot of the data.
 expBehaviorFig(exp=1, target='inline', timecoursemode = 'absolute')
 ```
 
-## Table of behavioral descriptors
-
 The table below lists group average estimates as well as bootstrapped 95% confidence intervals for several descriptors of behavior. The first 4 columns show parameters of exponential fits, for training reaches as well as no-cursor reaches. The first value is the optimal parameter for the average of the group data, the two values in parantheses are the 2.5% and 97.5% percentiles over 5k bootstraps (the 95% confidence interval). Then there are the re-aiming responses, which are simply the average and the upper and lower limit of a bootstrapped 95% confidence interval (1k values). The last two columns show exponential fits on the washout data, similar to the first 4 columns, but for simplicity we only show the starting points (here "asymptotes", need to re-label this in the paper) as the rates of changes are all very high (> 90%) and don't appear to be interesting.
 
 ```{r}
@@ -269,8 +267,6 @@ Here is the data:
 expBehaviorFig(exp=2, target='inline', timecoursemode = 'absolute')
 ```
 
-## Table
-
 The table below is similar to that for experiment 1, except that there are no washout phases.
 
 ```{r}
@@ -360,7 +356,7 @@ The data is shown here:
 expBehaviorFig(exp=3, target='inline', timecoursemode = 'absolute')
 ```
 
-## Table
+A table with summary / descriptive statistics:
 
 ```{r}
 knitr::kable(expTable(exp=3))
@@ -444,7 +440,7 @@ Here is the data:
 ```{r fig.width=6, fig.height=7.5}
 expBehaviorFig(exp=4, target='inline', timecoursemode = 'absolute')
 ```
-## Table
+Here is the table with summary / descriptive statistics:
 
 ```{r}
 knitr::kable(expTable(exp=4))
@@ -533,5 +529,6 @@ for (exp in c(1:4)) {
     expBehaviorFig(exp=exp, target=target)
   }
 }
+for (target in targets) { discussionPlot(target=target) }
 ```
 
