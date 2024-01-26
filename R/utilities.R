@@ -13,8 +13,8 @@ groupInfo <- function() {
                  'delay-trial', 'delay-FB',
                  'aiming')
   color <- c('darkred', '#ae0a23', '#e51636', 'salmon',
-             '#e51636', 'orange', 'darkturquoise', # 'deepskyblue',   # deepskyblue
-             'blue','darkblue',   # blue
+             '#e51636', 'orange', 'darkturquoise', # 'deepskyblue'
+             'blue','darkblue',  
              'purple')
   
   # label <- c('15°', '30°', '45°', '60°', 'control', 'cursor-jump', 'terminal', 'aiming', 'delay->terminal', 'terminal->delay')
@@ -368,6 +368,52 @@ addWashoutTimecourses <- function(type, conditions) {
   
 }
 
+addAimingResponses <- function(conditions, FUN=mean) {
+  
+  info <- groupInfo()
+  
+  CIs <- list()
+  avg <- list()
+  color <- list()
+  
+  for (condition in conditions) {
+    
+    idx <- which(info$condition == condition)
+    
+    exp <- info$exp[idx]
+    df <- read.csv(sprintf('data/exp%d/%s_aiming.csv', exp, condition), stringsAsFactors = FALSE)
+    # print(str(df))
+    df$depvar <- df$aimingdeviation_deg * -1
+    
+    avg[[condition]] <- aggregate(depvar ~ trialno, data=df, FUN=FUN, na.rm=TRUE)
+    CIs[[condition]] <- aggregate(depvar ~ trialno, data=df, FUN=function(d) Reach::getConfidenceInterval(d, method='b', FUN=FUN))
+    
+    color[[condition]] <- info$color[idx]
+    
+  }
+  
+  for (condition in conditions) {
+    cc <- Reach::colorAlpha( col=color[[condition]], alpha=22 )
+    CI <- CIs[[condition]]
+    polygon(
+      x = c(CI$trialno, rev(CI$trialno)),
+      y = c(CI$depvar[,1], rev(CI$depvar[,2])),
+      border=NA,
+      col=cc
+    )
+  }
+  
+  # draw central lines
+  for (condition in conditions) {
+    cc <- color[[condition]]
+    central <- avg[[condition]]
+    # lty <- ltys[[condition]]
+    lty = 2
+    lines(central$trialno, central$depvar, col=cc, lty=lty)
+  }
+  
+  
+}
 
 
 # processing -----
