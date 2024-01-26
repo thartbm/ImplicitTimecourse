@@ -145,6 +145,8 @@ expBehaviorFig <- function(exp, target='inline', timecoursemode='absolute') {
   if (exp == 4) {
     leg.info <- rbind(leg.info, addLearningCurves(type='aiming',conditions=c('aiming'),FUN=mean))
     
+    addAimingResponses(conditions=c('control'))
+    
     legends <- c(convertLegend(leg.info$label)[c(1,2)],'re-aiming')
     color <- leg.info$color
     ltys <- c(1,1,2)
@@ -291,84 +293,333 @@ expBehaviorFig <- function(exp, target='inline', timecoursemode='absolute') {
 }
 
 
-# implExplFig <- function(exp, target='inline') {
-#   
-#   # in inches:
-#   width  =  4
-#   height = 4
-#   dpi = 300
-#   outfilename <- sprintf('doc/fig%d',exp+5)
-#   
-#   if (target == 'svg') {
-#     svglite::svglite( filename = sprintf('%s.svg',outfilename),
-#                       width = width,
-#                       height = height,
-#                       fix_text_size = FALSE)
-#   }
-#   # if (target == 'png') {
-#   #   png( filename = sprintf('%s.png',outfilename),
-#   #        width = width*dpi,
-#   #        height = height*dpi
-#   #        )
-#   # }
-#   if (target == 'pdf') {
-#     pdf( file = sprintf('%s.pdf', outfilename),
-#          width=width,
-#          height=height)
-#   }
-#   # if (target == 'tiff') {
-#   #   tiff( filename = sprintf('%s.tiff',outfilename),
-#   #         compression = 'lzw',
-#   #         width = width*dpi,
-#   #         height = height*dpi
-#   #   )
-#   # }
-#   
-#   
-#   
-#   info <- groupInfo()
-#   conditions <- expConditions(exp)
-#   
-#   if (exp > 1) { mrot=45 } else { mrot=60 }
-#   
-#   
-#   layout( mat=matrix(c(2,3,4,1),nrow=2,ncol=2, byrow=TRUE), widths = c(1,3), heights = c(3,1) )
-#   
-#   relfontsize <- 0.8
-#   
-#   par(mar=c(4,4,0.1,0.1),
-#       cex.axis=relfontsize, cex.lab=relfontsize, cex.main=relfontsize)
-#   
-#   # implicit <- list()
-#   # explicit <- list()
-#   
-#   plot(x=-1000, y=-1000,
-#        main='',xlab='explicit (aiming) [°]',ylab='',
-#        ylim=c(0,1),xlim=c(-15,mrot+15),
-#        ax=F,bty='n')
-#   
-#   addDensities(conditions, type='aiming', viewscale=c(1,-1), flipXY=FALSE)
-# 
-#   plot(x=-1000, y=-1000,
-#        main='',ylab='implicit (no-cursor) [°]',xlab='',
-#        xlim=c(0,1),ylim=c(-15,mrot+15),
-#        ax=F,bty='n')
-#   
-#   addDensities(conditions, type='nocursors', flipXY=TRUE, viewscale=c(-1,1))
-#   
-#   plot(x=-1000, y=-1000,
-#        main='',ylab='',xlab='',
-#        xlim=c(-15,mrot+15),ylim=c(-15,mrot+15),
-#        ax=F,bty='n')
-#   
-#   addImpExpScatters(conditions)
-#   
-#   axis(side=1,at=seq(-15,mrot+15,15))
-#   axis(side=2,at=seq(-15,mrot+15,15))
-#   
-#   
-#   if (target %in% c('svg','png','pdf','tiff')) {
-#     dev.off()
-#   }
-#   
-# }
+discussionPlot <- function(target='inline') {
+  
+  # in inches:
+  width = 4
+  height = 8
+  dpi = 300
+  outfilename <- 'doc/fig7'
+  
+  if (target == 'svg') {
+    svglite::svglite( filename = sprintf('%s.svg',outfilename),
+                      width = width,
+                      height = height,
+                      fix_text_size = FALSE)
+  }
+  if (target == 'png') {
+    png( filename = sprintf('%s.png',outfilename),
+         width = width*dpi,
+         height = height*dpi,
+         res = dpi
+    )
+  }
+  if (target == 'pdf') {
+    pdf( file = sprintf('%s.pdf', outfilename),
+         width=width,
+         height=height)
+  }
+  if (target == 'tiff') {
+    tiff( filename = sprintf('%s.tiff',outfilename),
+          compression = 'lzw',
+          width = width*dpi,
+          height = height*dpi,
+          res = dpi
+    )
+  }
+  
+  layout( mat=matrix(c(1,2,3,4,5),nrow=5,ncol=1, byrow=TRUE) )
+  
+  info <- groupInfo()
+  conditions <- c("15deg_distance",
+                  "30deg_distance",
+                  "45deg_distance",
+                  "60deg_distance",
+                  "control",
+                  "cursorjump",
+                  "terminal",
+                  "delay-trial",
+                  "delay-FB",
+                  "aiming")
+  
+  # we'll make 5 plots showing parameters for each of those 10 groups:
+  # - reach training: rate of change
+  # - reach training: asymptote
+  # - no-cursor: rate of change
+  # - no-cursor: asymptote
+  # - aiming extent
+  
+  condition_labels <- convertLegend(info$label)
+  
+  relfontsize <- 0.8
+  
+  par(mar=c(3.5,4,2,0.1),
+      cex.axis=relfontsize, 
+      cex.lab=relfontsize,
+      cex.main=relfontsize*1.5,
+      xpd=TRUE)
+  
+  xtick_distance <- -0.2
+  
+  
+  # # # # # # # # # # # # # # # # # # #
+  # reach training rate of change
+  
+  plot(x=-1000,y=-1000,
+       main='',xlab='',ylab='',
+       xlim=c(0.5,(length(conditions)+0.5)),
+       ylim=c(0,0.4),
+       ax=F,bty='n')
+  
+  df <- read.csv('data/exp2/control_reaches_exp-fits.csv', stringsAsFactors = FALSE)
+  avg <- quantile(df$lambda, probs=c(0.5))
+  # lines(x=c(.5,10.5), y=rep(avg,2), col=Reach::colorAlpha(info$color[which(info$condition == 'control')], alpha=99), lty=2)
+  lines(x=c(.5,10.5), y=rep(avg,2), col='#99999999', lty=1)
+  
+  for (cond_idx in c(1:length(conditions))) {
+    
+    condition <- conditions[cond_idx]
+    exp <- info$exp[which(info$condition == condition)]
+    color <- info$color[which(info$condition == condition)]
+    
+    df <- read.csv(sprintf('data/exp%d/%s_reaches_exp-fits.csv', exp, condition), stringsAsFactors = FALSE)
+    CI <- quantile(df$lambda, probs=c(0.025, 0.975))
+    avg <- quantile(df$lambda, probs=c(0.5))
+    # df <- read.csv(sprintf('data/exp%d/%s_individual_exp-fits.csv', exp, condition), stringsAsFactors = FALSE)
+    # avg <- df$lambda[which(df$participant == 'all' & df$phase == 'learning' & df$trialtype == 'reaches')]
+    
+    # print(condition)
+    # print(CI)
+    # print(avg)
+    
+    # print(color)
+    # print(Reach::colorAlpha(color,alpha=22))
+    polygon(x=c(-.4,.4,.4,-.4)+cond_idx,
+            y=rep(CI, each=2),
+            col=Reach::colorAlpha(color,alpha=22),
+            border=NA)
+    lines(x=c(-.4,.4)+cond_idx, y=rep(avg,2), col=color)
+    
+  }
+  
+  axis(side=1,at=c(1:length(conditions)),labels=rep('',length(conditions)))
+  text(x=c(1:length(conditions)+0.2), 
+       y=xtick_distance * 0.4,
+       labels=condition_labels,
+       xpd=TRUE, 
+       srt=25, 
+       pos=2,
+       cex=relfontsize)
+  axis(side=2,at=c(0,0.20,0.40),labels=c('0%','20%','40%'),las=2)
+  
+  title(main='A: training reaches rate of change', line=0.25, adj=0)
+  title(ylab='rate of change [%]', line=3)
+  
+  # # # # # # # # # # # # # # # # # # #
+  # reach training asymptote
+  
+  plot(x=-1000,y=-1000,
+       main='',xlab='',ylab='',
+       xlim=c(0.5,(length(conditions)+0.5)),
+       ylim=c(0,50),
+       ax=F,bty='n')
+  
+  
+  df <- read.csv('data/exp2/control_reaches_exp-fits.csv', stringsAsFactors = FALSE)
+  avg <- quantile(df$N0, probs=c(0.5))
+  lines(x=c(.5,10.5), y=rep(avg,2), col='#99999999', lty=1)
+  
+  for (cond_idx in c(1:length(conditions))) {
+    
+    condition <- conditions[cond_idx]
+    exp <- info$exp[which(info$condition == condition)]
+    color <- info$color[which(info$condition == condition)]
+    
+    df <- read.csv(sprintf('data/exp%d/%s_reaches_exp-fits.csv', exp, condition), stringsAsFactors = FALSE)
+    CI <- quantile(df$N0, probs=c(0.025, 0.975))
+    avg <- quantile(df$N0, probs=c(0.5))
+    
+    polygon(x=c(-.4,.4,.4,-.4)+cond_idx,
+            y=rep(CI, each=2),
+            col=Reach::colorAlpha(color,alpha=22),
+            border=NA)
+    lines(x=c(-.4,.4)+cond_idx, y=rep(avg,2), col=color)
+    
+  }
+
+  # axis(side=1,at=c(1:length(conditions)),labels=condition_labels)
+  axis(side=1,at=c(1:length(conditions)),labels=rep('',length(conditions)))
+  text(x=c(1:length(conditions)+0.2), 
+       y=xtick_distance * 50,
+       labels=condition_labels,
+       xpd=TRUE, 
+       srt=25, 
+       pos=2,
+       cex=relfontsize)
+  axis(side=2,at=seq(0,50,10),las=2)
+  
+  title(main='B: training reaches asymptote', line=0.25, adj=0)
+  title(ylab='asymptote [°]', line=3)
+  
+  
+  # # # # # # # # # # # # # # # # # # #
+  # no-cursor rate of change
+  
+  plot(x=-1000,y=-1000,
+       main='',xlab='',ylab='',
+       xlim=c(0.5,(length(conditions)+0.5)),
+       ylim=c(0,0.4),
+       ax=F,bty='n')
+  
+  
+  df <- read.csv('data/exp2/control_nocursors_exp-fits.csv', stringsAsFactors = FALSE)
+  avg <- quantile(df$lambda, probs=c(0.5))
+  lines(x=c(.5,10.5), y=rep(avg,2), col='#99999999', lty=1)
+  
+  for (cond_idx in c(1:length(conditions))) {
+    
+    condition <- conditions[cond_idx]
+    exp <- info$exp[which(info$condition == condition)]
+    color <- info$color[which(info$condition == condition)]
+    
+    df <- read.csv(sprintf('data/exp%d/%s_nocursors_exp-fits.csv', exp, condition), stringsAsFactors = FALSE)
+    CI <- quantile(df$lambda, probs=c(0.025, 0.975))
+    avg <- quantile(df$lambda, probs=c(0.5))
+    
+    polygon(x=c(-.4,.4,.4,-.4)+cond_idx,
+            y=rep(CI, each=2),
+            col=Reach::colorAlpha(color,alpha=22),
+            border=NA)
+    lines(x=c(-.4,.4)+cond_idx, y=rep(avg,2), col=color)
+    
+  }
+  
+  
+  
+  axis(side=1,at=c(1:length(conditions)),labels=rep('',length(conditions)))
+  text(x=c(1:length(conditions)+0.2), 
+       y=xtick_distance * 0.4,
+       labels=condition_labels,
+       xpd=TRUE, 
+       srt=25, 
+       pos=2,
+       cex=relfontsize)
+  axis(side=2,at=c(0,0.20,0.4),labels=c('0%','20%','40%'),las=2)
+  
+  title(main='C: no-cursor reaches (implicit) rate of change', line=0.25, adj=0)
+  title(ylab='rate of change [%]', line=3)
+  
+  
+  
+  # # # # # # # # # # # # # # # # # # #
+  # no-cursor asymptote
+  
+  plot(x=-1000,y=-1000,
+       main='',xlab='',ylab='',
+       xlim=c(0.5,(length(conditions)+0.5)),
+       ylim=c(0,30),
+       ax=F,bty='n')
+  
+  
+  
+  df <- read.csv('data/exp2/control_nocursors_exp-fits.csv', stringsAsFactors = FALSE)
+  avg <- quantile(df$N0, probs=c(0.5))
+  lines(x=c(.5,10.5), y=rep(avg,2), col='#99999999', lty=1)
+  
+  for (cond_idx in c(1:length(conditions))) {
+    
+    condition <- conditions[cond_idx]
+    exp <- info$exp[which(info$condition == condition)]
+    color <- info$color[which(info$condition == condition)]
+    
+    df <- read.csv(sprintf('data/exp%d/%s_nocursors_exp-fits.csv', exp, condition), stringsAsFactors = FALSE)
+    CI <- quantile(df$N0, probs=c(0.025, 0.975))
+    avg <- quantile(df$N0, probs=c(0.5))
+    
+    polygon(x=c(-.4,.4,.4,-.4)+cond_idx,
+            y=rep(CI, each=2),
+            col=Reach::colorAlpha(color,alpha=22),
+            border=NA)
+    lines(x=c(-.4,.4)+cond_idx, y=rep(avg,2), col=color)
+    
+  }
+  
+  
+  
+  
+  axis(side=1,at=c(1:length(conditions)),labels=rep('',length(conditions)))
+  text(x=c(1:length(conditions)+0.2), 
+       y=xtick_distance * 30,
+       labels=condition_labels,
+       xpd=TRUE, 
+       srt=25, 
+       pos=2,
+       cex=relfontsize)
+  axis(side=2,at=seq(0,30,10),las=2)
+  
+  title(main='D: no-cursors reaches (implicit) asymptote', line=0.25, adj=0)
+  title(ylab='asymptote [°]', line=3)
+  
+  
+  # # # # # # # # # # # # # # # # # # #
+  # aiming extent
+  
+  plot(x=-1000,y=-1000,
+       main='',xlab='',ylab='',
+       xlim=c(0.5,(length(conditions)+0.5)),
+       ylim=c(0,30),
+       ax=F,bty='n')
+  
+  
+  
+  df <- read.csv('data/exp2/control_aiming.csv', stringsAsFactors = FALSE)
+  avg <- mean(aggregate(aimingdeviation_deg ~ participant, data=df, FUN=mean, na.rm=TRUE)$aimingdeviation_deg, na.rm=TRUE) * -1
+  # avg <- quantile(df$N0, probs=c(0.5))
+  lines(x=c(.5,10.5), y=rep(avg,2), col='#99999999', lty=1)
+  
+  for (cond_idx in c(1:length(conditions))) {
+    
+    condition <- conditions[cond_idx]
+    exp <- info$exp[which(info$condition == condition)]
+    color <- info$color[which(info$condition == condition)]
+    
+    df <- read.csv(sprintf('data/exp%d/%s_aiming.csv', exp, condition), stringsAsFactors = FALSE)
+    df$aimingdeviation_deg <- df$aimingdeviation_deg * -1
+    df <- df[which(df$trialno %in% c(77, 81, 85, 89, 93, 97, 101, 105)),]
+    df <- aggregate(aimingdeviation_deg ~ participant, data=df, FUN=mean, na.rm=TRUE)
+    
+    CI <- Reach::getConfidenceInterval(data=df$aimingdeviation_deg, method='b')
+    avg <- mean(df$aimingdeviation_deg, na.rm=TRUE)
+    
+    polygon(x=c(-.4,.4,.4,-.4)+cond_idx,
+            y=rep(CI, each=2),
+            col=Reach::colorAlpha(color,alpha=22),
+            border=NA)
+    lines(x=c(-.4,.4)+cond_idx, y=rep(avg,2), col=color)
+    
+  }
+  
+  
+  
+  
+  axis(side=1,at=c(1:length(conditions)),labels=rep('',length(conditions)))
+  text(x=c(1:length(conditions)+0.2), 
+       y=xtick_distance * 30,
+       labels=condition_labels,
+       xpd=TRUE, 
+       srt=25, 
+       pos=2,
+       cex=relfontsize)
+  axis(side=2,at=seq(0,30,10),las=2)
+  
+  title(main='E: aiming responses (explicit) extent', line=0.25, adj=0)
+  title(ylab='aiming responses [°]', line=3)
+  
+  
+  
+  if (target %in% c('svg','png','pdf','tiff')) {
+    dev.off()
+  }
+  
+}
+
