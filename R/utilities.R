@@ -18,7 +18,7 @@ groupInfo <- function() {
              'purple')
   
   # label <- c('15°', '30°', '45°', '60°', 'control', 'cursor-jump', 'terminal', 'aiming', 'delay->terminal', 'terminal->delay')
-  label <- c('15°', '30°', '45°', '60°', 'control', 'cursor-jump', 'terminal', 'delay -> terminal', 'terminal -> delay', 'aiming')
+  label <- c('15°', '30°', '45°', '60°', 'control', 'cursor-jump', 'terminal', 'terminal -> delay', 'delay -> terminal', 'aiming')
   
   rot <- c(15,30,45,60,45,45,45,45,45,45)
   
