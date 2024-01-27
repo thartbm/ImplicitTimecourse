@@ -59,7 +59,8 @@ differenceCI <- function(conditions, type, mode, lambda=TRUE, N0=TRUE) {
   }
   
   if (lambda) {
-    ld <- df1$lambda - df2$lambda
+    # ld <- df1$lambda - df2$lambda
+    ld <- as.vector(matrix(df1$lambda, nrow=5000, ncol=5000, byrow=FALSE) - matrix(df2$lambda, nrow=5000, ncol=5000, byrow=TRUE))
     CI <- quantile(ld, probs=c(0.025, 0.975))
     cat('\n')
     # cat(sprintf('comparing %s and %s rate of change (lambda):\n',conditions[1],conditions[2]))
@@ -69,7 +70,8 @@ differenceCI <- function(conditions, type, mode, lambda=TRUE, N0=TRUE) {
     print(CI)
   }
   if (N0) {
-    ld <- df1$N0 - df2$N0
+    # ld <- df1$N0 - df2$N0
+    ld <- as.vector(matrix(df1$N0, nrow=5000, ncol=5000, byrow=FALSE) - matrix(df2$N0, nrow=5000, ncol=5000, byrow=TRUE))
     CI <- quantile(ld, probs=c(0.025, 0.975))
     cat('\n')
     # cat(sprintf('comparing %s and %s asymptote (N0):\n',conditions[1],conditions[2]))
