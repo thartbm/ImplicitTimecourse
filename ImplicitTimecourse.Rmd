@@ -178,6 +178,8 @@ expCIdiffs(exp=1, type='nocursors', mode='learning')
 ```
 The 30 degrees group changes their no-cursor reach directions faster than the 45 degree group, as is also seen in the table. Otherwise there are no differences in learning rates in the comparisons here.
 
+Asymptotes increase up to the 45 degrees at least.
+
 Now we look at reach training trials during washout. For washout we compare the 15 degree group with all other groups.
 
 ```{r}
@@ -195,7 +197,7 @@ For no-cursors we also see that the rate of change is the same in the 15 degree 
 
 ### Aiming
 
-We have complemented the continuous measures of implicit reach aftereffects with 8 re-aiming trials after 56 trials of training. Each set of 4 training and 4 no-cursor trials is preceded by a single re-aiming task, where people orient an arrow to indicate where they would move their hand in order to get the cursor on the target. The re-aiming trials are timed such that aiming does not affect the normal adaptation processes, as we have seen before ('t Hart et al., 2023, [bioRxiv](https://www.biorxiv.org/content/10.1101/2022.06.07.495044v3)). We expect little explicit strategy in the 15 and 30 degree conditions, and will see how this develops in larger rotations. Finally, we will also test if implicit adaptation can be predicted from explicit adaptation.
+We have complemented the continuous measures of implicit reach aftereffects with 8 re-aiming trials after 56 trials of rotated training. Each set of 4 training and 4 no-cursor trials is preceded by a single re-aiming task, where people orient an arrow to indicate where they would move their hand in order to get the cursor on the target. The re-aiming trials are timed such that aiming does not affect the normal adaptation processes, as we have seen before ('t Hart et al., 2023, [bioRxiv](https://www.biorxiv.org/content/10.1101/2022.06.07.495044v3)). We expect little explicit strategy in the 15 and 30 degree conditions, and will see how this develops in larger rotations. Finally, we will also test if implicit adaptation can be predicted from explicit adaptation.
 
 For those more interested in explicit adaptation; in the last experiment here we compare a continuous aiming condition with a control condition.
 
@@ -213,7 +215,7 @@ Here are the comparisons with 0:
 aimingZero()
 ```
 
-The evidence goes to a small amount of re-aiming in the 15 degree condition (2.3 degrees) and in the 30 degree condition (3.8 degrees on average). In the other two conditions, it is much more clear that almost all participants engage in some amount of re-aiming. This can also be seen in Fig 2E.
+The evidence goes to some amount of re-aiming in the 15 degree condition (2.3 degrees) and in the 30 degree condition (3.9 degrees on average). In the other two conditions, it is much more clear that almost all participants engage in some amount of re-aiming. This can also be seen in Fig 2E.
 
 Now we compare aiming between successive rotations.
 
@@ -221,33 +223,33 @@ Now we compare aiming between successive rotations.
 aimingGroupTtest(exp=1)
 ```
 
-Re-aiming is not very different between the 15 and 30 degree groups. We do see the expected difference between the 30 and 45 degree group, but it is only approaching significance when comparing the 45 and 60 degree group. Perhaps this can be explained by the larger spread with larger rotations?
+Re-aiming is not very different between the 15 and 30 degree groups, nor is it clearly the same. We do see the expected difference between the 30 and 45 degree group, but there is no evidence one way or another when comparing the 45 and 60 degree group. Perhaps both non-differences can be explained by the larger spread with larger rotations?
 
 ### Linear prediction of measures of implicit from measures of explicit adaptation
 
-Here we test explicit adaptation as a predictor of implicit adaptation.
+Here we test explicit adaptation as a predictor of implicit adaptation. We expect there to be some relationship in some cases. We have already shown that that relationship is not additive. Support for additivity would be obtained if there is a relationship with a slope of -1. We would say the slope is indistinguishable from -1 if the 95% confidence interval for the slope includes -1.
 
 ```{r}
 testGroupLinearAdditivity(exp=1)
 ```
 
-The slope is around -1 in the 15 degree group, but the linear relationship is not significant. For the 45 and 60 degree groups, the linear relationship is significant, but the confidence interval for the slope does not include -1. So there is a weak, and non-additive relationship between implicit and explicit adaptation.
+The slope is around -1 in the 15 degree group (with a very wide confidence interval, also including +1), but the linear relationship is not significant. For the 45 and 60 degree groups, the linear relationship _is_ significant, but the confidence interval for the slope does not include -1. So there is a weak, and non-additive relationship between implicit and explicit adaptation.
 
 ## Summary
 
-The interleaved trial method works pretty well here too. The explicit re-aiming trials also behave more or less as expected. Here is an overview of findings.
+The interleaved trial method we used in previous studies works pretty well here too. The explicit re-aiming trials also behave more or less as expected. Here is an overview of findings.
 
-1. Rates of change do not increases between pairs of successive rotation sizes, except for no-cursors between the 30 and 45 degree group. There might be some qualitative difference between the two lower rotations and the two higher rotations.
+1. Rates of change do not increases between pairs of successive rotation sizes, except for no-cursors between the 30 and 45 degree group. There might be some qualitative difference between the two lower rotations and the two higher rotations (perhaps mirrored in the aiming extent).
 
-2. Reach training asymptotes keep increasing with rotation size, which is not surprising. In no-cursor reach deviations the asymptote increases with rotation size, except between 45 and 60 degrees. It could be that implicit adaptation hits some maximum there (but see the next point).
+2. Reach training asymptotes keep increasing with rotation size, which is not surprising. In no-cursor reach deviations the asymptote increases with rotation size, except between 45 and 60 degrees. It could be that implicit adaptation hits a maximum somewhere between 30 and 45 degrees of rotated feedback (but see the next point).
 
 3. In washout, there is no effect of rotation size on "un-learning rates" but the starting point for the 15 degree group is lower than the starting point for all other groups. So, in contrast to the previous point it could also be that there is some maximum to implicit adaptation between 15 and 30 degrees of rotation. Perhaps one indicates "labile" and the other "stable" implicit adaptation?
 
-4. There is some amount of re-aiming in all groups, which is very low in the 15 and  30 degree conditions. Re-aiming strategies are not different (data doesn't provide evidence one way or another) between 15 and 30 degrees, and between 45 and 60 degrees. The latter perhaps due to large spread within each group, and possibly multi-modal distributions.
+4. There is some amount of re-aiming in all groups, although it is very low in the 15 and 30 degree conditions. Re-aiming strategies are not different (data doesn't provide evidence one way or another) between 15 and 30 degrees, and between 45 and 60 degrees. The latter perhaps due to large spread within each group, and possibly multi-modal distributions.
 
 5. The extent of explicit strategies is at best a weak predictor of implicit adaptation.
 
-To test how different kinds of feedback impact the time course of implicit adaptation - in particular in the presence of explicit adaptation as well, we will continue using the 45 degree rotation. It's an easier rotation to learn, but there is still sufficient explicit adaptation to modulate it either way. We will skip the washout phases however, as they don't seem to add much to other measures. This also leaves time for additional measures.
+To test how different kinds of feedback impact the time course of implicit adaptation - in particular in the presence of explicit adaptation as well, we will continue using the 45 degree rotation. It's an easier rotation to learn than the 60 degree rotation, but there is still sufficient implicit and explicit adaptation to modulate either of them up or down. We will skip the washout phases however, as they don't seem to add much to other measures. This also leaves time for additional measures.
 
 # Experiment 2: feedback types
 
@@ -313,7 +315,7 @@ Seems there is an effect on explicit strategies, so now we compare the control g
 aimingGroupTtest(exp=2)
 ```
 
-Both groups are different from control, and we can see in the table and figure that the terminal group and cursor-jump group have 170% the amount of explicit strategy as compared to the control group (~14 and ~25 degrees).
+Both groups are different from control, and we can see in the table and figure that the terminal group and cursor-jump group have ~170% the amount of explicit strategy as compared to the control group (~14 vs. ~25 degrees of strategy).
 
 ### Linear prediction of implicit from explicit
 
@@ -386,8 +388,7 @@ There are no effects on overall adaptation.
 expCIdiffs(exp=3, type='nocursors')
 ```
 
-XYZ ==================== DESCRIPTION
-
+There is no effect of the added delays on the speed or asymptote of implicit adaptation either.
 
 ### Aiming
 
@@ -403,7 +404,11 @@ There is an effect. Slightly surprising? Let's see where the differences are.
 aimingGroupTtest(exp=3)
 ```
 
-It appears that in the terminal feedback without any kind of delay, the re-aiming responses are larger than in all other groups. That is: added delays do not seem to make learning more explicit in this data set, but _less_ explicit. This is unexpected (and perhaps should be ignored).
+It appears that in the terminal feedback without any kind of delay, the re-aiming responses are larger than in the terminal -> delay group, whereas there is little evidence for a difference or equivalence between the terminal group and the delay -> terminal group. That is: adding a delay after the terminal feedback makes adaptation _less_ explicit.
+
+We had expected the delay -> terminal group to have more explicit adaptation, but that did not show up.
+
+Both of these results are unexpected (and should perhaps be ignored).
 
 ### Linear correlation between implicit and explicit adaptation
 
@@ -419,7 +424,7 @@ The two untested groups here (the two with delays) again show no linear relation
 
 In the previous experiment we saw that terminal feedback did increase explicit adaptation relative to control. How about adding delays?
 
-1. Counter to previous papers, adding delays before (or after) the terminal feedback decreased explicit re-aiming (instead of the expected increase). We don't attach much meaning to this finding here, but it shows that delays do not automatically make adaptation more explicit.
+1. Counter to previous papers, adding delays after, but not before, the terminal feedback decreased explicit re-aiming (instead of the expected increase) with no clear effect with delays before the terminal feedback. Since this was not the topic we're investigating here, we don't attach much meaning to this finding here, but it shows that delays do not automatically make adaptation more explicit. Perhaps they needed to be longer.
 
 2. There were no effects on overall learning or implicit adaptation.
 
@@ -427,7 +432,9 @@ In the previous experiment we saw that terminal feedback did increase explicit a
 
 # Experiment 4: continuous aiming
 
-So far, we have only used 8 re-aiming trials when adaptation was relatively close to saturation. In this experiment, we want to see if adding a re-aiming trial before each and every training trial affects explicit adaptation, and perhaps implicit adaptation as well. So we added a condition where every reach training trial was preceded by a re-aiming assessment (arrow orienting). We call this the _"aiming"_ condition. This group also did a no-cursor reach after every training trial.
+So far, we have only used 8 re-aiming trials when adaptation was relatively close to saturation. In this experiment, we want to see if adding a re-aiming trial before each and every training trial affects explicit adaptation, and perhaps implicit adaptation as well. So we added a condition where every reach training trial was preceded by a re-aiming assessment (arrow orienting). We call this the _"aiming"_ condition (or sometimes "continuous aiming" as opposed to the sparse aiming done in the other conditions). This group also did a no-cursor reach after every training trial.
+
+Of course, the aiming takes time so the the interval between training trials is increased. Perhaps this condition should be compared to the terminal -> delay condition as well?
 
 Here is a table about the sample of participants:
 
@@ -460,15 +467,15 @@ In this case, the added aiming even benefits overall adaptation - which we didn'
 expCIdiffs(exp=4, type='reaches')
 ```
 
-Continuous aiming seems to increase the extent of overall adaptation.
+Continuous aiming seems to increase the asymptote of overall adaptation, but not the speed. The increased asymptote can also be seen in the figure.
 
 ```{r}
 expCIdiffs(exp=4, type='nocursors')
 ```
 
-But it does not affect implicit reach aftereffects.
+Continuous aiming does not affect the time course of implicit reach aftereffects.
 
-Using the same approach, we can also see if implicit adaptation is slower than explicit adaptation. This is a bit of hacky use of the existing functions. In the results, the parameters for aiming (explicit) are always compared with parameters for no-cursors. But, while the aiming response timecourse always comes from the continuous aiming group, the no-cursor timecourse can be used from either the control group, or from the (continuous) aiming group. So when the results mentions 'control' the comparison is between groups, and when it doesn't it's within the aiming group.
+Using the same approach (and underlying functions), we can also see if implicit adaptation is slower than explicit adaptation. This is a bit of hacky use of the existing functions. In the results, the parameters for aiming (explicit) are always compared with parameters for no-cursors. But, while the aiming response timecourse always comes from the continuous aiming group, the no-cursor timecourse can be used from either the control group, or from the (continuous) aiming group. So when the results mentions 'control' the comparison is between groups, and when it doesn't it's within the aiming group.
 
 We're really only interested in the rate of change, so no tests on the extent / asymptote / N0 are done.
 
@@ -476,7 +483,7 @@ We're really only interested in the rate of change, so no tests on the extent / 
 expCIdiffs(exp=4, type='aiming')
 ```
 
-Regardless, with the current data set and approach, we can not detect a difference in how quickly implicit or explicit adaptation emerge. They might be equally fast in this group.
+Regardless, with the current data set and approach, we can not detect a difference in how quickly implicit or explicit adaptation emerge. They might be equally fast in this group / these groups.
 
 ### Aiming
 
@@ -510,6 +517,13 @@ This contrasts a bit with our earlier findings comparing (uninstructed) control 
 
 # Conclusions
 
+First, here we have a summary plot with (almost) all important data from all four experiments.
+
+```{r fig.width=4, fig.height=8}
+discussionPlot()
+```
+
+
 1. Using interleaved no-cursor trials we can gauge if implicit adaptation is 1) a slow process in adaptation, 2) affected by rotation size, 3) modulated by conditions that (mostly) increase explicit adaptation, and 4) linearly additive with explicit adaptation. The method works.
 
 2. Increasing rotation size has the expected effects, validating this method.
@@ -518,7 +532,7 @@ This contrasts a bit with our earlier findings comparing (uninstructed) control 
 
 4. In a condition with continuous aiming reports, we also see no effect on implicit adaptation and we can see that implicit and explicit adaptation develop at indistinguishable speeds.
 
-Therefore: implicit adaptation seems pretty fast to us as well as mostly independent from explicit adaptation.
+Therefore: implicit adaptation seems pretty fast here, as well as mostly independent from explicit adaptation.
 
 # Export manuscript figures
 
