@@ -30,9 +30,11 @@ bootstrapExponentialLearning <- function(condition, type, iterations=1000, mode=
   #   data[[participant]] <- df[which(df$participant == participant),]
   # }
   
+  close_cluster <- FALSE
   if (is.null(clust)) {
     ncores   <- parallel::detectCores()
     clust <- parallel::makeCluster(max(c(1,floor(ncores*0.75))))
+    close_cluster <- TRUE
   }
   
   prepend <- c()
@@ -51,6 +53,9 @@ bootstrapExponentialLearning <- function(condition, type, iterations=1000, mode=
                 prepend = prepend,
                 mode = mode,
                 asymptoteRange = asymptoteRange)
+  
+  if (close_cluster) {stopCluster(clust)}
+  
   
   outdf <- as.data.frame(t(a))
   
@@ -125,7 +130,11 @@ bootstrapAllLearningExpFits <- function(iterations=5000, conditions=NULL) {
     rotation <- info$rotation[which(info$condition == condition)]
     for (type in types) {
       cat(sprintf('exponential fit (%d iterations) for: %s %s\n',iterations,condition,type))
-      bootstrapExponentialLearning(condition, type, iterations=iterations, clust=clust, asymptoteRange=c(0,rotation+5))
+      bootstrapExponentialLearning(condition=condition, 
+                                   type=type,
+                                   iterations=iterations,
+                                   clust=clust, 
+                                   asymptoteRange=c(0,rotation+5))
     }
   }
   
@@ -379,6 +388,9 @@ groupAvgFits <- function(conditions=NULL) {
 
 behaviorDescriptors <- function(timecoursemode='relative') {
   
+  demographics <- read.csv('data/demographics.csv', stringsAsFactors = FALSE)
+  demographics <- demographics[which(demographics$learner == TRUE),]
+  
   info <- groupInfo()
   
   exp <- c(1,1,1,1,1,1,1,1,2,2,2,3,3,4)
@@ -405,7 +417,14 @@ behaviorDescriptors <- function(timecoursemode='relative') {
     mode <- df$mode[rown]
     condition <- df$condition[rown]
     
-    rowlabels <- c(rowlabels, sprintf('%s %s', info$label[which(info$condition == condition)], list('learning'='', 'washout'='(washout)')[[mode]]))
+    if (condition == 'control') {
+      condem <- demographics[which(demographics$condition_label %in% c('45deg_distance', 'control')),]
+    } else {
+      condem <- demographics[which(demographics$condition_label == condition),]
+    }
+    N <- dim(condem)[1]
+    
+    rowlabels <- c(rowlabels, sprintf('%s %s (N=%d)', info$label[which(info$condition == condition)], list('learning'='', 'washout'='(washout)')[[mode]], N))
     
     if (mode == 'washout') {
       aiming_extent <- c(aiming_extent, '')
@@ -563,26 +582,61 @@ expTable <- function(exp) {
   }
   
   if (exp==1) {
-    trainingTable <- expTable[c("15° ","30° ","45° ","60° "),]
-    washoutTable  <- expTable[c("15° (washout)","30° (washout)","45° (washout)","60° (washout)"),]
+    # trainingTable <- expTable[c("15° ","30° ","45° ","60° "),]
+    trainingTable <- expTable[c(1,2,3,4),]
+    # washoutTable  <- expTable[c("15° (washout)","30° (washout)","45° (washout)","60° (washout)"),]
+    washoutTable <- expTable[c(5,6,7,8),]
     washoutTable  <- washoutTable[,c('reaches_asymptote','no_cursors_asymptote')]
     rownames(washoutTable) <- NULL
     expTable <- cbind(trainingTable, washoutTable)
   }
   
   if (exp == 2) {
-    expTable <- expTable[c('control','cursor-jump','terminal '),]
+    # expTable <- expTable[c('control','cursor-jump','terminal '),]
+    expTable <- expTable[c(9,10,11),]
   }
   
   if (exp == 3) {
-    expTable <- expTable[c('control','terminal ','terminal -> delay', 'delay -> terminal'),]
+    # expTable <- expTable[c('control','terminal ','terminal -> delay', 'delay -> terminal'),]
+    expTable <- expTable[c(12,13,11,9),]
   }
   
   if (exp == 4) {
-    expTable <- expTable[c('control','aiming '),]
+    # expTable <- expTable[c('control','aiming '),]
+    expTable <- expTable[c(14,9),]
   }
   
   return(expTable)
   
+  
+}
+
+# temp -----
+
+redoReachBS <- function() {
+  
+  ncores <- parallel::detectCores()
+  clust  <- parallel::makeCluster(max(c(1,floor(ncores*0.75))))
+  
+  cat('15deg')
+  bootstrapExponentialLearning(condition='15deg_distance', type='reaches', iterations=5000, asymptoteRange = c(0,20), clust=clust)
+  cat('30deg')
+  bootstrapExponentialLearning(condition='30deg_distance', type='reaches', iterations=5000, asymptoteRange = c(0,35), clust=clust)
+  cat('45deg')
+  bootstrapExponentialLearning(condition='45deg_distance', type='reaches', iterations=5000, asymptoteRange = c(0,50), clust=clust)
+  cat('60deg')
+  bootstrapExponentialLearning(condition='60deg_distance', type='reaches', iterations=5000, asymptoteRange = c(0,65), clust=clust)
+  cat('control')
+  bootstrapExponentialLearning(condition='control', type='reaches', iterations=5000, asymptoteRange = c(0,50), clust=clust)
+  cat('cursorjump')
+  bootstrapExponentialLearning(condition='cursorjump', type='reaches', iterations=5000, asymptoteRange = c(0,50), clust=clust)
+  cat('delay-trial')
+  bootstrapExponentialLearning(condition='delay-trial', type='reaches', iterations=5000, asymptoteRange = c(0,50), clust=clust)
+  cat('delay-FB')
+  bootstrapExponentialLearning(condition='delay-FB', type='reaches', iterations=5000, asymptoteRange = c(0,50), clust=clust)
+  cat('aiming')
+  bootstrapExponentialLearning(condition='aiming', type='reaches', iterations=5000, asymptoteRange = c(0,50), clust=clust)
+  
+  stopCluster(clust)
   
 }
