@@ -371,8 +371,10 @@ discussionPlot <- function(target='inline') {
        ylim=c(0,0.4),
        ax=F,bty='n')
   
-  df <- read.csv('data/exp2/control_reaches_exp-fits.csv', stringsAsFactors = FALSE)
-  avg <- quantile(df$lambda, probs=c(0.5))
+  # df <- read.csv('data/exp2/control_reaches_exp-fits.csv', stringsAsFactors = FALSE)
+  # avg <- quantile(df$lambda, probs=c(0.5))
+  df <- read.csv('data/exp2/control_individual_exp-fits.csv', stringsAsFactors = FALSE)
+  avg <- df$lambda[which(df$participant == 'all' & df$phase == 'learning' & df$trialtype == 'reaches')]
   # lines(x=c(.5,10.5), y=rep(avg,2), col=Reach::colorAlpha(info$color[which(info$condition == 'control')], alpha=99), lty=2)
   lines(x=c(.5,10.5), y=rep(avg,2), col='#99999999', lty=1)
   
@@ -384,9 +386,9 @@ discussionPlot <- function(target='inline') {
     
     df <- read.csv(sprintf('data/exp%d/%s_reaches_exp-fits.csv', exp, condition), stringsAsFactors = FALSE)
     CI <- quantile(df$lambda, probs=c(0.025, 0.975))
-    avg <- quantile(df$lambda, probs=c(0.5))
-    # df <- read.csv(sprintf('data/exp%d/%s_individual_exp-fits.csv', exp, condition), stringsAsFactors = FALSE)
-    # avg <- df$lambda[which(df$participant == 'all' & df$phase == 'learning' & df$trialtype == 'reaches')]
+    # avg <- quantile(df$lambda, probs=c(0.5))
+    df <- read.csv(sprintf('data/exp%d/%s_individual_exp-fits.csv', exp, condition), stringsAsFactors = FALSE)
+    avg <- df$lambda[which(df$participant == 'all' & df$phase == 'learning' & df$trialtype == 'reaches')]
     
     # print(condition)
     # print(CI)
@@ -425,8 +427,11 @@ discussionPlot <- function(target='inline') {
        ax=F,bty='n')
   
   
-  df <- read.csv('data/exp2/control_reaches_exp-fits.csv', stringsAsFactors = FALSE)
-  avg <- quantile(df$N0, probs=c(0.5))
+  # df <- read.csv('data/exp2/control_reaches_exp-fits.csv', stringsAsFactors = FALSE)
+  # avg <- quantile(df$N0, probs=c(0.5))
+  df <- read.csv('data/exp2/control_individual_exp-fits.csv', stringsAsFactors = FALSE)
+  avg <- df$N0[which(df$participant == 'all' & df$phase == 'learning' & df$trialtype == 'reaches')]
+  
   lines(x=c(.5,10.5), y=rep(avg,2), col='#99999999', lty=1)
   
   for (cond_idx in c(1:length(conditions))) {
@@ -437,7 +442,9 @@ discussionPlot <- function(target='inline') {
     
     df <- read.csv(sprintf('data/exp%d/%s_reaches_exp-fits.csv', exp, condition), stringsAsFactors = FALSE)
     CI <- quantile(df$N0, probs=c(0.025, 0.975))
-    avg <- quantile(df$N0, probs=c(0.5))
+    # avg <- quantile(df$N0, probs=c(0.5))
+    df <- read.csv(sprintf('data/exp%d/%s_individual_exp-fits.csv', exp, condition), stringsAsFactors = FALSE)
+    avg <- df$N0[which(df$participant == 'all' & df$phase == 'learning' & df$trialtype == 'reaches')]
     
     polygon(x=c(-.4,.4,.4,-.4)+cond_idx,
             y=rep(CI, each=2),
@@ -468,12 +475,15 @@ discussionPlot <- function(target='inline') {
   plot(x=-1000,y=-1000,
        main='',xlab='',ylab='',
        xlim=c(0.5,(length(conditions)+0.5)),
-       ylim=c(0,0.4),
+       ylim=c(0,0.6),
        ax=F,bty='n')
   
   
-  df <- read.csv('data/exp2/control_nocursors_exp-fits.csv', stringsAsFactors = FALSE)
-  avg <- quantile(df$lambda, probs=c(0.5))
+  # df <- read.csv('data/exp2/control_nocursors_exp-fits.csv', stringsAsFactors = FALSE)
+  # avg <- quantile(df$lambda, probs=c(0.5))
+  df <- read.csv('data/exp2/control_individual_exp-fits.csv', stringsAsFactors = FALSE)
+  avg <- df$lambda[which(df$participant == 'all' & df$phase == 'learning' & df$trialtype == 'nocursors')]
+  
   lines(x=c(.5,10.5), y=rep(avg,2), col='#99999999', lty=1)
   
   for (cond_idx in c(1:length(conditions))) {
@@ -484,7 +494,10 @@ discussionPlot <- function(target='inline') {
     
     df <- read.csv(sprintf('data/exp%d/%s_nocursors_exp-fits.csv', exp, condition), stringsAsFactors = FALSE)
     CI <- quantile(df$lambda, probs=c(0.025, 0.975))
-    avg <- quantile(df$lambda, probs=c(0.5))
+    # avg <- quantile(df$lambda, probs=c(0.5))
+    df <- read.csv(sprintf('data/exp%d/%s_individual_exp-fits.csv', exp, condition), stringsAsFactors = FALSE)
+    avg <- df$lambda[which(df$participant == 'all' & df$phase == 'learning' & df$trialtype == 'nocursors')]
+    
     
     polygon(x=c(-.4,.4,.4,-.4)+cond_idx,
             y=rep(CI, each=2),
@@ -498,13 +511,13 @@ discussionPlot <- function(target='inline') {
   
   axis(side=1,at=c(1:length(conditions)),labels=rep('',length(conditions)))
   text(x=c(1:length(conditions)+0.2), 
-       y=xtick_distance * 0.4,
+       y=xtick_distance * 0.6,
        labels=condition_labels,
        xpd=TRUE, 
        srt=25, 
        pos=2,
        cex=relfontsize)
-  axis(side=2,at=c(0,0.20,0.4),labels=c('0%','20%','40%'),las=2)
+  axis(side=2,at=c(0,0.2,0.4,0.6),labels=c('0%','20%','40%','60%'),las=2)
   
   title(main='C: no-cursor reaches (implicit) rate of change', line=0.25, adj=0)
   title(ylab='rate of change [%]', line=3)
@@ -522,8 +535,11 @@ discussionPlot <- function(target='inline') {
   
   
   
-  df <- read.csv('data/exp2/control_nocursors_exp-fits.csv', stringsAsFactors = FALSE)
-  avg <- quantile(df$N0, probs=c(0.5))
+  # df <- read.csv('data/exp2/control_nocursors_exp-fits.csv', stringsAsFactors = FALSE)
+  # avg <- quantile(df$N0, probs=c(0.5))
+  df <- read.csv('data/exp2/control_individual_exp-fits.csv', stringsAsFactors = FALSE)
+  avg <- df$N0[which(df$participant == 'all' & df$phase == 'learning' & df$trialtype == 'nocursors')]
+  
   lines(x=c(.5,10.5), y=rep(avg,2), col='#99999999', lty=1)
   
   for (cond_idx in c(1:length(conditions))) {
