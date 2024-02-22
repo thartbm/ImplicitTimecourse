@@ -149,6 +149,7 @@ expBehaviorFig <- function(exp, target='inline', timecoursemode='absolute') {
     
     legends <- c(convertLegend(leg.info$label)[c(1,2)],'re-aiming')
     color <- leg.info$color
+    color[3] <- 'gray'
     ltys <- c(1,1,2)
     
     legend(x=0,y=mrot,

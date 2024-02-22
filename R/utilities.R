@@ -94,7 +94,8 @@ addLearningCurves <- function(type, conditions=NULL, exp=NULL, phases=c('baselin
     idx <- which(info$condition == condition)
     exp <- info$exp[idx]
     if (type == 'aiming') {
-      color[[condition]] <- 'magenta'
+      # color[[condition]] <- 'magenta'
+      color[[condition]] <- info$color[idx]
       ltys[[condition]] <- 2
     } else {
       color[[condition]] <- info$color[idx]
@@ -251,7 +252,7 @@ addAdaptationTimecourses <- function(type, conditions, timecoursemode='relative'
     color <- info$color[which(info$condition == condition)]
     lty <- 1
     if (type == 'aiming') {
-      color <- 'magenta'
+      # color <- 'magenta'
       lty <- 2
     }
     
