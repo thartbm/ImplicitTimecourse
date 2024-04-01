@@ -255,7 +255,6 @@ removeNonLearners <- function() {
           learners <- c( learners, participant)
           info$learner[which(info$participant == participant)] <- TRUE
         }
-
       }
       
       cat(sprintf('removed %d non-learners from %d %s participants\n',(length(org_participants)-length(learners)),length(org_participants),toupper(condition)))
