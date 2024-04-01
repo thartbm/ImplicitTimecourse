@@ -173,7 +173,7 @@ addDensities <- function(conditions, type, flipXY=FALSE, viewscale=c(1,1), offse
     plotdf <- getImpExpEst(condition=condition, type=type)
     
     dens <- density(x=plotdf$depvar,
-                    bw=5,
+                    bw=3,   # used to be: 5, auto: 3.68
                     from=from,
                     to=to,
                     n=n)
