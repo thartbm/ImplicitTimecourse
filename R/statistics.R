@@ -333,8 +333,9 @@ aimingGroupTtest <- function(exp) {
     
     cat(sprintf('\ncomparing %s with %s\n', toupper(con1), toupper(con2)))
     
-    bttRA <-  BayesFactor::ttestBF(df[which(df$condition == con1),'explicit'], 
+    bttRA <-  BayesFactor::ttestBF(df[which(df$condition == con1),'explicit'],
                                    df[which(df$condition == con2),'explicit'])
+    
     bf <- extractBF(bttRA)[[1]]
     if (bf > 1000) {
       cat( sprintf( 'BF: %s\n', formatC(bf, format = "e", digits = 2) ) )
