@@ -493,7 +493,9 @@ Let's see if there is a difference in aiming between the continuous aiming group
 aimingGroupTtest(exp=4)
 ```
 
-Here we see no difference in explicit strategy between groups of participants that only do aiming trials 8 times, and those that do aiming trials throughout the whole experiment. This contrasts with the 95% confidence intervals in the table, that don't even overlap.
+Here we see no difference in explicit strategy between groups of participants that only do aiming trials 8 times, and those that do aiming trials throughout the whole experiment.
+
+This contrasts with the 95% confidence intervals in the table and figure 6B, that don't even overlap. Notice however that strategies are not really normally distributed, but tend to cluster at specific magnitudes (figure 3E, 4E, 5E and 6E). Moreover, while adding continuous aiming may evoke strategies in some participants who would not have discovered one themselves, a majority of participants in the control group did have a strategy already. It seems that a 45 degree rotation leads to more participants spontaneously discovering strategies as compared to 30 degrees. This is also seen in exp 1 here (c.f. one previous paper from our lab using a 30 degree rotation).
 
 ### Implicit-explicit correlation
 
