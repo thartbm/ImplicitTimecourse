@@ -37,7 +37,7 @@ This chunk might help solve some issues with `renv`:
 
 ```{r eval=F}
 unloadNamespace('renv')
-install.packages('renv', version="1.0.3")
+install.packages('renv', version="1.0.5")
 loadNamespace('renv')
 
 renv::activate()
