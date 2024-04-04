@@ -606,6 +606,8 @@ expTable <- function(exp) {
     expTable <- expTable[c(14,9),]
   }
   
+  expTable <- t(expTable)
+  
   return(expTable)
   
   
