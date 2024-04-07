@@ -23,6 +23,8 @@ downloadData <- function() {
 
 extractAngularDeviations <- function() {
   
+  # this is a fraction of the home-target distance
+  # 20% of ~8.83 cm is ~1.76 cm (or 1.8 cm)
   distance <- 0.2
   
   extractReachDeviations(distance=distance)
