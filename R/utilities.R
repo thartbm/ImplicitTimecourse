@@ -502,15 +502,22 @@ getImpExpEst <- function(condition,type) {
   if (type == 'nocursors') {
     df$depvar <- df$reachdeviation_deg
     use_trials <- c(aiming_trials, aiming_trials-1)
+    dvf <- -1
   }
   if (type == 'aiming') {
     df$depvar <- df$aimingdeviation_deg
     use_trials <- aiming_trials
+    dvf <- -1
+  }
+  if (type == 'reaches') {
+    df$depvar <- df$reachdeviation_deg
+    use_trials <- aiming_trials - 1
+    dvf <- -1
   }
   
   
   df[which(df$trialno %in% use_trials),]
-  df$depvar <- -1 * df$depvar
+  df$depvar <- dvf * df$depvar
   
   newdf <- aggregate(depvar ~ participant, data=df, FUN=mean)
   
