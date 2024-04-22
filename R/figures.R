@@ -1207,3 +1207,128 @@ NCMfigure2 <- function(target='inline') {
   }
   
 }
+
+# subtractive method -----
+
+plotSubtractiveMethod <- function() {
+  
+  info <- groupInfo()
+  
+  subtractiveData <- NA
+  
+  for (condition in info$condition) {
+    
+    if (info$rotation[which(info$condition == condition)] != 45) {
+      next
+    }
+    
+    implicit <- getImpExpEst(condition=condition, type='nocursors')
+    names(implicit)[which(names(implicit) == 'depvar')] <- 'implicit'
+    explicit <- getImpExpEst(condition=condition, type='aiming')
+    names(explicit)[which(names(explicit) == 'depvar')] <- 'explicit'
+    adaptation <- getImpExpEst(condition=condition, type='reaches')
+    names(adaptation)[which(names(adaptation) == 'depvar')] <- 'adaptation'
+    
+    cdata <- merge(implicit, explicit, by='participant')
+    cdata <- merge(cdata, adaptation, by='participant')
+    cdata$condition <- condition
+    
+    if (is.data.frame(subtractiveData)) {
+      subtractiveData <- rbind(subtractiveData, cdata)
+    } else {
+      subtractiveData <- cdata
+    }
+    
+  }
+  
+  subtractiveData <- subtractiveData[!duplicated(subtractiveData$participant),]
+  
+  avgadapt <- mean(subtractiveData$adaptation, na.rm=TRUE)
+  
+  layout(mat=matrix(c(1,2),byrow=TRUE, ncol=2,nrow=1))
+  
+  plot(-1000, -1000,
+       main='',
+       xlab='explicit [aiming]', ylab='implicit [no-cursors]',
+       xlim=c(-30,60), ylim=c(-30,60),
+       bty='n', ax=FALSE,asp=1)
+  
+  lines(x=c(-20,60),y=c(0,0),col='#999999',lty=2)
+  lines(x=c(0,0),y=c(-20,60),col='#999999',lty=2)
+  
+  lines(x=c(-20,40),y=(c(-20,40)*-1)+avgadapt,col='#999999',lty=2)
+  
+  
+  points(subtractiveData$explicit, subtractiveData$implicit,
+         pch=16, col='#99999944', cex=1.5)
+  
+  
+  # lm with 95% CI:
+  impl <- subtractiveData$implicit
+  expl <- subtractiveData$explicit
+  e2i <- lm(impl ~ expl)
+  
+  print(summary(e2i))
+  
+  slope_ci <- confint(e2i,parm='expl',level=0.95)
+  print(slope_ci)
+  
+  at <- range(expl)
+  
+  coef <- e2i$coefficients
+  lines(at, coef[1]+(at*coef[2]), col='red')
+  
+  ci <- predict( e2i,
+                 newdata=data.frame(expl=seq(at[1],at[2],length.out=40)),
+                 interval = "confidence")
+  
+  X <- c(seq(at[1],at[2],length.out=40),rev(seq(at[1],at[2],length.out=40)))
+  Y <- c(ci[,'lwr'],rev(ci[,'upr']))
+  polygon(x=X,y=Y,col=Reach::colorAlpha('red'),border=NA)
+  
+  
+  
+  axis(side=1,at=seq(-20,60,20))
+  axis(side=2,at=seq(-20,60,20))
+  
+  plot(-1000, -1000,
+       main='',
+       xlab='implicit [adaptation - aiming]', ylab='implicit [no-cursors]',
+       xlim=c(-30,60), ylim=c(-30,60),
+       bty='n', ax=FALSE,asp=1)
+  
+  lines(x=c(-20,60),y=c(0,0),col='#999999',lty=2)
+  lines(x=c(0,0),y=c(-20,60),col='#999999',lty=2)
+  lines(x=c(-20,60),y=c(-20,60),col='#999999',lty=2)
+  
+  points(subtractiveData$adaptation - subtractiveData$explicit, subtractiveData$implicit,
+         pch=16, col='#99999944', cex=1.5)
+  
+  # lm with 95% CI:
+  impl <- subtractiveData$implicit
+  pred <- subtractiveData$adaptation - subtractiveData$explicit
+  e2i <- lm(impl ~ pred)
+  
+  print(summary(e2i))
+  
+  slope_ci <- confint(e2i,parm='pred',level=0.95)
+  print(slope_ci)
+  
+  at <- range(pred)
+  
+  coef <- e2i$coefficients
+  lines(at, coef[1]+(at*coef[2]), col='red')
+  
+  ci <- predict( e2i,
+                 newdata=data.frame(pred=seq(at[1],at[2],length.out=40)),
+                 interval = "confidence")
+  
+  X <- c(seq(at[1],at[2],length.out=40),rev(seq(at[1],at[2],length.out=40)))
+  Y <- c(ci[,'lwr'],rev(ci[,'upr']))
+  polygon(x=X,y=Y,col=Reach::colorAlpha('red'),border=NA)
+  
+  
+  axis(side=1,at=seq(-20,60,20))
+  axis(side=2,at=seq(-20,60,20))
+  
+}
