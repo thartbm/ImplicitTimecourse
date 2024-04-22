@@ -481,12 +481,13 @@ behaviorDescriptors <- function(timecoursemode='relative') {
 
 getDescriptors <- function(exp, condition, mode, trialtype, centralvalue = 'group', ratesas = 'perc', timecoursemode='absolute', othermode='central') {
   
+  # from this file we only use the group average:
   idf <- read.csv(sprintf('data/exp%d/%s_individual_exp-fits.csv',exp,condition), stringsAsFactors = FALSE)
   lambda_all <- idf$lambda[which(idf$participant == 'all' & idf$phase == mode & idf$trialtype == trialtype)]
   N0_all     <- idf$N0[    which(idf$participant == 'all' & idf$phase == mode & idf$trialtype == trialtype)]
   
+  # this file is used to calculate the 95% confidence intervals of the mean:
   df <- read.csv(sprintf('data/exp%d/%s_%s%s_exp-fits.csv',exp,condition,trialtype,list('learning'='','washout'='_washout')[[mode]]), stringsAsFactors = FALSE)
-  
   lambdaCI <- quantile(df$lambda, probs=c(0.025, 0.50, 0.975)) 
   N0CI     <- quantile(df$N0,     probs=c(0.025, 0.50, 0.975)) 
   
@@ -586,7 +587,10 @@ expTable <- function(exp) {
     trainingTable <- expTable[c(1,2,3,4),]
     # washoutTable  <- expTable[c("15° (washout)","30° (washout)","45° (washout)","60° (washout)"),]
     washoutTable <- expTable[c(5,6,7,8),]
+    # we only do asymptotes in the paper:
     washoutTable  <- washoutTable[,c('reaches_asymptote','no_cursors_asymptote')]
+    # with this line instead, you also get the rates of change:
+    # washoutTable <- washoutTable[,c('reaches_RofC','reaches_asymptote','no_cursors_RofC','no_cursors_asymptote')]
     rownames(washoutTable) <- NULL
     expTable <- cbind(trainingTable, washoutTable)
   }
