@@ -12,11 +12,12 @@ bootstrapExponentialLearning <- function(condition, type, iterations=1000, mode=
   df <- read.csv(sprintf('data/exp%d/%s_%s.csv', exp, condition, type))
   
   # clean data a bit:
-  df <- removeOutliers(df, depvar=depvar)
-  df <- baseline(df, depvar=depvar)
+  # this is now done when prepping data
+  # df <- removeOutliers(df, depvar=depvar)
+  # df <- baseline(df, depvar=depvar)
 
   df$depvar <- df[,depvar]
-  if (depvar %in% c('reachdeviation_deg', 'aimingdeviation_deg')) {
+  if (depvar %in% c('reachdeviation_deg', 'aimingdeviation_deg', 'subtraction')) {
     df$depvar <- -1 * df$depvar
   }
   df <- df[which(df$phase == 'rotation' & df$trialno < 77),]
@@ -150,12 +151,15 @@ bootstrapAllAimingExpFits <- function(iterations=5000) {
   ncores   <- parallel::detectCores()
   clust <- parallel::makeCluster(max(c(1,floor(ncores*0.75))))
   
-  condition = 'aiming'
-  type = 'aiming'
+  condition <- 'aiming'
+  type <- 'aiming'
   cat(sprintf('exponential fit (%d iterations) for: %s %s\n',iterations,condition,type))
-  bootstrapExponentialLearning(condition, type, iterations=iterations, mode='learning', clust=clust, depvar='aimingdeviation_deg', asymptoteRange=c(0,50))
+  
+  bootstrapExponentialLearning(condition=condition, type=type, iterations=iterations, mode='learning', clust=clust, depvar='aimingdeviation_deg', asymptoteRange=c(0,50))
 
-  # bootstrapExponentialLearning(condition, type, iterations=iterations, clust=clust)
+  type <- 'subtraction'
+  cat(sprintf('exponential fit (%d iterations) for: %s %s\n',iterations,condition,type))
+  bootstrapExponentialLearning(condition=condition, type=type, iterations=iterations, mode='learning', clust=clust, depvar='subtraction', asymptoteRange=c(0,50))
   
   stopCluster(clust)
   
@@ -200,8 +204,9 @@ bootstrapExponentialWashout <- function(condition, type, iterations=5000, clust=
   
   # cat('cleaning data...\n')
   # clean data a bit:
-  df <- removeOutliers(df, depvar=depvar)
-  df <- baseline(df, depvar=depvar)
+  # done during data prep now
+  # df <- removeOutliers(df, depvar=depvar)
+  # df <- baseline(df, depvar=depvar)
   
   # cat('get washout data only...\n')
   df <- getWashout(df)
@@ -279,7 +284,7 @@ groupAvgFits <- function(conditions=NULL) {
     exp <- info$exp[condition_idx]
     rotation <- info$rotation[condition_idx]
     conditiontypes <- c('reaches', 'nocursors')
-    if (condition == 'aiming') {conditiontypes <- c(conditiontypes, 'aiming')}
+    if (condition == 'aiming') {conditiontypes <- c(conditiontypes, 'aiming', 'subtraction')}
     
     # outputs stored here:
     cdf <- NA
@@ -289,13 +294,15 @@ groupAvgFits <- function(conditions=NULL) {
       
       depvar <- list('reaches'='reachdeviation_deg',
                      'nocursors'='reachdeviation_deg',
-                     'aiming'='aimingdeviation_deg')[[type]]
+                     'aiming'='aimingdeviation_deg',
+                     'subtraction'='subtraction')[[type]]
       
       prepend <- c()
       if (type == 'nocursors') {prepend <- c(0)}
       
-      df <- removeOutliers(df, depvar=depvar)
-      df <- baseline(df, depvar=depvar)
+      # this now done during data prep:      
+      # df <- removeOutliers(df, depvar=depvar)
+      # df <- baseline(df, depvar=depvar)
       
       df$depvar <- -1 * df[,depvar]
       df$type <- type
@@ -306,7 +313,9 @@ groupAvgFits <- function(conditions=NULL) {
       pps <- list()
       pps[['all']] <- unique(ldf$participant)
       for (pp in unique(ldf$participant)) {
-        pps[[pp]] <- pp
+        if (!all(is.na(ldf[which(ldf$participant == pp),depvar]))) {
+          pps[[pp]] <- pp
+        }
       }
       
       # print(pps)
@@ -348,6 +357,14 @@ groupAvgFits <- function(conditions=NULL) {
 
         # no baseline (or steady state / asymptote) appended for no-cursors
         prepend <- c()
+        
+        pps <- list()
+        pps[['all']] <- unique(wdf$participant)
+        for (pp in unique(wdf$participant)) {
+          if (!all(is.na(wdf[which(wdf$participant == pp),depvar]))) {
+            pps[[pp]] <- pp
+          }
+        }
         
         a <- parLapply(cl = clust,
                        X = pps,
