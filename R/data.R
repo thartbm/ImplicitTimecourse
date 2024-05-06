@@ -27,13 +27,21 @@ extractAngularDeviations <- function() {
   # 20% of ~8.83 cm is ~1.76 cm (or 1.8 cm)
   distance <- 0.2
   
+  cat('-- extracting training reach deviations:\n')
   extractReachDeviations(distance=distance)
+  cat('-- extracting no-cursor reach deviations:\n')
   extractNoCursorDeviations(distance=distance)
+  cat('-- extracting aiming deviations:\n')
   extractAimingDeviations()
   
+  cat('-- removing non-learners:\n')
   removeNonLearners()
   
+  cat('-- combining control groups:\n')
   combineControls()
+  
+  cat('-- calculating subtractive implicit estimate:\n')
+  subtractionImplicit()
   
 }
 
@@ -193,6 +201,7 @@ extractAimingDeviations <- function() {
         ppdf$aimingdeviation_deg[which(ppdf$aimingdeviation_deg > 10)] <- NA
         # remove extreme outliers (twice the maximum reasonable strategy):
         ppdf$aimingdeviation_deg[which(ppdf$aimingdeviation_deg < -120)] <- NA
+        # maybe the previous check should be done on absolute aiming deviations?
         
         pdf <- data.frame(exp                 = rep(exp,dim(ppdf)[1]),
                           condition           = rep(condition,dim(ppdf)[1]),
@@ -220,6 +229,44 @@ extractAimingDeviations <- function() {
   
 }
 
+subtractionImplicit <- function() {
+  
+  # only the aiming group!
+  
+  reaches <- read.csv('data/exp4/aiming_reaches.csv', stringsAsFactors = FALSE)
+  aiming  <- read.csv('data/exp4/aiming_aiming.csv',  stringsAsFactors = FALSE)
+  
+  participants <- unique(reaches$participant)
+  
+  subtraction <- NA
+  
+  for (pp in participants) {
+    
+    pr <- reaches[which(reaches$participant == pp),]
+    pa <- aiming[ which(aiming$participant  == pp),]
+    
+    pd <- merge(pr, pa)
+    
+    pd$subtraction <- (pd$reachdeviation_deg - pd$aimingdeviation_deg)
+    
+    pd <- pd[,c('exp', 'condition', 'participant', 'trialno', 'rotation_deg', 'phase', 'target', 'subtraction')]
+    pd <- pd[order(pd$trialno),]
+    
+    if (is.data.frame(subtraction)) {
+      subtraction <- rbind(subtraction, pd)
+    } else {
+      subtraction <- pd
+    }
+    
+  }
+  
+  subtraction <- removeOutliers(df=subtraction, depvar='subtraction')
+  subtraction <- baseline(df=subtraction, depvar='subtraction')
+  
+  write.csv(subtraction, 'data/exp4/aiming_subtraction.csv', quote = F, row.names = F)
+  
+}
+
 
 removeNonLearners <- function() {
   
@@ -239,6 +286,10 @@ removeNonLearners <- function() {
       # cat(sprintf('exp %d, %s\n',exp,toupper(condition)))
       
       cond_df <- read.csv(sprintf('data/exp%d/%s_reaches.csv', exp, condition), stringsAsFactors = FALSE)
+      
+      cond_df <- removeOutliers(cond_df, depvar='reachdeviation_deg')
+      cond_df <- baseline(cond_df, depvar='reachdeviation_deg')
+      
       org_participants <- unique(cond_df$participant)
       totalN <- totalN + length(org_participants)
       for (participant in unique(cond_df$participant)) {
@@ -269,6 +320,12 @@ removeNonLearners <- function() {
       for (datatype in c('nocursors', 'aiming')) {
         filename <- sprintf('data/exp%d/%s_%s.csv', exp, condition, datatype)
         cond_df <- read.csv(filename, stringsAsFactors = FALSE)
+        
+        cond_df <- removeOutliers(cond_df, depvar=list('nocursors'='reachdeviation_deg', 'aiming'='aimingdeviation_deg')[[datatype]])
+        if (datatype == 'nocursors') {
+          cond_df <- baseline(cond_df, depvar='reachdeviation_deg')
+        }
+        
         cond_df <- cond_df[which(cond_df$participant %in% learners),]
         write.csv(cond_df, filename, row.names=FALSE, quote=TRUE)
       }
