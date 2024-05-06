@@ -37,7 +37,7 @@ This chunk might help solve some issues with `renv`:
 
 ```{r eval=F}
 unloadNamespace('renv')
-install.packages('renv', version="1.0.5")
+install.packages('renv', version="1.0.7")
 loadNamespace('renv')
 
 renv::activate()
@@ -355,7 +355,7 @@ The data is shown here:
 
 
 ```{r fig.width=6, fig.height=7.5}
-expBehaviorFig(exp=3, target='inline', timecoursemode = 'absolute')
+expBehaviorFig(exp=3, target='inline', timecoursemode = 'absolute') 
 ```
 
 A table with summary / descriptive statistics:
@@ -517,7 +517,49 @@ Also in the aiming group, there seems to be a significant, but non-additive (wea
 
 This contrasts a bit with our earlier findings comparing (uninstructed) control with a continuous aiming group, where aiming increased explicit strategies (but had no other effects). Perhaps a 45 degree rotation is sufficient to evoke strategies by itself, and it doesn't require additional prodding such as continuous aiming or instructions about the perturbation (cf. [Modchalingam et al., 2019](https://doi.org/10.1371/journal.pone.0220884)).
 
-# Conclusions
+# Subtractive estimate if implicit adaptation
+
+What if we _do_ subtract explicit aiming reports from total adaptation to get this indirect estimate of implicit adaptation? (Even though in every single group we see that that is not necessarily a good idea.) We do this with the continuous aiming group only, and first look at various plots of the data.
+
+```{r fig.width=6, fig.height=7.5}
+subtractionPlot()
+```
+
+First (panel A), we see the four types of data across trials: training reaches, no-cursors reaches, aiming reports, and the subtractive measure taking the training reach deviation minus the aiming report. This all seems fine to me. Notice that the subtractive measure jumps up immediately on the second rotated trial. This seems to be because the training reaches show some adaptation, while the aiming reports lag behind a bit. The no-cursor reaches go up when the rotation is introduced, which is because the no-cursor trials occur _after_ the training trials, so participants have had a rotated trial already (this is accounted for in the fits, by prepending a 0 to the time-series).
+
+In the fitted timecourses (panel B), the subtractive neasure 1) has a very wide confidence interval, but 2) it's pretty fast, in fact the median reaches 95% of the asymptote by the second trial. This means it would be faster than all other timecourses measured in this group.
+
+Then we look at the relationship between measures of implicit and explicit adaptation (panel C), the way we have before. That is, here we do not look at the full time-course, but take asymptotic measures around the arrow aiming trials. With in gray all data from groups adapting to a 45 degree rotation. Here implicit and explit adaptation should be negatively related with a slope of -1 (and an intercept equal to the average level of adaptation: the dashed gray line), but this does not seem to be the case. This is nothing new, but he relationship here should be equivalent to the relationship we see between predicted implicit adaptation using the subtractive method and directly measured implicit adaptation, except that the direction should be flipped. This is shown in panel D, with perfect prediction on the identity line. The strength of the relationship in D is not obviously better than the relationship in C. There might be a reduction in the variance of residuals, since the subtractive method does somewhat account for differences in total adaptation - although this also might introduce some more noise by itself.
+
+In panels E and F we provide a qualitative impression of what happens in individual participants' timecourses during no-cursor trials and the explicit aiming trials. In these panels, each line, represents a single participant, and shows only part of the full time course, to allow us to gauge what happens when the rotation is introduced. First, the no-cursor reach deviations (panel E) are more noisy. Second, among the noise, we can see that most or even all participants increase their reach deviations more or less simultaneously. Second, the arrow aiming deviations (panel F) are much closer to 0 during the aligned / baseline phase. Then, after trial 20, we do see a subset of participants still aiming the arrow directly at the target (they stay at 0). However, throughout the first few rotated trials, most participants at some point move over to a second level somewhere around 20 degrees in a more or less discrete step. We can also intuit that at around trial 35, a portion of participants deviate the arrow even more from the target: they get close to 45 degrees. We should keep in mind that the time point at which people start reporting their strategy, might come after they actually developed the strategy; they just forgot to report it. This would be true of all studies using some kind of aiming measure however. So if this timecourse of reported aiming deviations does follow this general shape, they look like more or less discrete steps, with the steps themselves distributed throughout time. The average across a sufficient number of participants would then look like a normal learning curve, but that average would not reflect the underlying explicit adaptation process accurately. However, these are just impressions here.
+
+OK, so let's do some statistics on this. We've done 5k bootstraps of the exponential function fit on the subtracted data as well. We will use it to compare the speed and asymptote with those from the direct measures in the same participants. Cf. panel B. We're mainly interested in the speed of processes here, but we'll also compare the asymptote of the subtractive measure with that of the direct measure of implicit adaptation:
+
+```{r}
+subtractionRofCtest()
+```
+
+The subtractive estimate of implicit has a higher learning rate than that of the other processes. This is despite the pretty wide confidence interval for the subtractive estimate. While our previous work indicates that implicit adaptation might be fast in some cases, the speed of the exponential fits here is extraordinary. As such, we don't think the subtractive estimates of implicit adaptation here provide a reliable estimate of the speed of implicit adaptation.
+
+We also see that the subtractive estimate of implicit adaptation has a smaller asymptote than the direct measure. However, since there is no indication that the subtractive measure of implicit adaptation is useful, we will not interpret this.
+
+Now we look at the additivity regressions (panels C and D above).
+
+```{r}
+subtractionRegressions()
+```
+
+First the implicit over explicit plot (panel C). For all other participants doing a 45 degree rotation, the slope is -0.193, with a confidence interval of [-0.313, -0.073]. The regression is significant with p=.002 and r=-0.226. For just the continuous aiming group, the slope is -0.105 with a confidence interval of [-0.392, 0.183] but it is not significant (p=0.466, r-0.124).
+
+Nothing new there. However, while the continuous aiming group seems to have slightly higher implicit no-cursor reach deviations, they are not very different from the other groups (not directly tested though).
+
+Now the goodness of fit for subtractive estimates of implicit adaptation. Here we should expect the slope to 1 (and the intercept to be 0). For all other 45 degree rotations, the slope is 0.123 [0.003, 0.243] and this is barely significant (p=0.045, r=0.145). For the continuous aiming group only, the slope is 0.060 [-0.198, 0.319], p=0.639, r=-0.080.
+
+That is, neither of these regressions on subtractive estimates are in line with additivity, but that's not so surprising, as they are essentially the same as the other regressions, except that the total adaptation removes some variance (and might add some new variance, since the r-valuess don't really look all that much better). Again, we see that the slope of the regressions are comparable between the continuous aiming group and the other groups, suggesting that subtractive measures of aiming would be comparable for all groups, at least some time into adaptation. We have no data on the initial stages of adaptation however.
+
+Apart from interesting dynamics in aiming responses at the very start of the rotated phase, we don't really learn anything new here.
+
+# Overall Conclusions
 
 First, here we have a summary plot with (almost) all important data from all four experiments.
 
@@ -540,11 +582,12 @@ Therefore: implicit adaptation seems pretty fast here, as well as mostly indepen
 
 ```{r eval=F}
 targets <- c('pdf', 'svg', 'png', 'tiff') # c('pdf', 'svg', 'png', 'tiff')
-for (exp in c(1:4)) {
-  for (target in targets) {
+for (target in targets) {
+  for (exp in c(1:4)) {
     expBehaviorFig(exp=exp, target=target)
   }
+  subtractionPlot(target=target)
+  discussionPlot(target=target)
 }
-for (target in targets) { discussionPlot(target=target) }
 ```
 
