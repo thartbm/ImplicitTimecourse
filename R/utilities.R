@@ -18,7 +18,7 @@ groupInfo <- function() {
              'purple')
   
   # label <- c('15°', '30°', '45°', '60°', 'control', 'cursor-jump', 'terminal', 'aiming', 'delay->terminal', 'terminal->delay')
-  label <- c('15°', '30°', '45°', '60°', 'control', 'cursor-jump', 'terminal', 'terminal -> delay', 'delay -> terminal', 'aiming')
+  label <- c('15°', '30°', '45°', '60°', 'control', 'cursor-jump', 'terminal', 'terminal -> delay', 'delay -> terminal', 'aiming group')
   
   rot <- c(15,30,45,60,45,45,45,45,45,45)
   
@@ -63,15 +63,16 @@ convertLegend <- function(legends) {
 
 # plotting -----
 
-addLearningCurves <- function(type, conditions=NULL, exp=NULL, phases=c('baseline','rotation','washout'),FUN=mean) {
+addLearningCurves <- function(type, conditions=NULL, exp=NULL, phases=c('baseline','rotation','washout'),FUN=mean, col=NULL, lty=NULL) {
   
-  if (type %notin% c('reaches','nocursors','aiming')) {
+  if (type %notin% c('reaches','nocursors','aiming','subtraction')) {
     return()
   }
   
   depvar <- list('aiming'='aimingdeviation_deg',
                  'reaches'='reachdeviation_deg',
-                 'nocursors'='reachdeviation_deg')[[type]]
+                 'nocursors'='reachdeviation_deg',
+                 'subtraction'='subtraction')[[type]]
   
   info <- groupInfo()
   
@@ -85,7 +86,9 @@ addLearningCurves <- function(type, conditions=NULL, exp=NULL, phases=c('baselin
   ltys  <- list()
   label <- list()
   
-  for (condition in conditions) {
+  for (condno in c(1:length(conditions))) {
+    
+    condition <- conditions[condno]
     
     if (condition %notin% info$condition) {
       return()
@@ -93,20 +96,29 @@ addLearningCurves <- function(type, conditions=NULL, exp=NULL, phases=c('baselin
     
     idx <- which(info$condition == condition)
     exp <- info$exp[idx]
-    if (type == 'aiming') {
-      # color[[condition]] <- 'magenta'
+    if (is.null(col)) {
       color[[condition]] <- info$color[idx]
-      ltys[[condition]] <- 2
     } else {
-      color[[condition]] <- info$color[idx]
-      ltys[[condition]] <- 1
+      color[[condition]] <- col[condno]
     }
+    if (is.null(lty)) {
+      if (type == 'aiming') {
+        # color[[condition]] <- 'magenta'
+          ltys[[condition]] <- 2
+      } else {
+        ltys[[condition]] <- 1
+      }
+    } else {
+      ltys[[condition]] <- lty[condno]
+    }
+    
     label[[condition]] <- info$label[idx]
     
     df <- read.csv(sprintf('data/exp%d/%s_%s.csv', exp, condition, type))
     
-    df <- removeOutliers(df, depvar=depvar)
-    df <- baseline(df, depvar=depvar)
+    # data should already be cleaned at this point:    
+    # df <- removeOutliers(df, depvar=depvar)
+    # df <- baseline(df, depvar=depvar)
     
     df$depvar <- df[,depvar]
     
@@ -173,7 +185,7 @@ addDensities <- function(conditions, type, flipXY=FALSE, viewscale=c(1,1), offse
     plotdf <- getImpExpEst(condition=condition, type=type)
     
     dens <- density(x=plotdf$depvar,
-                    bw=3,   # used to be: 5, auto: 3.68
+                    bw=4,   # used to be: 5 or 3, auto: 3.68
                     from=from,
                     to=to,
                     n=n)
@@ -242,29 +254,43 @@ addImpExpScatters <- function(conditions) {
   
 }
 
-addAdaptationTimecourses <- function(type, conditions, timecoursemode='relative') {
+addAdaptationTimecourses <- function(type, conditions, timecoursemode='relative', col=NULL, lty=NULL, offset=1) {
   
   info <- groupInfo()
   
   for (condition in conditions) {
     
     exp <- info$exp[which(info$condition == condition)]
-    color <- info$color[which(info$condition == condition)]
-    lty <- 1
-    if (type == 'aiming') {
-      # color <- 'magenta'
-      lty <- 2
+    if (is.null(col)) {
+      color <- info$color[which(info$condition == condition)]
+    } else {
+      color <- col
+    }
+    if (is.null(lty)) {
+      lty <- 1
+      if (type == 'aiming') {
+        # color <- 'magenta'
+        lty <- 2
+      }
     }
     
     # read the exp-fits:
+    # print(c(exp, condition, type))
     df <- read.csv(file = sprintf('data/exp%d/%s_%s_exp-fits.csv',exp,condition,type), stringsAsFactors = FALSE)
     
     
     
     lambdaCI <- quantile(df$lambda, probs=c(0.025, 0.50, 0.975))
+    lambdaCI[1] <- max(lambdaCI[1], 0.0001)
+    lambdaCI[3] <- min(lambdaCI[3], 0.9999)
     N0CI     <- quantile(df$N0, probs=c(0.025, 0.50, 0.975))
     
-    PropAsym <- N0CI[1]/N0CI[2]
+    # print(lambdaCI)
+    # print(N0CI)
+    
+    PropAsym <- abs(N0CI[1]/N0CI[2])
+    PropAsym <- 0.95
+    # if (PropAsym < 0) {PropAsym <- 0.5}
     names(PropAsym) <- NULL
     
     tau <- log(1-PropAsym)/log(1-lambdaCI)
@@ -276,6 +302,7 @@ addAdaptationTimecourses <- function(type, conditions, timecoursemode='relative'
     if (timecoursemode == 'absolute') {
       scale <- N0CI[2]
     }
+    # print(scale)
     
     X <- c()
     Y <- c()
@@ -291,7 +318,7 @@ addAdaptationTimecourses <- function(type, conditions, timecoursemode='relative'
     Y <- c(Y, rev( Reach::exponentialModel(par=thispar, timepoints=(seq(0,1,length.out=101)^2)*tau[3])$output * scale) )
     
     if (type == 'reaches') {
-      X <- X+1
+      X <- X+offset
     }
     
     polygon( x=X,
@@ -305,7 +332,7 @@ addAdaptationTimecourses <- function(type, conditions, timecoursemode='relative'
     lY <- Reach::exponentialModel(par=thispar, timepoints=(seq(0,1,length.out=101)^2)*tau[2])$output * scale
     
     if (type=='reaches') {
-      lX <- lX + 1
+      lX <- lX + offset
     }
     
     lines(x   = lX,
@@ -515,8 +542,13 @@ getImpExpEst <- function(condition,type) {
     dvf <- -1
   }
   
+  # df <- removeOutliers(df, depvar='depvar')
+  if (type != 'aiming') {
+    # df <- baseline(df, depvar='depvar')
+  }
   
-  df[which(df$trialno %in% use_trials),]
+  # this line used to be very wrong!
+  df <- df[which(df$trialno %in% use_trials),]
   df$depvar <- dvf * df$depvar
   
   newdf <- aggregate(depvar ~ participant, data=df, FUN=mean)
