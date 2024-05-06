@@ -90,8 +90,8 @@ expBehaviorFig <- function(exp, target='inline', timecoursemode='absolute') {
   
   addAimingTrials(mrot=mrot)
   
-  leg.info <- addLearningCurves(type='reaches',
-                                conditions=conditions)
+  leg.info <- addLearningCurves(type       = 'reaches',
+                                conditions = conditions)
   
   if (exp < 4) {
     legends <- convertLegend(leg.info$label)
@@ -147,7 +147,7 @@ expBehaviorFig <- function(exp, target='inline', timecoursemode='absolute') {
     
     addAimingResponses(conditions=c('control'))
     
-    legends <- c(convertLegend(leg.info$label)[c(1,2)],'re-aiming')
+    legends <- c(convertLegend(leg.info$label)[c(1,2)],'aiming report')
     color <- leg.info$color
     color[3] <- 'gray'
     ltys <- c(1,1,2)
@@ -300,7 +300,7 @@ discussionPlot <- function(target='inline') {
   width = 4
   height = 8
   dpi = 300
-  outfilename <- 'doc/fig_9'
+  outfilename <- 'doc/fig_10'
   
   if (target == 'svg') {
     svglite::svglite( filename = sprintf('%s.svg',outfilename),
@@ -640,6 +640,371 @@ discussionPlot <- function(target='inline') {
   
 }
 
+
+subtractionPlot <- function(target='inline') {
+  
+  width = 6
+  height = 7.5
+  dpi = 300
+  outfilename <- 'doc/fig_9'
+  
+  if (target == 'svg') {
+    svglite::svglite( filename = sprintf('%s.svg',outfilename),
+                      width = width,
+                      height = height,
+                      fix_text_size = FALSE)
+  }
+  if (target == 'png') {
+    png( filename = sprintf('%s.png',outfilename),
+         width = width*dpi,
+         height = height*dpi,
+         res = dpi
+    )
+  }
+  if (target == 'pdf') {
+    pdf( file = sprintf('%s.pdf', outfilename),
+         width=width,
+         height=height)
+  }
+  if (target == 'tiff') {
+    tiff( filename = sprintf('%s.tiff',outfilename),
+          compression = 'lzw',
+          width = width*dpi,
+          height = height*dpi,
+          res = dpi
+    )
+  }
+  
+  
+  color <- c('#e51636', 'orange', 'darkturquoise', 'purple')
+  color <- c('#e51636', 'orange', 'blue', 'purple')
+  color <- c('#e51636', 'blue', 'darkturquoise', 'purple')
+  color <- c('darkturquoise', 'blue', '#e51636', 'purple')
+  depvar <- c('reaches', 'nocursors', 'aiming', 'subtraction')
+  lty <- c(3,3,3,1)
+  
+  info <- data.frame(color,
+                     depvar,
+                     lty)
+  
+  
+  layout( mat = matrix(c(1,1,1,1,1,1,
+                         2,2,3,3,4,4,
+                         5,5,5,6,6,6),
+                       nrow=3, ncol=6,
+                       byrow=TRUE)
+        )
+  
+  
+  
+  relfontsize <- 0.8
+  
+  # text(0,0.95,'B: less explicit', font.main=1, cex=1.35*1.5, adj=0)
+  # title(xlab='explicit [°]', line = 0.5,cex.lab=textsize)
+  # title(ylab='implicit [°]', line = 2.5,cex.lab=textsize)
+  
+  par(mar=c(3.2,3.5,2,0.1),
+      cex.axis=relfontsize, 
+      cex.lab=relfontsize,
+      cex.main=relfontsize*1.5,
+      xpd=TRUE)
+  
+  
+  # # # # # #   First plot: data time courses
+  
+  
+  plot(x=-1000, y=-1000,
+       main='',xlab='',ylab='',
+       xlim=c(0,121),ylim=c(-5,50),
+       ax=F,bty='n')
+  
+  title(main='A: subtractive estimate of implicit', line=0.25, adj=0)
+  title(xlab='trial', line = 1.75)
+  title(ylab='deviation [°]', line = 2.5)
+  
+  
+  lines(x=c(1,21,21,120),
+        y=c(0,0,45,45),col='gray')
+
+  addAimingTrials(mrot=45)
+  
+  
+  for (dvn in c(1:length(info$depvar))) {
+    
+    leg.info <- addLearningCurves(type=info$depvar[dvn], 
+                                  condition='aiming', 
+                                  lty=info$lty[dvn], 
+                                  col=info$color[dvn], 
+                                  FUN=mean)
+    
+  }
+  
+  legend(x=0,y=45,
+         # legend=info$depvar,
+         legend=c('reaches', 'no-cursors', 'aiming reports', 'subtraction'),
+         col=info$color,
+         lty=c(3,3,3,1), bty='n',
+         cex=relfontsize)
+
+  axis(side=1,at=c(1,21,120))
+  axis(side=2,at=seq(0,45,15),las=1)
+  
+
+  # # # # # Second plot: fitted time courses + 95% CI
+  
+  ymrot <- 45
+  ylim <- c(0,ymrot)
+  yticklocs <- seq(0,ymrot,15)
+  yticklabels <- sprintf('%d',yticklocs)
+
+  plot(-1000,-1000,
+       main='',xlab='',ylab='',
+       xlim=c(0,30),ylim=ylim,
+       ax=F,bty='n')  
+  
+  
+  
+  title(main='B: fitted timecourses', line=0.25, adj=0)
+  title(xlab='trial', line = 1.75)
+  title(ylab='deviation [°]', line = 2.5)
+  
+  for (dvn in c(1:length(info$depvar))) {
+    
+    addAdaptationTimecourses(type=info$depvar[dvn],
+                             conditions=c('aiming'), 
+                             timecoursemode='absolute',
+                             col=info$color[dvn],
+                             lty=info$lty[dvn],
+                             offset=0)
+    
+  }
+  
+  axis(side=1,at=c(0,10,20,30))
+  axis(side=2,at=yticklocs,las=1,labels=yticklabels)
+  
+  
+  
+  
+  # print(info)
+  
+  # here come the end of training additivity scatter plots:
+  
+  subtractiveData <- getAvgSubtractiveData()
+  
+  avgadapt <- mean(subtractiveData$adaptation, na.rm=TRUE)
+  
+  # layout(mat=matrix(c(1,2),byrow=TRUE, ncol=2,nrow=1))
+  
+  plot(-1000, -1000,
+       main='',
+       xlab='', ylab='',
+       xlim=c(-30,60), ylim=c(-30,60),
+       bty='n', ax=FALSE,asp=1)
+  
+  
+  title(main='C: additivity', line=0.25, adj=0)
+  title(xlab='explicit [aiming]', line = 1.75)
+  title(ylab='implicit [no-cursors]', line = 2.5)
+  
+  
+  lines(x=c(-20,60),y=c(0,0),col='#CCCCCC',lty=1)
+  lines(x=c(0,0),y=c(-20,60),col='#CCCCCC',lty=1)
+  
+  # average adaptation is only 24.8 degrees?
+  lines(x=c(-10,50),y=(c(-10,50)*-1)+avgadapt,col='#666666',lty=2)
+  
+  for (subset in c('all', 'aiming')){
+    
+    if (subset == 'all') {
+      conditions <- unique(subtractiveData$condition)
+      conditions <- conditions[conditions != 'aiming']
+      col1 <- '#CCCCCC'
+      col2 <- '#999999'
+      pch <- 16
+      op <- 44
+    }
+    if (subset == 'aiming') {
+      conditions <- c('aiming')
+      col1 <- info$color[which(info$depvar == 'aiming')]
+      col2 <- info$color[which(info$depvar == 'aiming')]
+      pch <- 1
+      op <- 100
+    }
+    
+    subData <- subtractiveData[which(subtractiveData$condition %in% conditions),]
+    
+    points(subData$explicit, subData$implicit,
+           pch=pch, col=Reach::colorAlpha(col1,op), cex=1.0)
+    
+    
+    # lm with 95% CI:
+    impl <- subData$implicit
+    expl <- subData$explicit
+    e2i <- lm(impl ~ expl)
+    
+    # print(summary(e2i))
+    
+    slope_ci <- confint(e2i,parm='expl',level=0.95)
+    # print(slope_ci)
+    
+    at <- range(expl)
+    
+    coef <- e2i$coefficients
+    lines(at, coef[1]+(at*coef[2]), col=col2)
+    
+    ci <- predict( e2i,
+                   newdata=data.frame(expl=seq(at[1],at[2],length.out=40)),
+                   interval = "confidence")
+    
+    X <- c(seq(at[1],at[2],length.out=40),rev(seq(at[1],at[2],length.out=40)))
+    Y <- c(ci[,'lwr'],rev(ci[,'upr']))
+    polygon(x=X,y=Y,col=Reach::colorAlpha(col2),border=NA)
+    
+  }
+  
+  
+  axis(side=1,at=seq(-20,60,20))
+  axis(side=2,at=seq(-20,60,20))
+  
+  plot(-1000, -1000,
+       main='',
+       xlab='', ylab='',
+       xlim=c(-30,60), ylim=c(-30,60),
+       bty='n', ax=FALSE,asp=1)
+  
+  title(main='D: subtraction', line=0.25, adj=0)
+  title(xlab='implicit [adaptation - aiming]', line = 1.75)
+  title(ylab='implicit [no-cursors]', line = 2.5)
+  
+  lines(x=c(-20,60),y=c(0,0),col='#CCCCCC',lty=1)
+  lines(x=c(0,0),y=c(-20,60),col='#CCCCCC',lty=1)
+  lines(x=c(-20,60),y=c(-20,60),col='#999999',lty=2)
+  
+  for (subset in c('all', 'aiming')){
+    
+    if (subset == 'all') {
+      conditions <- unique(subtractiveData$condition)
+      conditions <- conditions[conditions != 'aiming']
+      col1 <- '#CCCCCC'
+      col2 <- '#999999'
+      pch <- 16
+      op <- 44
+    }
+    if (subset == 'aiming') {
+      conditions <- c('aiming')
+      col1 <- info$color[which(info$depvar == 'subtraction')]
+      col2 <- info$color[which(info$depvar == 'subtraction')]
+      pch <- 1
+      op <- 100
+    }
+    
+    subData <- subtractiveData[which(subtractiveData$condition %in% conditions),]
+    
+  
+    points(subData$adaptation - subData$explicit, subData$implicit,
+           pch=pch, col=Reach::colorAlpha(col1, op), cex=1.0)
+    
+    # lm with 95% CI:
+    impl <- subData$implicit
+    pred <- subData$adaptation - subData$explicit
+    e2i <- lm(impl ~ pred)
+    
+    # print(summary(e2i))
+    
+    slope_ci <- confint(e2i,parm='pred',level=0.95)
+    # print(slope_ci)
+    
+    at <- range(pred)
+    
+    coef <- e2i$coefficients
+    lines(at, coef[1]+(at*coef[2]), col=col2)
+    
+    ci <- predict( e2i,
+                   newdata=data.frame(pred=seq(at[1],at[2],length.out=40)),
+                   interval = "confidence")
+    
+    X <- c(seq(at[1],at[2],length.out=40),rev(seq(at[1],at[2],length.out=40)))
+    Y <- c(ci[,'lwr'],rev(ci[,'upr']))
+    polygon(x=X,y=Y,col=Reach::colorAlpha(col2),border=NA)
+    
+  }  
+  
+  axis(side=1,at=seq(-20,60,20))
+  axis(side=2,at=seq(-20,60,20))
+  
+  # here come the individual timecourses:
+  
+  
+  plot(-1000,-1000,
+       main='',xlab='',ylab='',
+       xlim=c(15,45),ylim=c(-10,55),
+       bty='n',ax=F)
+  
+  title(main='E: individual no-cursors', line=0.25, adj=0)
+  title(xlab='trial', line = 1.75)
+  title(ylab='implicit [no-cursors]', line = 2.5)
+  
+  
+  df <- read.csv('data/exp4/aiming_nocursors.csv', stringsAsFactors = FALSE)
+  
+
+  df <- removeOutliers(df=df)
+  df <- baseline(df, depvar='reachdeviation_deg')
+  
+  
+  participants <- unique(df$participant)
+  
+  col <- info$color[which(info$depvar == 'nocursors')]
+  
+  for (participant in participants) {
+    
+    pdf <- df[which(df$participant == participant),]
+    # print(pdf$reachdeviation_deg[c(15:45)])
+    lines(c(15:45), -1 * pdf$reachdeviation_deg[c(15:45)], col=Reach::colorAlpha(col, alpha=50))
+  }
+
+  axis(side=1, at=seq(15,45,5))
+  axis(side=2, at=seq(0,45,15))
+    
+  
+  plot(-1000,-1000,
+       main='',xlab='',ylab='',
+       xlim=c(15,45),ylim=c(-10,55),
+       bty='n',ax=F)
+  
+  title(main='F: individual aiming', line=0.25, adj=0)
+  title(xlab='trial', line = 1.75)
+  title(ylab='explicit [aiming]', line = 2.5)
+  
+  df <- read.csv('data/exp4/aiming_aiming.csv', stringsAsFactors = FALSE)
+  
+  df <- removeOutliers(df=df, depvar='aimingdeviation_deg')
+  df <- baseline(df, depvar='aimingdeviation_deg')
+  
+  participants <- unique(df$participant)
+  
+  col <- info$color[which(info$depvar == 'aiming')]
+  
+  for (participant in participants) {
+    
+    pdf <- df[which(df$participant == participant),]
+    lines(c(15:45), -1 * pdf$aimingdeviation_deg[c(15:45)], col=Reach::colorAlpha(col, alpha=50))
+  }
+  
+  axis(side=1, at=seq(15,45,5))
+  axis(side=2, at=seq(0,45,15))
+  
+
+  
+  
+  
+  
+  
+  if (target %in% c('svg','png','pdf','tiff')) {
+    dev.off()
+  }
+  
+}
 
 
 # NCM 2024 figures -----
@@ -1210,6 +1575,46 @@ NCMfigure2 <- function(target='inline') {
 
 # subtractive method -----
 
+getAvgSubtractiveData <- function() {
+  
+  grinfo <- groupInfo()
+  
+  subtractiveData <- NA
+  
+  for (condition in grinfo$condition) {
+    
+    if (grinfo$rotation[which(grinfo$condition == condition)] != 45) {
+      next
+    }
+    
+    implicit <- getImpExpEst(condition=condition, type='nocursors')
+    names(implicit)[which(names(implicit) == 'depvar')] <- 'implicit'
+    explicit <- getImpExpEst(condition=condition, type='aiming')
+    names(explicit)[which(names(explicit) == 'depvar')] <- 'explicit'
+    adaptation <- getImpExpEst(condition=condition, type='reaches')
+    names(adaptation)[which(names(adaptation) == 'depvar')] <- 'adaptation'
+    
+    cdata <- merge(implicit, explicit, by='participant')
+    cdata <- merge(cdata, adaptation, by='participant')
+    cdata$condition <- condition
+    
+    if (is.data.frame(subtractiveData)) {
+      subtractiveData <- rbind(subtractiveData, cdata)
+    } else {
+      subtractiveData <- cdata
+    }
+    
+  }
+  
+  # the 45 degree participants from exp 1 also appear in the control group:
+  subtractiveData <- subtractiveData[!duplicated(subtractiveData$participant),]
+  
+  
+  return(subtractiveData)
+  
+  
+}
+
 plotSubtractiveMethod <- function() {
   
   info <- groupInfo()
@@ -1331,4 +1736,165 @@ plotSubtractiveMethod <- function() {
   axis(side=1,at=seq(-20,60,20))
   axis(side=2,at=seq(-20,60,20))
   
+}
+
+
+plotExplicitTimecourses <- function() {
+  
+  
+  layout(mat=matrix(c(1:3),nrow=3,ncol=1))
+  
+  plot(-1000,-1000,
+       main='',xlab='',ylab='',
+       xlim=c(15,45),ylim=c(-10,100),
+       bty='n')
+  
+  df <- read.csv('data/exp4/aiming_aiming.csv', stringsAsFactors = FALSE)
+  
+  df <- baseline(df, depvar='aimingdeviation_deg')
+  
+  participants <- unique(df$participant)
+  
+  for (participant in participants) {
+    
+    pdf <- df[which(df$participant == participant),]
+    lines(pdf$trialno, -1 * pdf$aimingdeviation_deg, col='#FF000066')
+  }
+  title(main='aiming')
+  
+  
+  plot(-1000,-1000,
+       main='',xlab='',ylab='',
+       xlim=c(15,45),ylim=c(-10,100),
+       bty='n')
+  
+  df <- read.csv('data/exp4/aiming_nocursors.csv', stringsAsFactors = FALSE)
+  
+  df <- baseline(df, depvar='reachdeviation_deg')
+  
+  participants <- unique(df$participant)
+  
+  for (participant in participants) {
+    
+    pdf <- df[which(df$participant == participant),]
+    lines(pdf$trialno, -1 * pdf$reachdeviation_deg, col='#FF000066')
+  }
+  title(main='nocursors')
+  
+  
+  plot(-1000,-1000,
+       main='',xlab='',ylab='',
+       xlim=c(15,45),ylim=c(-10,100),
+       bty='n')
+  
+  df <- read.csv('data/exp4/aiming_subtraction.csv', stringsAsFactors = FALSE)
+  
+  df <- baseline(df, depvar='subtraction')
+  
+  participants <- unique(df$participant)
+  
+  for (participant in participants) {
+    
+    pdf <- df[which(df$participant == participant),]
+    lines(pdf$trialno, pdf$subtraction, col='#FF000066')
+  }
+  title(main='subtraction')
+  
+}
+
+# bootstrapExponentialLearning(condition='aiming', type='subtraction', depvar='subtraction', iterations=5000)
+
+
+plotSubtractiveBootstrapParameterDistributions <- function() {
+  
+  subtraction_fits <- read.csv('data/exp4/aiming_subtraction_exp-fits.csv', stringsAsFactors = FALSE)
+  nocursor_fits <- read.csv('data/exp4/aiming_nocursors_exp-fits.csv', stringsAsFactors = FALSE)
+  aiming_fits <- read.csv('data/exp4/aiming_aiming_exp-fits.csv', stringsAsFactors = FALSE)
+  reach_fits <- read.csv('data/exp4/aiming_reaches_exp-fits.csv', stringsAsFactors = FALSE)
+  
+  subdens <- density(subtraction_fits$lambda, from=-0.2, to=1.2)
+  nocdens <- density(nocursor_fits$lambda,    from=-0.2, to=1.2)
+  aimdens <- density(aiming_fits$lambda,      from=-0.2, to=1.2)
+  readens <- density(reach_fits$lambda,      from=-0.2, to=1.2)
+  
+  layout(mat=matrix(c(1:2), nrow=1, ncol=2))
+  
+  plot(-1000,-1000,
+       main='', xlab='learning rate (lambda)', ylab='relative density',
+       xlim=c(-0.2, 1.2), ylim=c(0,30.0),
+       bty='n')
+  
+  lines(x=readens$x,
+        y=readens$y,
+        col='gray')
+  
+  lines(x=subdens$x,
+        y=subdens$y,
+        col='blue')
+  
+  lines(x=nocdens$x,
+        y=nocdens$y,
+        col='red')
+  
+  lines(x=aimdens$x,
+        y=aimdens$y,
+        col='green')
+  
+  legend(0.5,30,legend=c('subtraction', 'direct', 'aiming', 'adaptation'),lty=c(1,1),seg.len = 1.5, col=c('blue','red','green','gray'),bty='n')
+  
+  
+  subdens <- density(subtraction_fits$N0, from=-10, to=50)
+  nocdens <- density(nocursor_fits$N0,    from=-10, to=50)
+  aimdens <- density(aiming_fits$N0,      from=-10, to=50)
+  readens <- density(reach_fits$N0,       from=-10, to=50)
+  
+  plot(-1000,-1000,
+       main='', xlab='asymptote (N0)', ylab='relative density',
+       xlim=c(-10, 50), ylim=c(0,0.4),
+       bty='n')
+  
+  lines(x=readens$x,
+        y=readens$y,
+        col='gray')
+  
+  lines(x=subdens$x,
+        y=subdens$y,
+        col='blue')
+  
+  lines(x=nocdens$x,
+        y=nocdens$y,
+        col='red')
+  
+  lines(x=aimdens$x,
+        y=aimdens$y,
+        col='green')
+  
+  
+}
+
+subtractionPairwiseExploration <- function() {
+  
+  idf <- read.csv('data/exp4/aiming_individual_exp-fits.csv', stringsAsFactors = FALSE)
+  
+  idf <- idf[which(idf$participant != 'all'),]
+  idf <- idf[,c('participant','lambda','N0','trialtype')]
+  
+  alldf <- NA
+  
+  for (trialtype in unique(idf$trialtype)) {
+    
+    subdf <- idf[which(idf$trialtype == trialtype),]
+    subdf <- subdf[,c('participant','lambda','N0')]
+    names(subdf) <- c('participant',sprintf('%s_lambda',trialtype), sprintf('%s_N0',trialtype))
+    if (is.data.frame(alldf)) {
+      alldf <- merge(alldf, subdf)
+    } else {
+      alldf <- subdf
+    }
+    
+  }
+  # return(alldf)
+  
+  pairs(alldf[,c(2,3,6,7)])
+
 }
