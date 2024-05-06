@@ -116,6 +116,136 @@ expCIdiffs <- function(exp, type, mode='learning') {
   
 }
 
+# subtraction -----
+
+subtractionRofCtest <- function(lambda=TRUE, N0=TRUE) {
+  
+  compareWith <- c('reaches', 'aiming', 'nocursors')
+  
+  df1 <- read.csv('data/exp4/aiming_subtraction_exp-fits.csv', stringsAsFactors = FALSE)
+  
+  for (cv in compareWith) {
+    
+    df2 <- read.csv(sprintf('data/exp4/aiming_%s_exp-fits.csv', cv), stringsAsFactors = FALSE)
+    
+    if (lambda) {
+      # ld <- df1$lambda - df2$lambda
+      ld <- as.vector(matrix(df1$lambda, nrow=5000, ncol=5000, byrow=FALSE) - matrix(df2$lambda, nrow=5000, ncol=5000, byrow=TRUE))
+      CI <- quantile(ld, probs=c(0.025, 0.975))
+      cat('\n')
+      # cat(sprintf('comparing %s and %s rate of change (lambda):\n',conditions[1],conditions[2]))
+      if (all(CI > 0)) {cat(sprintf('subtraction has a LARGER rate of change than %s\n', cv))}
+      if (all(CI < 0)) {cat(sprintf('subtraction has a SMALLER rate of change than %s\n', cv))}
+      if (all(c((CI[1] < 0), (CI[2] > 0)))) {cat(sprintf('rate of change in subtraction and %s are not different\n', cv))}
+      print(CI)
+    }
+      
+    
+  }
+  
+  compareWith <- c('nocursors')
+  
+  df1 <- read.csv('data/exp4/aiming_subtraction_exp-fits.csv', stringsAsFactors = FALSE)
+  
+  for (cv in compareWith) {
+    
+    df2 <- read.csv(sprintf('data/exp4/aiming_%s_exp-fits.csv', cv), stringsAsFactors = FALSE)
+    
+    if (N0) {
+      # ld <- df1$lambda - df2$lambda
+      ld <- as.vector(matrix(df1$N0, nrow=5000, ncol=5000, byrow=FALSE) - matrix(df2$N0, nrow=5000, ncol=5000, byrow=TRUE))
+      CI <- quantile(ld, probs=c(0.025, 0.975))
+      cat('\n')
+      # cat(sprintf('comparing %s and %s rate of change (lambda):\n',conditions[1],conditions[2]))
+      if (all(CI > 0)) {cat(sprintf('subtraction has a LARGER asymptote than %s\n', cv))}
+      if (all(CI < 0)) {cat(sprintf('subtraction has a SMALLER asymptote than %s\n', cv))}
+      if (all(c((CI[1] < 0), (CI[2] > 0)))) {cat(sprintf('asymptote in subtraction and %s are not different\n', cv))}
+      print(CI)
+    }
+    
+    
+  }
+  
+}
+
+subtractionRegressions <- function() {
+  
+  
+  subtractiveData <- getAvgSubtractiveData()
+  
+  avgadapt <- mean(subtractiveData$adaptation, na.rm=TRUE)
+  
+  for (subset in c('all', 'aiming')){
+    
+    if (subset == 'all') {
+      conditions <- unique(subtractiveData$condition)
+      conditions <- conditions[conditions != 'aiming']
+    }
+    if (subset == 'aiming') {
+      conditions <- c('aiming')
+    }
+    
+    subData <- subtractiveData[which(subtractiveData$condition %in% conditions),]
+    
+    
+    # lm with 95% CI:
+    impl <- subData$implicit
+    expl <- subData$explicit
+    e2i <- lm(impl ~ expl)
+    
+    # print(summary(e2i))
+    slope <- as.numeric(e2i$coefficients[2])
+    slope_ci <- confint(e2i,parm='expl',level=0.95)
+    
+    cat(sprintf('linear prediction of implicit over explicit measure in %s\n', toupper(subset)))
+    
+    corr <- cor.test(x=expl, y=impl)
+    
+    cat(sprintf('r=%0.3f, p=%0.3f, t=%0.3f, df=%d\n',corr$estimate, corr$p.value, corr$statistic, length(impl)-2))
+    
+    cat(sprintf('slope: %0.3f CI: [%0.3f - %0.3f]\n\n', slope, slope_ci[1], slope_ci[2]))
+    
+    
+  }
+  
+  
+  for (subset in c('all', 'aiming')){
+    
+    if (subset == 'all') {
+      conditions <- unique(subtractiveData$condition)
+      conditions <- conditions[conditions != 'aiming']
+    }
+    if (subset == 'aiming') {
+      conditions <- c('aiming')
+    }
+    
+    subData <- subtractiveData[which(subtractiveData$condition %in% conditions),]
+    
+    # lm with 95% CI:
+    impl <- subData$implicit
+    pred <- subData$adaptation - subData$explicit
+    e2i <- lm(impl ~ pred)
+    
+    slope <- as.numeric(e2i$coefficients[2])
+    slope_ci <- confint(e2i,parm='pred',level=0.95)
+    
+    cat(sprintf('subtractive linear prediction of implicit in %s\n', toupper(subset)))
+    
+    corr <- cor.test(x=pred, y=impl)
+    
+    cat(sprintf('r=%0.3f, p=%0.3f, t=%0.3f, df=%d\n',corr$estimate, corr$p.value, corr$statistic, length(impl)-2))
+    
+    cat(sprintf('slope: %0.3f CI: [%0.3f - %0.3f]\n\n', slope, slope_ci[1], slope_ci[2]))
+    
+  }  
+  
+  
+  
+  
+  
+  
+}
+
 # old approach -----
 
 getExpFitDF <- function(conditions, mode, type, timecoursemode='relative') {
