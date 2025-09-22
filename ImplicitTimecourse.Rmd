@@ -95,7 +95,7 @@ If we'd also want to redo all the processing, we could run the code in this cell
 extractAngularDeviations()
 ```
 
-For all reaches, this extracts the reach deviations at 0.2 times the home-target distance (i.e. 2 cm of a 10 cm reaching movement). And for aiming responses the aiming deviation from the target. The code to do so is provided, so if you think it should be done a different (and obviously better) way, the code can be changed / replaced.
+For all reaches, this extracts the reach deviations at 0.2 times the home-target distance (i.e. ~1.8 cm of a 8.8 cm reaching movement). And for aiming responses the aiming deviation from the target. The code to do so is provided, so if you think it should be done a different (and obviously better) way, the code can be changed / replaced.
 
 You could even redo the bootstrapping of all the exponential fit parameters, even though it would take a long time. If you changed the way the dependent variables are calculated, this step can not be skipped though, as most of the statistics / conclusion depend on the bootstrapped exponential fits.
 
