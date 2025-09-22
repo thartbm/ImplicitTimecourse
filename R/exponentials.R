@@ -634,6 +634,39 @@ expTable <- function(exp) {
   
 }
 
+subtractiveTable <- function() {
+  
+  et4 <- expTable(exp=4)
+  
+  st5 <- as.data.frame(matrix(c(1:8),nrow=2, ncol=4))
+  rownames(st5) <- c('RofC', 'asymptote')
+  colnames(st5) <- c('reaches', 'no-cursors', 're-aiming', 'subtraction')
+  
+  for (idx in c(1:6)) {
+    
+    sidx <- idx
+    if (idx > 4) {sidx <- sidx+1}
+    
+    ridx <- 2 - idx %% 2
+    cidx <- ((idx-1) %/% 2) + 1
+    st5[ridx,cidx] <- et4[sidx,1]
+    
+  }
+  
+  exp <- 4
+  condition <- 'aiming'
+  mode <- 'learning'
+  trialtype <- 'subtraction'
+  
+  desc <- getDescriptors(exp, condition, mode, trialtype, timecoursemode='relative')
+  
+  st5[1,4] <- desc$lambda
+  st5[2,4] <- desc$N0
+  
+  return(st5)
+  
+}
+
 # temp -----
 
 redoReachBS <- function() {
@@ -641,23 +674,23 @@ redoReachBS <- function() {
   ncores <- parallel::detectCores()
   clust  <- parallel::makeCluster(max(c(1,floor(ncores*0.75))))
   
-  cat('15deg')
+  cat('15deg\n')
   bootstrapExponentialLearning(condition='15deg_distance', type='reaches', iterations=5000, asymptoteRange = c(0,20), clust=clust)
-  cat('30deg')
+  cat('30deg\n')
   bootstrapExponentialLearning(condition='30deg_distance', type='reaches', iterations=5000, asymptoteRange = c(0,35), clust=clust)
-  cat('45deg')
+  cat('45deg\n')
   bootstrapExponentialLearning(condition='45deg_distance', type='reaches', iterations=5000, asymptoteRange = c(0,50), clust=clust)
-  cat('60deg')
+  cat('60deg\n')
   bootstrapExponentialLearning(condition='60deg_distance', type='reaches', iterations=5000, asymptoteRange = c(0,65), clust=clust)
-  cat('control')
+  cat('control\n')
   bootstrapExponentialLearning(condition='control', type='reaches', iterations=5000, asymptoteRange = c(0,50), clust=clust)
-  cat('cursorjump')
+  cat('cursorjump\n')
   bootstrapExponentialLearning(condition='cursorjump', type='reaches', iterations=5000, asymptoteRange = c(0,50), clust=clust)
-  cat('delay-trial')
+  cat('delay-trial\n')
   bootstrapExponentialLearning(condition='delay-trial', type='reaches', iterations=5000, asymptoteRange = c(0,50), clust=clust)
-  cat('delay-FB')
+  cat('delay-FB\n')
   bootstrapExponentialLearning(condition='delay-FB', type='reaches', iterations=5000, asymptoteRange = c(0,50), clust=clust)
-  cat('aiming')
+  cat('aiming\n')
   bootstrapExponentialLearning(condition='aiming', type='reaches', iterations=5000, asymptoteRange = c(0,50), clust=clust)
   
   stopCluster(clust)
