@@ -507,3 +507,294 @@ testGroupLinearAdditivity <- function(exp) {
   }
   
 }
+
+
+# step and exponential function fits -----
+
+
+stepFunction <- function(par, trials) {
+  
+  if (length(trials) == 1) {
+    trials <- c(0:(trials-1))
+  }
+  
+  predictions <- rep(0, length(trials))
+  
+  predictions[which(trials >= par['t'])] <- par['s']
+  
+  # print(predictions)
+  
+  return(predictions)
+  
+}
+
+stepMSE <- function(par, data) {
+  
+  # trials <- unique(data$trial)
+  # 
+  # predictions <- stepFunction(par    = par,
+  #                             trials = trials)
+  # 
+  # errors <- data$deviation - predictions
+  # 
+  # MSE <- mean(errors^2, na.rm=TRUE)
+  # 
+  # return(MSE)
+  
+  return(mean((stepFunction(par = par, trials = unique(data$trial)) - data$deviation)^2, na.rm=TRUE))
+  
+}
+
+require('Reach')
+
+stepFit <- function(data, gridpoints=11, gridfits=10) {
+  
+  # set the search grid:
+  parvals <- seq(1/gridpoints/2,1-(1/gridpoints/2),1/gridpoints)
+  
+  stepsizes <- (parvals * diff(range(data$deviation, na.rm=TRUE))) - min(data$deviation, na.rm=TRUE)
+  
+  steptimes <- parvals * max(data$trial, na.rm=TRUE)
+  
+  searchgrid <- expand.grid('t' = steptimes,
+                            's' = stepsizes)
+  
+  MSE <- apply(searchgrid, FUN=stepMSE, MARGIN=c(1), data=data)
+  # print(MSE)
+  
+  # print(data$deviation)
+  
+  lo <- c(0,min(data$deviation, na.rm=TRUE))
+  hi <- c(max(data$trial, na.rm=TRUE), max(data$deviation, na.rm=TRUE))
+  # print(lo)
+  # print(hi)
+  
+  # print(data.frame(searchgrid[order(MSE)[1:gridfits],]))
+  
+  # run optimx on the best starting positions:
+  allfits <- do.call("rbind",
+                     apply( data.frame(searchgrid[order(MSE)[1:gridfits],]),
+                            MARGIN=c(1),
+                            FUN=optimx::optimx,
+                            fn=stepMSE,
+                            # method     = 'L-BFGS-B',
+                            # lower      = lo,
+                            # upper      = hi,
+                            data       = data) )
+  
+  # pick the best fit:
+  win <- allfits[order(allfits$value)[1],]
+  winpar <- unlist(win[1:2])
+  
+  # return the best parameters:
+  return(winpar)
+  
+}
+
+
+allStepExpoFits <- function() {
+  
+  explicit <- read.csv('data/exp4/aiming_aiming.csv', stringsAsFactors = F)
+  explicit$aimingdeviation_deg <- -1*explicit$aimingdeviation_deg
+  implicit <- read.csv('data/exp4/aiming_nocursors.csv', stringsAsFactors = F)
+  implicit$reachdeviation_deg <- -1*implicit$reachdeviation_deg
+  adaptation <- read.csv('data/exp4/aiming_reaches.csv', stringsAsFactors = F)
+  adaptation$reachdeviation_deg <- -1*adaptation$reachdeviation_deg
+  
+  # trials: pre = 13-20, post = 21-52
+  
+  expl <- explicit[   which(explicit$trialno   %in% c(21:120)), ]
+  impl <- implicit[   which(implicit$trialno   %in% c(20:120)), ]
+  adpt <- adaptation[ which(adaptation$trialno %in% c(21:120)), ]
+  
+  expl$trialno <- expl$trialno - 20
+  impl$trialno <- impl$trialno - 20
+  adpt$trialno <- adpt$trialno - 20
+  
+  expl <- expl[,c('participant','trialno','aimingdeviation_deg')]
+  impl <- impl[,c('participant','trialno','reachdeviation_deg')]
+  adpt <- adpt[,c('participant','trialno','reachdeviation_deg')]
+  
+  names(expl) <- c('participant','trial','deviation')
+  names(impl) <- c('participant','trial','deviation')
+  names(adpt) <- c('participant','trial','deviation')
+  
+  participants <- unique(expl$participant)
+  
+  # expl.exp.MSE <- c()
+  # expl.exp.l <- c()
+  # expl.exp.a <- c()
+  # expl.step.MSE <- c()
+  # expl.step.t <- c()
+  # expl.step.s <- c()
+  # 
+  # impl.exp.MSE <- c()
+  # impl.exp.l <- c()
+  # impl.exp.a <- c()
+  # impl.step.MSE <- c()
+  # impl.step.t <- c()
+  # impl.step.s <- c()
+  # 
+  # adpt.exp.MSE <- c()
+  # adpt.exp.l <- c()
+  # adpt.exp.a <- c()
+  # adpt.step.MSE <- c()
+  # adpt.step.t <- c()
+  # adpt.step.s <- c()
+  
+  participant <- c()
+  process <- c()
+  
+  exp.MSE <- c()
+  exp.l <- c()
+  exp.a <- c()
+  step.MSE <- c()
+  step.t <- c()
+  step.s <- c()
+  
+  for (pp_no in c(1:length(participants))) {
+    
+    cat(sprintf('working on participant %d / %d\n',pp_no,length(participants)))
+    
+    ppid <- participants[pp_no]
+    
+    pex <- expl[which(expl$participant == ppid),]
+    pim <- impl[which(impl$participant == ppid),]
+    pad <- adpt[which(adpt$participant == ppid),]
+    
+    
+    for (datatype in c('ex','im','ad')) {
+      
+      df <- list('ex'=pex, 'im'=pim, 'ad'=pad)[[datatype]]
+      
+      exppar <- Reach::exponentialFit(signal = df$deviation)
+      # print(exppar)
+      MSEexp <- Reach::exponentialMSE(par    = exppar,
+                                      signal = df$deviation)
+      
+      steppar <- stepFit(data = df)
+      # print(steppar)
+      MSEstep <- stepMSE(par=steppar, data=df)
+      
+      # if (datatype == 'ex') {
+      #   expl.exp.MSE  <- c(expl.exp.MSE,  expMSE)
+      #   expl.exp.l    <- c(expl.exp.l,    exppar['lambda'])
+      #   expl.exp.a    <- c(expl.exp.a,    exppar['N0'])
+      #   expl.step.MSE <- c(expl.step.MSE, step.MSE)
+      #   expl.step.t   <- c(expl.step.t,   steppar['t'])
+      #   expl.step.s   <- c(expl.step.s,   steppar['s'])
+      # }
+      # 
+      # if (datatype == 'im') {
+      #   impl.exp.MSE  <- c(impl.exp.MSE,  expMSE)
+      #   impl.exp.l    <- c(impl.exp.l,    exppar['lambda'])
+      #   impl.exp.a    <- c(impl.exp.a,    exppar['N0'])
+      #   impl.step.MSE <- c(impl.step.MSE, step.MSE)
+      #   impl.step.t   <- c(impl.step.t,   steppar['t'])
+      #   impl.step.s   <- c(impl.step.s,   steppar['s'])
+      # }
+      # 
+      # if (datatype == 'ad') {
+      #   adpt.exp.MSE  <- c(adpt.exp.MSE,  expMSE)
+      #   adpt.exp.l    <- c(adpt.exp.l,    exppar['lambda'])
+      #   adpt.exp.a    <- c(adpt.exp.a,    exppar['N0'])
+      #   adpt.step.MSE <- c(adpt.step.MSE, step.MSE)
+      #   adpt.step.t   <- c(adpt.step.t,   steppar['t'])
+      #   adpt.step.s   <- c(adpt.step.s,   steppar['s'])
+      # }
+      
+      participant <- c(participant, ppid)
+      
+      process <- c(process, list('ex'='explicit', 'im'='implicit', 'ad'='adaptation')[[datatype]])
+      
+      exp.MSE <- c(exp.MSE, MSEexp)
+      exp.l   <- c(exp.l, exppar[['lambda']])
+      exp.a   <- c(exp.a, exppar[['N0']])
+      
+      step.MSE <- c(step.MSE, MSEstep)
+      step.t   <- c(step.t, steppar[['t']])
+      step.s   <- c(step.s, steppar[['s']])
+      
+    }
+    
+  }
+  
+  # print(length(participant))
+  # print(length(process))
+  # print(length(exp.MSE))
+  # print(length(exp.l))
+  # print(length(exp.a))
+  # print(length(step.MSE))
+  # print(length(step.t))
+  # print(length(step.s))
+  
+  # df <- data.frame( participant = participants,
+  #                   expl.exp.MSE,
+  #                   expl.exp.l,
+  #                   expl.exp.a,
+  #                   expl.step.MSE,
+  #                   expl.step.t,
+  #                   expl.step.s,
+  #                   impl.exp.MSE,
+  #                   impl.exp.l,
+  #                   impl.exp.a,
+  #                   impl.step.MSE,
+  #                   impl.step.t,
+  #                   impl.step.s,
+  #                   adpt.exp.MSE,
+  #                   adpt.exp.l,
+  #                   adpt.exp.a,
+  #                   adpt.step.MSE,
+  #                   adpt.step.t,
+  #                   adpt.step.s                 )
+  # 
+  # print(df)
+  df <- data.frame( participant,
+                    process,
+                    exp.MSE,
+                    exp.l,
+                    exp.a,
+                    step.MSE,
+                    step.t,
+                    step.s  )
+  
+  print(df)
+  
+  write.csv( df,
+             file = 'data/expStepFits.csv',
+             quote = TRUE,
+             row.names = FALSE)
+  
+}
+
+compareFunctionFits <- function() {
+  
+  df <- read.csv('data/expStepFits.csv', stringsAsFactors = FALSE)
+  
+  for (process in c('adaptation', 'implicit', 'explicit')) {
+    
+    sdf <- df[which(df$process == process),]
+    MSEstep <- sdf$step.MSE
+    MSEexp  <- sdf$exp.MSE
+    
+    
+    md <- mean(MSEstep - MSEexp)
+    cat(sprintf('%s (step - exp) RMSEs: %0.6f\n', process, md))
+    
+    if (md > 0) {
+      cat('exponential RMSE is smallest... ')
+    } else {
+      cat('step function RMSE is smallest... ')
+    }
+    
+    cat('is it significant?\n')
+    tt <- t.test(MSEstep, MSEexp, paired=TRUE)
+    print(tt)
+    
+    btt <- BayesFactor::ttestBF(MSEstep, MSEexp, paired=TRUE)
+    print(btt)
+    
+  }
+  
+  
+}
