@@ -69,7 +69,7 @@ expBehaviorFig <- function(exp, target='inline', timecoursemode='absolute') {
   
   plot(x=-1000, y=-1000,
        main='',xlab='',ylab='',
-       xlim=c(0,ntrials+1),ylim=c(-15,mrot+15),
+       xlim=c(0,ntrials+1),ylim=c(-5,mrot+5),
        ax=F,bty='n')
   
   title(main='A: training reaches', line=0.25, adj=0)
@@ -106,7 +106,7 @@ expBehaviorFig <- function(exp, target='inline', timecoursemode='absolute') {
   }
   
   axis(side=1,at=xticks)
-  axis(side=2,at=seq(-15,(mrot+15),15),las=1)
+  axis(side=2,at=seq(0,mrot,15),las=1)
   
   # # # # # #   Second plot: no-cursors
   
@@ -117,7 +117,7 @@ expBehaviorFig <- function(exp, target='inline', timecoursemode='absolute') {
   
   plot(x=-1000, y=-1000,
        main='',xlab='',ylab='',
-       xlim=c(0,ntrials+1),ylim=c(-15,mrot+15),
+       xlim=c(0,ntrials+1),ylim=c(-5,mrot+5),
        ax=F,bty='n')
   
   title(main=main, line=0.25, adj=0)
@@ -166,7 +166,7 @@ expBehaviorFig <- function(exp, target='inline', timecoursemode='absolute') {
   #        lty=1, bty='n')
   
   axis(side=1,at=xticks)
-  axis(side=2,at=seq(-15,(mrot+15),15),las=1)
+  axis(side=2,at=seq(0,mrot,15),las=1)
   
   
   # # # # # # # 3 # # #
@@ -300,7 +300,7 @@ discussionPlot <- function(target='inline') {
   width = 4
   height = 8
   dpi = 300
-  outfilename <- 'doc/fig_10'
+  outfilename <- 'doc/fig_11'
   
   if (target == 'svg') {
     svglite::svglite( filename = sprintf('%s.svg',outfilename),
@@ -644,7 +644,7 @@ discussionPlot <- function(target='inline') {
 subtractionPlot <- function(target='inline') {
   
   width = 6
-  height = 7.5
+  height = 5
   dpi = 300
   outfilename <- 'doc/fig_9'
   
@@ -689,9 +689,8 @@ subtractionPlot <- function(target='inline') {
   
   
   layout( mat = matrix(c(1,1,1,1,1,1,
-                         2,2,3,3,4,4,
-                         5,5,5,6,6,6),
-                       nrow=3, ncol=6,
+                         2,2,3,3,4,4),
+                       nrow=2, ncol=6,
                        byrow=TRUE)
         )
   
@@ -932,70 +931,285 @@ subtractionPlot <- function(target='inline') {
   axis(side=1,at=seq(-20,60,20))
   axis(side=2,at=seq(-20,60,20))
   
+  
+  
+    
+  if (target %in% c('svg','png','pdf','tiff')) {
+    dev.off()
+  }
+  
+}
+  
   # here come the individual timecourses:
   
+individualTimeCoursePlot <- function(target='inline') {
   
-  plot(-1000,-1000,
-       main='',xlab='',ylab='',
-       xlim=c(15,45),ylim=c(-10,55),
-       bty='n',ax=F)
+  width = 6
+  height = 7.5
+  dpi = 300
+  outfilename <- 'doc/fig_10'
   
-  title(main='E: individual no-cursors', line=0.25, adj=0)
-  title(xlab='trial', line = 1.75)
-  title(ylab='implicit [no-cursors]', line = 2.5)
-  
-  
-  df <- read.csv('data/exp4/aiming_nocursors.csv', stringsAsFactors = FALSE)
-  
-
-  df <- removeOutliers(df=df)
-  df <- baseline(df, depvar='reachdeviation_deg')
-  
-  
-  participants <- unique(df$participant)
-  
-  col <- info$color[which(info$depvar == 'nocursors')]
-  
-  for (participant in participants) {
-    
-    pdf <- df[which(df$participant == participant),]
-    # print(pdf$reachdeviation_deg[c(15:45)])
-    lines(c(15:45), -1 * pdf$reachdeviation_deg[c(15:45)], col=Reach::colorAlpha(col, alpha=50))
+  if (target == 'svg') {
+    svglite::svglite( filename = sprintf('%s.svg',outfilename),
+                      width = width,
+                      height = height,
+                      fix_text_size = FALSE)
   }
-
-  axis(side=1, at=seq(15,45,5))
-  axis(side=2, at=seq(0,45,15))
-    
-  
-  plot(-1000,-1000,
-       main='',xlab='',ylab='',
-       xlim=c(15,45),ylim=c(-10,55),
-       bty='n',ax=F)
-  
-  title(main='F: individual aiming', line=0.25, adj=0)
-  title(xlab='trial', line = 1.75)
-  title(ylab='explicit [aiming]', line = 2.5)
-  
-  df <- read.csv('data/exp4/aiming_aiming.csv', stringsAsFactors = FALSE)
-  
-  df <- removeOutliers(df=df, depvar='aimingdeviation_deg')
-  df <- baseline(df, depvar='aimingdeviation_deg')
-  
-  participants <- unique(df$participant)
-  
-  col <- info$color[which(info$depvar == 'aiming')]
-  
-  for (participant in participants) {
-    
-    pdf <- df[which(df$participant == participant),]
-    lines(c(15:45), -1 * pdf$aimingdeviation_deg[c(15:45)], col=Reach::colorAlpha(col, alpha=50))
+  if (target == 'png') {
+    png( filename = sprintf('%s.png',outfilename),
+         width = width*dpi,
+         height = height*dpi,
+         res = dpi
+    )
+  }
+  if (target == 'pdf') {
+    pdf( file = sprintf('%s.pdf', outfilename),
+         width=width,
+         height=height)
+  }
+  if (target == 'tiff') {
+    tiff( filename = sprintf('%s.tiff',outfilename),
+          compression = 'lzw',
+          width = width*dpi,
+          height = height*dpi,
+          res = dpi
+    )
   }
   
-  axis(side=1, at=seq(15,45,5))
-  axis(side=2, at=seq(0,45,15))
   
+  # color <- c('#e51636', 'orange', 'darkturquoise', 'purple')
+  # color <- c('#e51636', 'orange', 'blue', 'purple')
+  # color <- c('#e51636', 'blue', 'darkturquoise', 'purple')
+  color <- c('darkturquoise', 'blue', '#e51636', 'purple','orange')
+  depvar <- c('reaches', 'nocursors', 'aiming', 'exp', 'step')
+  lty <- c(3,3,3,3,3)
+  
+  info <- data.frame(color,
+                     depvar,
+                     lty)
+  
+  
+  layout( mat = matrix(c(1,2,3,4,5,6),
+                       nrow=3, ncol=2,
+                       byrow=FALSE),
+          widths=c(5,2)
+  )
+  
+  
+  
+  relfontsize <- 0.8
+  
+  # text(0,0.95,'B: less explicit', font.main=1, cex=1.35*1.5, adj=0)
+  # title(xlab='explicit [°]', line = 0.5,cex.lab=textsize)
+  # title(ylab='implicit [°]', line = 2.5,cex.lab=textsize)
+  
+  par(mar=c(3.2,3.5,2,0.1),
+      cex.axis=relfontsize, 
+      cex.lab=relfontsize,
+      cex.main=relfontsize*1.5,
+      xpd=TRUE)
+  
+  
+  
+  explicit <- read.csv('data/exp4/aiming_aiming.csv', stringsAsFactors = F)
+  explicit$aimingdeviation_deg <- -1*explicit$aimingdeviation_deg
+  implicit <- read.csv('data/exp4/aiming_nocursors.csv', stringsAsFactors = F)
+  implicit$reachdeviation_deg <- -1*implicit$reachdeviation_deg
+  adaptation <- read.csv('data/exp4/aiming_reaches.csv', stringsAsFactors = F)
+  adaptation$reachdeviation_deg <- -1*adaptation$reachdeviation_deg
+  
+  expl <- explicit[   which(explicit$trialno   %in% c(13:52)), ]
+  impl <- implicit[   which(implicit$trialno   %in% c(13:52)), ]
+  adpt <- adaptation[ which(adaptation$trialno %in% c(13:52)), ]
+  
+  
+  
+  plot(NULL,NULL,
+       main='',xlab='',ylab='',
+       xlim=c(13,52),ylim=c(-15,60), 
+       bty='n',ax=F)
+  
+  title(main='A: individual training reaches', line=0.25, adj=0)
+  title(xlab='trial', line = 1.75)
+  title(ylab='adaptation [°]', line = 2.5)
+  
+  
+  for (ID in unique(adpt$participant)) {
+    
+    sdf <- adpt[which(adpt$participant == ID),]
+    lines(x = adpt$trialno[which(adpt$participant == ID)],
+          y = adpt$reachdeviation_deg[which(adpt$participant == ID)],
+          col = rgb(127, 0,   216,  66, max = 255))
+    
+  }
+  
+  lines(x=c(12,20,20,52),
+        y=c(0,0,45,45),
+        col='#999',lty=1,lw=2)
+  
+  # avg <- aggregate(adpt$reachdeviation_deg ~ adpt$trialno, data=adpt, FUN=mean)
+  # lines(avg,
+  #       col='#000',lty=1,lw=2)
+  
+  axis(side=1, at=c(12, 20, 28, 36, 44, 52), labels=c(-8,0,8,16,24,32))
+  axis(side=2, at=c(0,45))
+  
+  
+  
+  plot(NULL,NULL,
+       main='',xlab='',ylab='',
+       xlim=c(13,52),ylim=c(-15,60),
+       bty='n',ax=F)
+  
+  title(main='C: individual no-cursors', line=0.25, adj=0)
+  title(xlab='trial', line = 1.75)
+  title(ylab='implicit [°]', line = 2.5)
+  
+  
+  
+  for (ID in unique(impl$participant)) {
+    
+    sdf <- impl[which(impl$participant == ID),]
+    lines(x = impl$trialno[which(impl$participant == ID)],
+          y = impl$reachdeviation_deg[which(impl$participant == ID)],
+          col = rgb(96,   96,  255, 66, max = 255))
+    
+  }
+  
+  lines(x=c(12,20,20,52),
+        y=c(0,0,45,45),
+        col='#999',lty=1,lw=2)
+  
+  # avg <- aggregate(impl$reachdeviation_deg ~ impl$trialno, data=impl, FUN=mean)
+  # lines(avg,
+  #       col=rgb(229, 22,  54,  255, max = 255),lty=1,lw=2)
+  
+  axis(side=1, at=c(12, 20, 28, 36, 44, 52), labels=c(-8,0,8,16,24,32))
+  axis(side=2, at=c(0,45))
+  
+    
+  
+  plot(NULL,NULL,
+       main='',xlab='',ylab='',
+       xlim=c(13,52),ylim=c(-15,60), 
+       bty='n',ax=F)
+  
+  title(main='E: individual aiming', line=0.25, adj=0)
+  title(xlab='trial', line = 1.75)
+  title(ylab='explicit [°]', line = 2.5)
+  
+  
+  for (ID in unique(expl$participant)) {
+    
+    sdf <- expl[which(expl$participant == ID),]
+    lines(x = expl$trialno[which(expl$participant == ID)],
+          y = expl$aimingdeviation_deg[which(expl$participant == ID)],
+          col = rgb(229, 22,  54,  66, max = 255))
+    
+  }
+  
+  lines(x=c(12,20,20,52),
+        y=c(0,0,45,45),
+        col='#999',lty=1,lw=2)
+  
+  
+  axis(side=1, at=c(12, 20, 28, 36, 44, 52), labels=c(-8,0,8,16,24,32))
+  axis(side=2, at=c(0,45))
+  
+  
+  
+  df <- read.csv('data/expStepFits.csv', stringsAsFactors = FALSE)
+  set.seed(1337)
+  
+  exp.colors  <- c('#0066FFFF', '#0066FF33')
+  step.colors <- c('#FF6600FF', '#FF660033')
+  
+  
+  for (process in c('adaptation', 'implicit', 'explicit')) {
+    
+    if (process %in% c('implicit','adaptation')) {
+      YL <- c(0,300)
+    } else {
+      YL <- c(0,300)
+    }
+    
+    
 
-  
+    plot(NULL,NULL,
+         main='',xlab='',ylab='',
+         xlim=c(0.5,2.5),ylim=YL,
+         bty='n',ax=F)
+    
+    main = c('adaptation' = 'B',
+             'implicit'   = 'D',
+             'explicit'   = 'F')[process]
+    title(main=main, line=0.25, adj=0)
+    title(xlab='function', line = 1.75)
+    title(ylab='RMSE', line = 2.5)
+    
+    
+    sdf <- df[which(df$process == process),]
+    MSEstep <- sdf$step.MSE
+    MSEexp  <- sdf$exp.MSE
+    
+    # EXPONENTIAL FIT
+    points(x=rep(0.75,length(MSEexp)),
+           y=MSEexp,
+           pch=16, cex=2,
+           col=exp.colors[2])
+    
+    avg <- mean(MSEexp)
+    CI  <- Reach::getConfidenceInterval(MSEexp,method='b')
+    
+    polygon(x=c(1,1.25,1.25,1),
+            y=rep(c(CI[1],CI[2]),each=2),
+            border=NA,
+            col=exp.colors[2])
+    lines(x=c(1,1.25),
+          y=rep(avg,2),
+          col=exp.colors[1])
+    
+    # STEP FUNCTION FIT
+    
+    points(x=rep(1.75,length(MSEstep)),
+           y=MSEstep,
+           pch=16, cex=2,
+           col=step.colors[2])
+    
+    avg <- mean(MSEstep)
+    CI  <- Reach::getConfidenceInterval(MSEstep,method='b')
+    
+    polygon(x=c(2,2.25,2.25,2),
+            y=rep(c(CI[1],CI[2]),each=2),
+            border=NA,
+            col=step.colors[2])
+    lines(x=c(2,2.25),
+          y=rep(avg,2),
+          col=step.colors[1])
+    
+    
+    # lines(x=c(1,2),
+    #       y=rep(YL[2]*0.85,2),
+    #       col='#000',lty=1)
+    text(x=1.5,y=YL[2]*0.9,adj=0.5,
+         # labels=c('adaptation'='~= (BF 2.4)',
+         #          'implicit'='< (BF 10.7)',
+         #          'explicit'='> (BF 7.3)')[process],
+         labels=c('adaptation'='~=',
+                  'implicit'='<',
+                  'explicit'='>')[process],
+         col='#000', cex=relfontsize*1.5)
+    
+    axis(side=2,at=YL)
+    # if (process %in% c('implicit','adaptation')) {
+    #   axis(side=2,at=seq(0,YL))
+    # } else {
+    #   axis(side=2,at=seq(0,400,200))
+    # }
+    
+    axis(side=1, at=c(1,2), labels=c('exp.','step'))
+    
+  }
   
   
   
