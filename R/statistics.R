@@ -553,8 +553,11 @@ stepFit <- function(data, gridpoints=11, gridfits=10) {
   parvals <- seq(1/gridpoints/2,1-(1/gridpoints/2),1/gridpoints)
   
   stepsizes <- (parvals * diff(range(data$deviation, na.rm=TRUE))) - min(data$deviation, na.rm=TRUE)
+  # stepsizes <- (parvals * 55) - 5
   
   steptimes <- parvals * max(data$trial, na.rm=TRUE)
+  # print(max(data$trial, na.rm=TRUE))
+  # steptimes <- round(parvals * 55)
   
   searchgrid <- expand.grid('t' = steptimes,
                             's' = stepsizes)
@@ -566,6 +569,10 @@ stepFit <- function(data, gridpoints=11, gridfits=10) {
   
   lo <- c(0,min(data$deviation, na.rm=TRUE))
   hi <- c(max(data$trial, na.rm=TRUE), max(data$deviation, na.rm=TRUE))
+  
+  # lo <- c(0, -20)
+  # hi <- c(55, 85)
+  
   # print(lo)
   # print(hi)
   
@@ -603,13 +610,14 @@ allStepExpoFits <- function() {
   
   # trials: pre = 13-20, post = 21-52
   
+  # in the CONTINUOUS aiming group we can use all of the trials, since they ALL have aiming  
   expl <- explicit[   which(explicit$trialno   %in% c(21:120)), ]
   impl <- implicit[   which(implicit$trialno   %in% c(20:120)), ]
   adpt <- adaptation[ which(adaptation$trialno %in% c(21:120)), ]
   
-  expl$trialno <- expl$trialno - 20
-  impl$trialno <- impl$trialno - 20
-  adpt$trialno <- adpt$trialno - 20
+  expl$trialno <- expl$trialno - 21
+  impl$trialno <- impl$trialno - 20 # what to subtract? 
+  adpt$trialno <- adpt$trialno - 21
   
   expl <- expl[,c('participant','trialno','aimingdeviation_deg')]
   impl <- impl[,c('participant','trialno','reachdeviation_deg')]
@@ -761,7 +769,7 @@ allStepExpoFits <- function() {
   print(df)
   
   write.csv( df,
-             file = 'data/expStepFits.csv',
+             file = 'data/exp4/aiming_step-exp-fits.csv',
              quote = TRUE,
              row.names = FALSE)
   
@@ -769,7 +777,7 @@ allStepExpoFits <- function() {
 
 compareFunctionFits <- function() {
   
-  df <- read.csv('data/expStepFits.csv', stringsAsFactors = FALSE)
+  df <- read.csv('data/exp4/aiming_step-exp-fits.csv', stringsAsFactors = FALSE)
   
   for (process in c('adaptation', 'implicit', 'explicit')) {
     
