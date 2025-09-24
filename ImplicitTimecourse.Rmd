@@ -236,7 +236,7 @@ Here we test explicit adaptation as a predictor of implicit adaptation. We expec
 testGroupLinearAdditivity(exp=1)
 ```
 
-The slope is around -1 in the 15 degree group (with a very wide confidence interval, also including +1), but the linear relationship is not significant. For the 45 and 60 degree groups, the linear relationship _is_ significant, but the confidence interval for the slope does not include -1. So there is a weak, and non-additive relationship between implicit and explicit adaptation.
+The slope is positive in the 15 degree group (with a very wide confidence interval, excluding -1), which is significant. In the 30 degree group the relationship is not significant, and it should not be surprising that the confidence interval for the slope includes 0, and excludes -1. For the 45 and 60 degree groups, the linear relationship _is_ significant again, but the confidence interval for the slope does not include -1. So there is a weak, and non-additive relationship between implicit and explicit adaptation.
 
 ## Summary
 
@@ -294,9 +294,9 @@ We first compare each test group with the control group on parameters describing
 expCIdiffs(exp=2, type='reaches')
 ```
 
-There are no differences between either test group and the control group in rates of change or asymptote for the overall adaptation, which matches the impression from the figure and table.
+There are no differences between either test group and the control group in rates of change or asymptotes for the overall adaptation, which matches the impression from the figure and table.
 
-No we compare the test groups with the control group on parameters describing the timecourse of implicit reach aftereffects:
+Now we compare the test groups with the control group on parameters describing the time course of implicit reach aftereffects:
 
 ```{r}
 expCIdiffs(exp=2, type='nocursors')
@@ -385,7 +385,7 @@ From the previous experiment, we know there is an effect of terminal feedback on
 expCIdiffs(exp=3, type='reaches')
 ```
 
-There are no effects on overall adaptation.
+There are no effects on descriptors of overall adaptation.
 
 ```{r}
 expCIdiffs(exp=3, type='nocursors')
