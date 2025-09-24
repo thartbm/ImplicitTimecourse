@@ -188,7 +188,7 @@ Now we look at reach training trials during washout. For washout we compare the 
 ```{r}
 expCIdiffs(exp=1, type='reaches', mode='washout')
 ```
-Rates of change are not different between 15 degrees and all other groups. But the 15 degree group has a smaller starting point.
+Rates of change are not different between 15 degrees and 30 degrees, but washout is slower in the 45 and 60 degree groups. As was already clear in the figure, the 15 degree group has a smaller starting point than all other groups.
 
 And no-cursors:
 
